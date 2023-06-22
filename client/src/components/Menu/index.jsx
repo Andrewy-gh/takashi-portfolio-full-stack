@@ -48,7 +48,6 @@ const MenuDesktop = () =>
     // const handleClick = (filter) => {
     //   setImageFilter(filter);
     // };
-    console.log('navigation', navigation);
     return (
       <MenuDesktopContainer>
         <MenuFixedContent>

@@ -7,7 +7,7 @@ import { theme } from '../styles/styles';
 import { Typography } from '@mui/material';
 // import Admin from '../components/Menu/Admin';
 // import LogoutButton from '../components/Menu/LogoutButton';
-// import LoginButton from '../components/Menu/LoginButton';
+import LoginButton from '../components/Menu/LoginButton';
 // import postServices from '../services/posts';
 
 const HeaderStyle = {
@@ -91,6 +91,7 @@ export default function Profile() {
         }}
       >
         {/* {user.loggedIn ? <LogoutButton /> : <LoginButton />} */}
+        <LoginButton />
       </div>
     </Container>
   );

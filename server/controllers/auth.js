@@ -10,7 +10,9 @@ authRouter.get(
 
 authRouter.get(
   '/google/callback',
-  passport.authenticate('google'),
+  passport.authenticate('google', {
+    session: false,
+  }),
   (request, response) => {
     const { id, displayName } = request.user;
     // Only allows admin to log in
