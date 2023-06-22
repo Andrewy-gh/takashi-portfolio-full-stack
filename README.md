@@ -1,1 +1,1 @@
-# Takashi Miyazaki Photography Portfolio Full Stack Application
+# Takashi Miyazaki Photography Portfolio
