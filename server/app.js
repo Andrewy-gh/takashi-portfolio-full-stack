@@ -7,6 +7,8 @@ const passportSetup = require('./utils/passport');
 const passport = require('passport');
 
 // TODO: insert routers
+const loginRouter = require('./controllers/login');
+const authRouter = require('./controllers/auth');
 
 const middleware = require('./utils/middleware');
 const logger = require('./utils/logger');
@@ -34,6 +36,8 @@ app.use(express.json());
 app.use(middleware.requestLogger);
 
 // TODO: insert routers and middleware
+app.use('/login', loginRouter);
+app.use('/auth', authRouter);
 
 app.use(middleware.unknownEndpoint);
 app.use(middleware.errorHandler);
