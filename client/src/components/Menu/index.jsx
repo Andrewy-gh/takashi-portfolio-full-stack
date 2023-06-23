@@ -8,6 +8,8 @@ import navigation from '../../data/navigation';
 import Default from '../../assets/default.png';
 import CoverMobile from '../../assets/cover-mobile-cropped.png';
 
+import ImageUpload from '../ImageUpload';
+
 const MenuDesktopContainer = styled(Container)(() => ({
   position: 'sticky',
   top: theme.spacing(2),
@@ -102,6 +104,7 @@ const MenuDesktop = () =>
               )
             )} */}
             {/* {user.loggedIn ? <Admin /> : <LoginButton />} */}
+            <ImageUpload />
           </CustomFlexContainer>
         </MenuFixedContent>
       </MenuDesktopContainer>
