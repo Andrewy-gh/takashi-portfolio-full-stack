@@ -1,31 +1,30 @@
-import { IconButton } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
+import { IconButton } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
 
 const flex = {
-  display: 'Flex',
-  flexWrap: 'Wrap',
-  gap: '.3125rem',
-  width: '100%',
+  display: "Flex",
+  flexWrap: "Wrap",
+  gap: ".3125rem",
+  width: "100%",
 };
 
 const imageItem = {
-  position: 'relative',
-  width: '100px',
-  flex: '0 1 auto',
+  position: "relative",
+  width: "100px",
+  flex: "0 1 auto",
 };
 
 const removeButton = {
-  position: 'absolute',
-  left: '1.25%',
-  top: '1.25%',
-  color: 'black',
-  backgroundColor: 'rgba(255,255,255,0.5)',
+  position: "absolute",
+  left: "1.25%",
+  top: "1.25%",
+  color: "black",
+  backgroundColor: "rgba(255,255,255,0.5)",
 };
 
 export default function Preview({ images, removeImage }) {
-  console.log('image preview', images);
   return (
     <Box>
       <Typography variant="h5">Preview</Typography>
