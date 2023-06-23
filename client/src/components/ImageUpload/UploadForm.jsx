@@ -212,33 +212,6 @@ export default function UploadForm({
           control={control}
           defaultValue=""
         />
-
-        {/* PROJECT */}
-
-        <Controller
-          control={control}
-          name="project"
-          render={({ field: { onChange, value } }) => (
-            <Autocomplete
-              freeSolo
-              options={projects}
-              onChange={(event, values) => onChange(values)}
-              value={value}
-              PaperComponent={({ children }) => (
-                <Paper sx={autoCompleteOptionStyles}>{children}</Paper>
-              )}
-              renderInput={(params) => (
-                <TextField
-                  sx={fieldStyle}
-                  {...params}
-                  label="Project"
-                  variant="outlined"
-                  onChange={onChange}
-                />
-              )}
-            />
-          )}
-        />
       </DialogContent>
       <DialogActions sx={{ display: 'flex', justifyContent: 'center' }}>
         {/* UPLOAD  */}
