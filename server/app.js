@@ -9,7 +9,7 @@ const passport = require('passport');
 // TODO: insert routers
 const loginRouter = require('./controllers/login');
 const authRouter = require('./controllers/auth');
-
+const imageOrderRouter = require('./controllers/imageOrder');
 const middleware = require('./utils/middleware');
 const logger = require('./utils/logger');
 const mongoose = require('mongoose');
@@ -38,7 +38,7 @@ app.use(middleware.requestLogger);
 // TODO: insert routers and middleware
 app.use('/login', loginRouter);
 app.use('/auth', authRouter);
-
+app.use('/imageOrder', imageOrderRouter);
 app.use(middleware.unknownEndpoint);
 app.use(middleware.errorHandler);
 

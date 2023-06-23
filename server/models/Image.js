@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const postSchema = new mongoose.Schema({
+const imageSchema = new mongoose.Schema({
   title: {
     type: String,
     required: true,
@@ -22,7 +22,7 @@ const postSchema = new mongoose.Schema({
   },
 });
 
-postSchema.set('toJSON', {
+imageSchema.set('toJSON', {
   transform: (document, returnedObject) => {
     returnedObject.id = returnedObject._id.toString();
     delete returnedObject._id;
@@ -30,4 +30,4 @@ postSchema.set('toJSON', {
   },
 });
 
-module.exports = mongoose.model('Post', postSchema);
+module.exports = mongoose.model('Image', imageSchema);
