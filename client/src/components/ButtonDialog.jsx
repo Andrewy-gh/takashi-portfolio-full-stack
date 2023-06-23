@@ -24,6 +24,7 @@ export default function ButtonDialog({
         open={open}
         onClose={handleClose}
         aria-labelledby="responsive-dialog-title"
+        maxWidth="lg"
       >
         <DialogContent>{children}</DialogContent>
       </Dialog>

@@ -27,11 +27,12 @@ import CloseIcon from '@mui/icons-material/Close';
 import navigation from '../../data/navigation';
 
 import { theme } from '../../styles/styles';
+import { Typography } from '@mui/material';
 
 // focused outline color styles
 const fieldStyle = {
-  width: '150px',
-  margin: '5px',
+  width: '30vw',
+  marginInline: 'auto',
   '& label.Mui-focused': {
     color: theme.palette.custom.main,
   },
@@ -47,7 +48,13 @@ const autoCompleteOptionStyles = {
   color: theme.palette.custom.light,
 };
 
-export default function UploadForm({ handleClose }) {
+export default function UploadForm({
+  clearImages,
+  handleClose,
+  images,
+  previewImages,
+  uploadImages,
+}) {
   // const projects = useSelector(({ posts }) => posts.data).reduce(
   //   (acc, curr) => {
   //     if (!acc.includes(curr.project)) {
@@ -82,7 +89,7 @@ export default function UploadForm({ handleClose }) {
       file: undefined,
     },
   });
-  const [images, setImages] = useState([]);
+  // const [images, setImages] = useState([]);
 
   useEffect(() => {
     if (formState.isSubmitSuccessful) {
@@ -91,15 +98,15 @@ export default function UploadForm({ handleClose }) {
   }, [formState, reset]);
 
   const onSubmit = (data) => {
-    const formData = new FormData();
-    for (const image of images) {
-      formData.append('file', image.data);
-    }
-    formData.append('title', data.title);
-    formData.append('type', data.type);
-    formData.append('project', data.project);
-    setImages([]);
-
+    // const formData = new FormData();
+    // for (const image of images) {
+    //   formData.append('file', image.data);
+    // }
+    // formData.append('title', data.title);
+    // formData.append('type', data.type);
+    // formData.append('project', data.project);
+    // setImages([]);
+    console.log(data);
     console.log('submit successful');
     // dispatch(createPost(formData));
   };
@@ -112,9 +119,25 @@ export default function UploadForm({ handleClose }) {
     handleClose();
   };
 
+  const prepareImagePreview = (e) => {
+    clearImages();
+    let arr = [];
+    for (let i = 1; i < e.target.files.length; i++) {
+      const file = e.target.files[i];
+      const img = {
+        id: i,
+        preview: URL.createObjectURL(file),
+        data: file,
+      };
+      arr.push(img);
+    }
+    previewImages(arr);
+  };
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} encType="multipart/form">
-      <Toolbar>
+      <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
+        {/* CLOSE */}
         <IconButton
           edge="start"
           color="inherit"
@@ -123,87 +146,102 @@ export default function UploadForm({ handleClose }) {
         >
           <CloseIcon />
         </IconButton>
-        <DialogTitle id="responsive-dialog-title">Upload Image</DialogTitle>
+        <DialogTitle id="responsive-dialog-title">
+          <Typography variant="h3">Upload Image</Typography>
+        </DialogTitle>
+        {/* RESET */}
         <Button
           type="button"
           onClick={() => {
             reset();
-            setImages([]);
+            // setImages([]);
+            clearImages();
           }}
           variant="contained"
         >
           Reset
         </Button>
       </Toolbar>
-      <DialogContent>
-        <div>
-          <TextField
-            label="Title"
-            variant="outlined"
-            {...register('title')}
-            sx={fieldStyle}
-          />
-        </div>
-        <div>
-          <Controller
-            name="type"
-            render={({ field }) => (
-              <>
-                <FormControl sx={fieldStyle}>
-                  <InputLabel>Type</InputLabel>
-                  <Select
-                    {...field}
-                    label="type"
-                    MenuProps={{
-                      sx: {
-                        '&& .Mui-selected': {
-                          backgroundColor: '#b39984',
-                          color: '#202020',
-                        },
+      <DialogContent
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          gap: '.5em',
+        }}
+      >
+        {/* TITLE */}
+
+        <TextField
+          label="Title"
+          variant="outlined"
+          {...register('title')}
+          sx={fieldStyle}
+        />
+
+        {/* TYPE */}
+
+        <Controller
+          name="type"
+          render={({ field }) => (
+            <>
+              <FormControl sx={fieldStyle}>
+                <InputLabel>Type</InputLabel>
+                <Select
+                  {...field}
+                  label="type"
+                  MenuProps={{
+                    sx: {
+                      '&& .Mui-selected': {
+                        backgroundColor: '#b39984',
+                        color: '#202020',
                       },
-                    }}
-                  >
-                    {types.map((type) => (
-                      <MenuItem value={type.name.toLowerCase()} key={type.id}>
-                        {type.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </>
-            )}
-            control={control}
-            defaultValue=""
-          />
-        </div>
-        <div>
-          <Controller
-            control={control}
-            name="project"
-            render={({ field: { onChange, value } }) => (
-              <Autocomplete
-                freeSolo
-                options={projects}
-                onChange={(event, values) => onChange(values)}
-                value={value}
-                PaperComponent={({ children }) => (
-                  <Paper sx={autoCompleteOptionStyles}>{children}</Paper>
-                )}
-                renderInput={(params) => (
-                  <TextField
-                    sx={fieldStyle}
-                    {...params}
-                    label="Project"
-                    variant="outlined"
-                    onChange={onChange}
-                  />
-                )}
-              />
-            )}
-          />
-        </div>
+                    },
+                  }}
+                >
+                  {types.map((type) => (
+                    <MenuItem value={type.name.toLowerCase()} key={type.id}>
+                      {type.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </>
+          )}
+          control={control}
+          defaultValue=""
+        />
+
+        {/* PROJECT */}
+
+        <Controller
+          control={control}
+          name="project"
+          render={({ field: { onChange, value } }) => (
+            <Autocomplete
+              freeSolo
+              options={projects}
+              onChange={(event, values) => onChange(values)}
+              value={value}
+              PaperComponent={({ children }) => (
+                <Paper sx={autoCompleteOptionStyles}>{children}</Paper>
+              )}
+              renderInput={(params) => (
+                <TextField
+                  sx={fieldStyle}
+                  {...params}
+                  label="Project"
+                  variant="outlined"
+                  onChange={onChange}
+                />
+              )}
+            />
+          )}
+        />
       </DialogContent>
-      <DialogActions>
+      <DialogActions sx={{ display: 'flex', justifyContent: 'center' }}>
+        {/* UPLOAD  */}
         <div>
           <Button variant="contained" component="label">
             Upload File
@@ -212,22 +250,14 @@ export default function UploadForm({ handleClose }) {
               hidden
               multiple
               {...register('file')}
-              onChange={(event) => {
-                setImages([]);
-                let arr = [];
-                for (const file of event.target.files) {
-                  const img = {
-                    preview: URL.createObjectURL(file),
-                    data: file,
-                  };
-                  arr.push(img);
-                }
-                setImages(arr);
-                register('file').onChange(event);
+              onChange={(e) => {
+                prepareImagePreview(e);
+                register('file').onChange(e);
               }}
             />
           </Button>
         </div>
+        {/* SUBMIT */}
         <div>
           <Button type="submit" variant="contained">
             Submit
@@ -235,10 +265,5 @@ export default function UploadForm({ handleClose }) {
         </div>
       </DialogActions>
     </form>
-    // <DialogContent>
-    //   {images.length > 0 && (
-    //     <Preview images={images} removePreview={removePreview} />
-    //   )}
-    // </DialogContent>
   );
 }
