@@ -1,5 +1,5 @@
-import Grid from '@mui/material/Grid';
-import Menu from '../components/Menu';
+import Grid from "@mui/material/Grid";
+import Menu from "../components/Menu";
 
 export default function Home() {
   return (
@@ -7,14 +7,14 @@ export default function Home() {
       <Grid
         container
         columns={12}
-        sx={{ gap: { mobile: '1.25rem', tablet: '0' } }}
+        sx={{ gap: { mobile: "1.25rem", tablet: "0" } }}
       >
         <Grid item mobile={12} tablet={3}>
           <Menu
           // user={user}
           />
         </Grid>
-        <Grid item mobile={12} tablet={9} sx={{ tablet: { padding: '.5em' } }}>
+        <Grid item mobile={12} tablet={9} sx={{ tablet: { padding: ".5em" } }}>
           {/* <Images /> */}
           <div>IMAGES COMPONENT GOES HERE</div>
         </Grid>
