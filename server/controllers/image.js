@@ -1,33 +1,35 @@
-const imageRouter = require("express").Router();
-const upload = require("../utils/multer");
-const cloudinary = require("../utils/cloudinary");
-const Image = require("../models/Image");
-const ImageOrder = require("../models/ImageOrder");
-const config = require("../utils/config");
+const imageRouter = require('express').Router();
+const upload = require('../utils/multer');
+const cloudinary = require('../utils/cloudinary');
+const Image = require('../models/Image');
+const ImageOrder = require('../models/ImageOrder');
+const config = require('../utils/config');
 
-imageRouter.get("/", async (request, response) => {
-  const images = await ImageOrder.findOne().populate("order", {
+imageRouter.get('/', async (request, response) => {
+  const images = await ImageOrder.findOne().populate('order', {
     image: 1,
     title: 1,
     type: 1,
   });
+  console.log('image order get request', images);
   const imageOrder = images.order;
   response.json(imageOrder);
 });
 
-imageRouter.post("/", upload.array("file", 10), async (req, res) => {
+imageRouter.post('/', upload.array('file', 10), async (req, res) => {
   if (req.user === config.ADMIN_ID) {
-    const files = req.files.map((file) =>
-      cloudinary.uploader.upload(file.path)
+    const imagesToUpload = req.files.map(
+      async (file) => await cloudinary.uploader.upload(file.path)
     );
-    const results = await Promise.all(files);
-    const images = results.map(
-      (result) =>
+    console.log('cloudinary upload complete', JSON.stringify(imagesToUpload));
+    const uploadedImages = await Promise.all(imagesToUpload);
+    const images = uploadedImages.map(
+      (image) =>
         new Image({
-          title: req.body.title || "placeholder text",
-          image: result.secure_url,
+          title: req.body.title || 'placeholder text',
+          url: image.secure_url,
           type: req.body.type,
-          cloudinaryId: result.public_id,
+          cloudinaryId: image.public_id,
           createdAt: new Date(),
         })
     );
@@ -36,13 +38,13 @@ imageRouter.post("/", upload.array("file", 10), async (req, res) => {
     const imageOrder = await ImageOrder.findOne();
     imageOrder.order.push(...savedImages);
     await imageOrder.save();
-    response.status(201).json({
+    res.status(201).json({
       success: true,
-      message: "Successfully uploaded",
+      message: 'Successfully uploaded',
       images: savedImages,
     });
   } else {
-    response.status(401).json({ error: "unauthorized user" });
+    res.status(401).json({ error: 'unauthorized user' });
   }
 });
 
