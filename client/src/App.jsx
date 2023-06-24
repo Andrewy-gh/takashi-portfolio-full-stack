@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Edit from './pages/Edit';
 import Home from './pages/Home';
 import Profile from './pages/Profile';
 import imageServices from './services/image';
@@ -12,9 +13,6 @@ export default function App() {
 
   useEffect(() => {
     dispatch(getCloudName());
-  }, [dispatch]);
-
-  useEffect(() => {
     dispatch(getAllImages());
   }, [dispatch]);
 
@@ -27,6 +25,7 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/*" element={<Home />} />
+        <Route path="/edit" element={<Edit />} />
         <Route path="/profile" element={<Profile />} />
       </Routes>
     </BrowserRouter>

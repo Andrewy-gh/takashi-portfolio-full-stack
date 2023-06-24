@@ -57,6 +57,13 @@ export const theme = createTheme({
         },
       },
     },
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#665c4e',
+        },
+      },
+    },
   },
   breakpoints: {
     values: {
