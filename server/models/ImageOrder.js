@@ -4,7 +4,7 @@ const ImageOrderSchema = new mongoose.Schema({
   order: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Post',
+      ref: 'Image',
     },
   ],
 });

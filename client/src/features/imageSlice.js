@@ -1,5 +1,5 @@
-import { createSlice } from "@reduxjs/toolkit";
-import imageService from "../services/image";
+import { createSlice } from '@reduxjs/toolkit';
+import imageService from '../services/image';
 
 const initialState = {
   data: [],
@@ -7,7 +7,7 @@ const initialState = {
 };
 
 const imageSlice = createSlice({
-  name: "images",
+  name: 'images',
   initialState,
   reducers: {
     updateOrder(state, action) {
@@ -35,7 +35,7 @@ const imageSlice = createSlice({
       state.data.unshift(...images);
       console.log(state.data);
     },
-    setimages(state, action) {
+    setImages(state, action) {
       state.data = action.payload;
     },
     // setMessage(state, action) {
@@ -55,12 +55,15 @@ export const {
 export const getAllImages = () => {
   return async (dispatch) => {
     const images = await imageService.getAllImages();
+    console.log('feaures: response from services', images);
     dispatch(setImages(images));
   };
 };
 export const uploadNewImage = (content) => {
+  console.log('features uploadNewImage');
   return async (dispatch) => {
     const response = await imageService.uploadNewImage(content);
+    console.log('features response: ', response);
     if (response.success) {
       dispatch(addNewImage(response));
     }
