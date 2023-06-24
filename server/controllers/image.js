@@ -21,7 +21,6 @@ imageRouter.post('/', upload.array('file', 10), async (req, res) => {
     const imagesToUpload = req.files.map(
       async (file) => await cloudinary.uploader.upload(file.path)
     );
-    console.log('cloudinary upload complete', JSON.stringify(imagesToUpload));
     const uploadedImages = await Promise.all(imagesToUpload);
     const images = uploadedImages.map(
       (image) =>
