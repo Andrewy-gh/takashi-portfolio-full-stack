@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import ImageUpload from '../ImageUpload';
@@ -31,7 +30,7 @@ export default function MenuDesktop({ navigation }) {
   // };
   return (
     <Container sx={sticky}>
-      <Box sx={{ ...flexColumns, padding: theme.spacing(6) }}>
+      <div style={{ ...flexColumns, padding: theme.spacing(6) }}>
         <Link to="/">
           <div
             style={{ minWidth: 200 }}
@@ -40,7 +39,7 @@ export default function MenuDesktop({ navigation }) {
             <img src={Default} alt="logo" />
           </div>
         </Link>
-        <Box sx={flexColumns}>
+        <div style={flexColumns}>
           {navigation.map((nav) =>
             nav.type === 'filter' ? (
               <Typography
@@ -84,8 +83,8 @@ export default function MenuDesktop({ navigation }) {
             )} */}
           {/* {user.loggedIn ? <Admin /> : <LoginButton />} */}
           <ImageUpload />
-        </Box>
-      </Box>
+        </div>
+      </div>
     </Container>
   );
 }

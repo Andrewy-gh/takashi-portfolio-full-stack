@@ -4,8 +4,6 @@ import { useForm, Controller } from 'react-hook-form';
 // import { useDispatch } from 'react-redux';
 // import { useTheme } from '@mui/material/styles';
 
-import Autocomplete from '@mui/material/Autocomplete';
-import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -14,7 +12,6 @@ import FormControl from '@mui/material/FormControl';
 import IconButton from '@mui/material/IconButton';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
-import Paper from '@mui/material/Paper';
 import Select from '@mui/material/Select';
 import TextField from '@mui/material/TextField';
 import Toolbar from '@mui/material/Toolbar';
@@ -29,7 +26,6 @@ import CloseIcon from '@mui/icons-material/Close';
 import navigation from '../../data/navigation';
 
 import { theme } from '../../styles/styles';
-import { Typography } from '@mui/material';
 
 // focused outline color styles
 const fieldStyle = {
