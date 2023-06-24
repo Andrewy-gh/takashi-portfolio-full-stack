@@ -5,15 +5,15 @@ const Image = require('../models/Image');
 const ImageOrder = require('../models/ImageOrder');
 const config = require('../utils/config');
 
-imageRouter.get('/', async (request, response) => {
+imageRouter.get('/', async (req, res) => {
   const images = await ImageOrder.findOne().populate('order', {
-    image: 1,
+    url: 1,
     title: 1,
     type: 1,
+    cloudinaryId: 1,
   });
-  console.log('image order get request', images);
   const imageOrder = images.order;
-  response.json(imageOrder);
+  res.json(imageOrder);
 });
 
 imageRouter.post('/', upload.array('file', 10), async (req, res) => {
