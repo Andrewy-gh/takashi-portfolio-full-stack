@@ -9,6 +9,7 @@ const passport = require('passport');
 // TODO: insert routers
 const loginRouter = require('./controllers/login');
 const authRouter = require('./controllers/auth');
+const cloudinaryRouter = require('./controllers/cloudinary');
 const imageRouter = require('./controllers/image');
 const imageOrderRouter = require('./controllers/imageOrder');
 const middleware = require('./utils/middleware');
@@ -37,6 +38,7 @@ app.use(express.json());
 app.use(middleware.requestLogger);
 
 // TODO: insert routers and middleware
+app.use('/cloudinary', cloudinaryRouter);
 app.use('/login', loginRouter);
 app.use('/auth', authRouter);
 app.use('/imageOrder', imageOrderRouter);

@@ -55,7 +55,6 @@ export const {
 export const getAllImages = () => {
   return async (dispatch) => {
     const images = await imageService.getAllImages();
-    console.log('feaures: response from services', images);
     dispatch(setImages(images));
   };
 };
@@ -63,11 +62,9 @@ export const uploadNewImage = (content) => {
   console.log('features uploadNewImage');
   return async (dispatch) => {
     const response = await imageService.uploadNewImage(content);
-    console.log('features response: ', response);
     if (response.success) {
       dispatch(addNewImage(response));
     }
-    // console.log('newimage service response', newimage);
   };
 };
 export const updateOneImage = (id, content) => {

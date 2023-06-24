@@ -5,9 +5,14 @@ import Home from './pages/Home';
 import Profile from './pages/Profile';
 import imageServices from './services/image';
 import { getAllImages } from './features/imageSlice';
+import { getCloudName } from './features/cloudinarySlice';
 
 export default function App() {
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(getCloudName());
+  }, [dispatch]);
 
   useEffect(() => {
     dispatch(getAllImages());
