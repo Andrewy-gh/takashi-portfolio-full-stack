@@ -16,7 +16,6 @@ const Button = styled('div')(() => ({
 const LoginButton = () => {
   const google = async () => {
     const url = await getLoginUrl();
-    console.log(url);
     window.open(url, '_self');
   };
 

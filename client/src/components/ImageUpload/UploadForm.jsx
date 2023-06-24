@@ -1,52 +1,55 @@
 // import { useSelector } from 'react-redux';
-import { useEffect, useState } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useEffect, useState } from 'react';
+import { useForm, Controller } from 'react-hook-form';
 // import { useDispatch } from 'react-redux';
 // import { useTheme } from '@mui/material/styles';
 
-import Autocomplete from "@mui/material/Autocomplete";
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogTitle from "@mui/material/DialogTitle";
-import FormControl from "@mui/material/FormControl";
-import IconButton from "@mui/material/IconButton";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import Paper from "@mui/material/Paper";
-import Select from "@mui/material/Select";
-import TextField from "@mui/material/TextField";
-import Toolbar from "@mui/material/Toolbar";
+import Autocomplete from '@mui/material/Autocomplete';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
+import FormControl from '@mui/material/FormControl';
+import IconButton from '@mui/material/IconButton';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import Paper from '@mui/material/Paper';
+import Select from '@mui/material/Select';
+import TextField from '@mui/material/TextField';
+import Toolbar from '@mui/material/Toolbar';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
-import CloseIcon from "@mui/icons-material/Close";
+import CloseIcon from '@mui/icons-material/Close';
 
 // import Preview from './Preview';
 // import { createPost } from '../reducers/postReducer';
 // import { logout } from '../reducers/userReducer';
 
-import navigation from "../../data/navigation";
+import navigation from '../../data/navigation';
 
-import { theme } from "../../styles/styles";
-import { Typography } from "@mui/material";
+import { theme } from '../../styles/styles';
+import { Typography } from '@mui/material';
 
 // focused outline color styles
 const fieldStyle = {
-  width: "30vw",
-  marginInline: "auto",
-  "& label.Mui-focused": {
+  marginInline: 'auto',
+  '& label.Mui-focused': {
     color: theme.palette.custom.main,
   },
-  "& .MuiOutlinedInput-root": {
-    "&.Mui-focused fieldset": {
+  '& .MuiOutlinedInput-root': {
+    '&.Mui-focused fieldset': {
       borderColor: theme.palette.custom.main,
     },
   },
 };
 
-const autoCompleteOptionStyles = {
-  background: theme.palette.custom.extraDark,
-  color: theme.palette.custom.light,
+const desktopWidth = {
+  width: '30vw',
+};
+
+const mobileWidth = {
+  width: '100%',
 };
 
 export default function UploadForm({
@@ -55,12 +58,8 @@ export default function UploadForm({
   images,
   previewImages,
   uploadImages,
-  submitImageData
+  submitImageData,
 }) {
-  const types = navigation
-    .filter((n) => n.type === "filter")
-    .map((n) => ({ id: n.id, name: n.name }));
-
   // const dispatch = useDispatch();
   const {
     control,
@@ -71,18 +70,23 @@ export default function UploadForm({
     formState: { isSubmitSuccessful },
   } = useForm({
     defaultValues: {
-      title: "",
-      type: "",
+      title: '',
+      type: '',
       file: undefined,
     },
   });
 
   useEffect(() => {
     if (formState.isSubmitSuccessful) {
-      console.log("form state: form submit is successful");
-      reset({ title: "", type: "", file: undefined });
+      console.log('form state: form submit is successful');
+      reset({ title: '', type: '', file: undefined });
     }
   }, [formState, reset]);
+
+  const isMobile = useMediaQuery(theme.breakpoints.down('tablet'));
+  const types = navigation
+    .filter((n) => n.type === 'filter')
+    .map((n) => ({ id: n.id, name: n.name }));
 
   const onSubmit = (data) => {
     // const formData = new FormData();
@@ -94,7 +98,7 @@ export default function UploadForm({
     // formData.append('project', data.project);
     // setImages([]);
     console.log(data);
-    console.log("submit successful");
+    console.log('submit successful');
     submitImageData(data);
     // dispatch(createPost(formData));
   };
@@ -118,9 +122,9 @@ export default function UploadForm({
     <form onSubmit={handleSubmit(onSubmit)} encType="multipart/form">
       <Toolbar
         sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          aligntItems: "center",
+          display: 'flex',
+          justifyContent: 'space-between',
+          aligntItems: 'center',
         }}
       >
         {/* CLOSE */}
@@ -151,11 +155,11 @@ export default function UploadForm({
       </Toolbar>
       <DialogContent
         sx={{
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-          gap: ".5em",
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          gap: '.5em',
         }}
       >
         {/* TITLE */}
@@ -163,8 +167,8 @@ export default function UploadForm({
         <TextField
           label="Title"
           variant="outlined"
-          {...register("title")}
-          sx={fieldStyle}
+          {...register('title')}
+          sx={{ ...fieldStyle, ...(isMobile ? mobileWidth : desktopWidth) }}
         />
 
         {/* TYPE */}
@@ -173,16 +177,21 @@ export default function UploadForm({
           name="type"
           render={({ field }) => (
             <>
-              <FormControl sx={fieldStyle}>
+              <FormControl
+                sx={{
+                  ...fieldStyle,
+                  ...(isMobile ? mobileWidth : desktopWidth),
+                }}
+              >
                 <InputLabel>Type</InputLabel>
                 <Select
                   {...field}
                   label="type"
                   MenuProps={{
                     sx: {
-                      "&& .Mui-selected": {
-                        backgroundColor: "#b39984",
-                        color: "#202020",
+                      '&& .Mui-selected': {
+                        backgroundColor: '#b39984',
+                        color: '#202020',
                       },
                     },
                   }}
@@ -200,7 +209,7 @@ export default function UploadForm({
           defaultValue=""
         />
       </DialogContent>
-      <DialogActions sx={{ display: "flex", justifyContent: "center" }}>
+      <DialogActions sx={{ display: 'flex', justifyContent: 'center' }}>
         {/* UPLOAD  */}
         <div>
           <Button variant="contained" component="label">
@@ -209,10 +218,10 @@ export default function UploadForm({
               type="file"
               hidden
               multiple
-              {...register("file")}
+              {...register('file')}
               onChange={(e) => {
                 prepareImagePreview(e.target.files);
-                register("file").onChange(e);
+                register('file').onChange(e);
               }}
             />
           </Button>
