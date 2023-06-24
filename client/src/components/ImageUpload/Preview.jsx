@@ -1,6 +1,5 @@
 import { IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 
 const flex = {
@@ -26,20 +25,20 @@ const removeButton = {
 
 export default function Preview({ images, removeImage }) {
   return (
-    <Box>
+    <div>
       <Typography variant="h5" sx={{ mb: 1 }}>
         Preview
       </Typography>
-      <Box sx={flex}>
+      <div style={flex}>
         {images.map((image) => (
-          <Box key={`image-preview-${image.id}`} sx={imageItem}>
-            <img src={image.preview} alt="preview" />
+          <div key={image.id} style={imageItem}>
+            <img src={image.preview} alt={image.title} />
             <IconButton sx={removeButton} onClick={() => removeImage(image.id)}>
               <CloseIcon sx={{ fontSize: 15 }} />
             </IconButton>
-          </Box>
+          </div>
         ))}
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 }

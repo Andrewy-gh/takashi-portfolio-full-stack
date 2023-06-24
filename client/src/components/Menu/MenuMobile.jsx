@@ -1,6 +1,4 @@
 import { Link } from 'react-router-dom';
-import Box from '@mui/material/Box';
-import Container from '@mui/material/Container';
 import ImageUpload from '../ImageUpload';
 import CoverMobile from '../../assets/cover-mobile-cropped.png';
 import DrawerMenu from './DraweMenu';
@@ -30,23 +28,23 @@ const logoStyle = {
 
 export default function MenuMobile({ navigation }) {
   return (
-    <Box sx={{ px: 1 }}>
-      <Box sx={{ flex }}>
+    <div style={{ paddingInline: '.5rem' }}>
+      <div style={flex}>
         <Link to="/">
-          <Box
+          <div
           // onClick={() => handleClick(null)}
           >
             <Typography as="h1" sx={logoStyle}>
               TAKASHI MIYAZAKI
             </Typography>
-          </Box>
+          </div>
         </Link>
         <DrawerMenu
           navigation={navigation}
           //  filter={filter} setImageFilter={setImageFilter}
         />
-      </Box>
+      </div>
       <ImageUpload />
-    </Box>
+    </div>
   );
 }

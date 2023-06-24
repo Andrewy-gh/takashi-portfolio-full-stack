@@ -1,13 +1,13 @@
 // import { useSelector } from 'react-redux';
-import { Container, IconButton } from '@mui/material';
 import { Link } from 'react-router-dom';
-import ProfileCover from '../assets/profile-cover.png';
 import HomeIcon from '@mui/icons-material/Home';
+import IconButton from '@mui/material/IconButton';
 import { theme } from '../styles/styles';
-import { Typography } from '@mui/material';
+import Typography from '@mui/material/Typography';
 // import Admin from '../components/Menu/Admin';
 // import LogoutButton from '../components/Menu/LogoutButton';
 import LoginButton from '../components/Menu/LoginButton';
+import ProfileCover from '../assets/profile-cover.png';
 // import postServices from '../services/posts';
 
 const HeaderStyle = {
@@ -28,7 +28,7 @@ export default function Profile() {
   //   postServices.setToken(user.userToken);
   // }
   return (
-    <Container
+    <div
       style={{
         display: 'flex',
         flexDirection: 'column',
@@ -84,6 +84,7 @@ export default function Profile() {
         </Typography>
       </div>
       <div style={{ flexGrow: 1 }}></div>
+      {/* Spacing */}
       <div
         style={{
           placeSelf: 'center end',
@@ -93,6 +94,6 @@ export default function Profile() {
         {/* {user.loggedIn ? <LogoutButton /> : <LoginButton />} */}
         <LoginButton />
       </div>
-    </Container>
+    </div>
   );
 }
