@@ -51,9 +51,7 @@ const mobileWidth = {
 export default function UploadForm({
   clearImages,
   handleClose,
-  images,
   previewImages,
-  uploadImages,
   submitImageData,
 }) {
   // const dispatch = useDispatch();
@@ -76,6 +74,7 @@ export default function UploadForm({
     if (formState.isSubmitSuccessful) {
       console.log('form state: form submit is successful');
       reset({ title: '', type: '', file: undefined });
+      handleClose();
     }
   }, [formState, reset]);
 

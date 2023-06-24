@@ -47,4 +47,19 @@ imageRouter.post('/', upload.array('file', 10), async (req, res) => {
   }
 });
 
+imageRouter.put('/', async (req, res) => {
+  console.log('controller update order received');
+  if (req.user === config.ADMIN_ID) {
+    const updatedOrder = req.body;
+    const ids = req.body.map((b) => b.id);
+    const imageOrder = await ImageOrder.findOne();
+    imageOrder.order = ids;
+    await imageOrder.save();
+    console.log('controller update order successful');
+    res.status(200).json(updatedOrder);
+  } else {
+    res.status(401).json({ error: 'unauthorized user' });
+  }
+});
+
 module.exports = imageRouter;

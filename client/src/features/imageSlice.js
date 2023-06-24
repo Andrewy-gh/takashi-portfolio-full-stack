@@ -10,10 +10,20 @@ const imageSlice = createSlice({
   name: 'images',
   initialState,
   reducers: {
-    updateOrder(state, action) {
-      const updatedOrder = action.payload;
-      //   state.message = "Order updated";
-      state.data = state.data.map((image, i) => (image = updatedOrder[i]));
+    addNewImage(state, action) {
+      const { message, images } = action.payload;
+      console.log('upload successful', { message, images });
+      // state.message = message;
+      // console.log(action.payload);
+      state.data.push(...images);
+    },
+    removeImage(state, action) {
+      const id = action.payload;
+      //   state.message = "image removed";
+      state.data = state.data.filter((image) => image.id !== id);
+    },
+    setImages(state, action) {
+      state.data = action.payload;
     },
     updateOneImage(state, action) {
       const updatedimage = action.payload;
@@ -22,21 +32,11 @@ const imageSlice = createSlice({
         image.id === updatedimage.id ? updatedimage : image
       );
     },
-    removeImage(state, action) {
-      const id = action.payload;
-      //   state.message = "image removed";
-      state.data = state.data.filter((image) => image.id !== id);
-    },
-    addNewImage(state, action) {
-      const { message, images } = action.payload;
-      console.log({ message, images });
-      state.message = message;
-      // console.log(action.payload);
-      state.data.unshift(...images);
-      console.log(state.data);
-    },
-    setImages(state, action) {
-      state.data = action.payload;
+    updateOrder(state, action) {
+      console.log('successful order updated action');
+      const updatedOrder = action.payload;
+      //   state.message = "Order updated";
+      state.data = state.data.map((image, i) => (image = updatedOrder[i]));
     },
     // setMessage(state, action) {
     //   state.message = action.payload;
@@ -58,15 +58,6 @@ export const getAllImages = () => {
     dispatch(setImages(images));
   };
 };
-export const uploadNewImage = (content) => {
-  console.log('features uploadNewImage');
-  return async (dispatch) => {
-    const response = await imageService.uploadNewImage(content);
-    if (response.success) {
-      dispatch(addNewImage(response));
-    }
-  };
-};
 export const updateOneImage = (id, content) => {
   return async (dispatch) => {
     const updatedimage = await imageService.updateOneImage(id, content);
@@ -76,7 +67,16 @@ export const updateOneImage = (id, content) => {
 export const updateImageOrder = (order) => {
   return async (dispatch) => {
     const updatedOrder = await imageService.updateImageOrder(order);
+    console.log('thunk response: ', updatedOrder);
     dispatch(updateOrder(updatedOrder));
+  };
+};
+export const uploadNewImage = (content) => {
+  return async (dispatch) => {
+    const response = await imageService.uploadNewImage(content);
+    if (response.success) {
+      dispatch(addNewImage(response));
+    }
   };
 };
 export const removeOneImage = (id) => {
