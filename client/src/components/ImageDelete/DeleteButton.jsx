@@ -12,8 +12,19 @@ export default function DeleteButton({ image }) {
 
   const removeImage = () => dispatch(removeOneImage(image.id));
 
+  const buttonStyle = {
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+  };
+
   return (
-    <ButtonDialog buttonText={'DELETE'} handleOpen={handleOpen} open={open}>
+    <ButtonDialog
+      buttonStyle={buttonStyle}
+      buttonText={'DELETE'}
+      handleOpen={handleOpen}
+      open={open}
+      variant={'text'}
+    >
       <DeleteDialog handleClose={handleClose} removeImage={removeImage} />
     </ButtonDialog>
   );

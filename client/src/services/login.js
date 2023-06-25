@@ -1,6 +1,6 @@
-import axios from 'axios';
+import api from './api';
 
 export const getLoginUrl = async () => {
-  const response = await axios.get('http://localhost:3001/login');
+  const response = await api.get('/login');
   return response.data.url;
 };

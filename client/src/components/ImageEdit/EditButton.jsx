@@ -13,8 +13,19 @@ export default function EditButton({ image, type }) {
 
   const updateImage = (newData) => dispatch(updateOneImage(image.id, newData));
 
+  const buttonStyle = {
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+  };
+
   return (
-    <ButtonDialog buttonText={'EDIT'} handleOpen={handleOpen} open={open}>
+    <ButtonDialog
+      variant={'text'}
+      buttonText={'EDIT'}
+      buttonStyle={buttonStyle}
+      handleOpen={handleOpen}
+      open={open}
+    >
       <EditForm
         handleClose={handleClose}
         image={image}

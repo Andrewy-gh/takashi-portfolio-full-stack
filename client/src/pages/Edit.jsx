@@ -15,6 +15,8 @@ export default function Edit() {
     dispatch(updateImageOrder(images));
   };
 
+  if (!data.length) return <p>Loading...</p>;
+
   return (
     <>
       <Link to="/">
@@ -25,7 +27,7 @@ export default function Edit() {
           />
         </IconButton>
       </Link>
-      <DragDrop images={data} updateOrder={updateOrder} />;
+      <DragDrop images={data} updateOrder={updateOrder} />
     </>
   );
 }

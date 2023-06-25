@@ -1,46 +1,27 @@
-import axios from 'axios';
-
-const api = axios.create({
-  baseURL: 'http://localhost:3001/images',
-});
-
-let token = null;
-
-const setToken = (newToken) => {
-  token = `bearer ${newToken}`;
-};
-
-api.interceptors.request.use((config) => {
-  if (token) {
-    config.headers.Authorization = token;
-    config.headers['Cache-Control'] = 'public';
-    config.headers['max-age'] = '3600';
-  }
-  return config;
-});
+import api from './api';
 
 const getAllImages = async () => {
-  const response = await api.get('/');
-  return response.data;
-};
-
-const uploadNewImage = async (content) => {
-  const response = await api.post('/', content);
-  return response.data;
-};
-
-const updateOneImage = async (id, newObject) => {
-  const response = await api.put(`/${id}`, newObject);
+  const response = await api.get('/images');
   return response.data;
 };
 
 const updateImageOrder = async (order) => {
-  const response = await api.put('/', order);
+  const response = await api.put('/images', order);
+  return response.data;
+};
+
+const uploadNewImage = async (content) => {
+  const response = await api.post('/images', content);
+  return response.data;
+};
+
+const updateOneImage = async (id, newObject) => {
+  const response = await api.put(`/images/${id}`, newObject);
   return response.data;
 };
 
 const removeOneImage = async (id) => {
-  const response = await api.delete(`/${id}`);
+  const response = await api.delete(`/images/${id}`);
   return response;
 };
 
@@ -50,5 +31,4 @@ export default {
   updateOneImage,
   updateImageOrder,
   removeOneImage,
-  setToken,
 };

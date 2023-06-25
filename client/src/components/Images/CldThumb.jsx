@@ -18,5 +18,9 @@ export default function CldThumb({ cloudName, cloudinaryId }) {
     .image(cloudinaryId)
     .namedTransformation(name('media_lib_thumb'));
 
-  return <img src={myImage.toURL()} />;
+  return (
+    <div>
+      <img src={myImage.toURL()} />
+    </div>
+  );
 }

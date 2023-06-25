@@ -4,7 +4,8 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Edit from './pages/Edit';
 import Home from './pages/Home';
 import Profile from './pages/Profile';
-import imageServices from './services/image';
+// import imageServices from './services/image';
+import { setToken } from './services/api';
 import { getAllImages } from './features/imageSlice';
 import { getCloudName } from './features/cloudinarySlice';
 
@@ -18,7 +19,8 @@ export default function App() {
 
   const user = useSelector(({ user }) => user);
   if (user.loggedIn) {
-    imageServices.setToken(user.userToken);
+    console.log(user.userToken);
+    setToken(user.userToken);
   }
 
   return (

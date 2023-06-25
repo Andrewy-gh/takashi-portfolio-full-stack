@@ -1,13 +1,10 @@
-import { useEffect } from 'react';
-
 import { DragDropContext } from 'react-beautiful-dnd';
-import Box from '@mui/material/Box';
 import List from '@mui/material/List';
-import Container from '@mui/material/Container';
-import DragHandleIcon from '@mui/icons-material/DragHandle';
 import { useState } from 'react';
 import DragItem from './DragItem';
 import StrictModeDroppable from './StrictModeDroppable';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { theme } from '../../styles/styles';
 
 const containerStyle = {
   // textAlign: 'center'
@@ -23,8 +20,13 @@ const listStyle = {
   marginInline: 'auto',
 };
 
+const mobileWidth = {
+  width: 'calc(100% - 2rem)',
+};
+
 export default function DragDrop({ images, updateOrder }) {
   const [imageOrder, setImageOrder] = useState(images);
+  const isMobile = useMediaQuery(theme.breakpoints.down('tablet'));
 
   function handleOnDragEnd(result) {
     if (!result.destination) return;
@@ -42,7 +44,7 @@ export default function DragDrop({ images, updateOrder }) {
             <List
               {...provided.droppableProps}
               ref={provided.innerRef}
-              sx={listStyle}
+              sx={{ ...listStyle, ...(isMobile && mobileWidth) }}
             >
               {imageOrder.map((image, index) => {
                 return <DragItem key={image.id} image={image} index={index} />;
