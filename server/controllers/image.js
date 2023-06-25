@@ -62,7 +62,6 @@ imageRouter.put('/', async (req, res) => {
 
 imageRouter.put('/:id', async (req, res) => {
   if (req.user === config.ADMIN_ID) {
-    console.log('id:', req.params.id, 'body:', req.body);
     const updatedImage = await Image.findByIdAndUpdate(
       req.params.id,
       req.body,
@@ -72,6 +71,22 @@ imageRouter.put('/:id', async (req, res) => {
     );
     await updatedImage.save();
     res.status(200).json(updatedImage);
+  } else {
+    res.status(401).json({ error: 'unauthorized user' });
+  }
+});
+
+imageRouter.delete('/:id', async (req, res) => {
+  if (req.user === config.ADMIN_ID) {
+    const image = await Image.findByIdAndRemove(req.params.id);
+    await cloudinary.uploader.destroy(image.cloudinaryId);
+    const imageOrder = await ImageOrder.findOne();
+    const newOrder = imageOrder.order.filter(
+      (id) => id.toString() !== req.params.id
+    );
+    imageOrder.order = newOrder;
+    await imageOrder.save();
+    res.status(204).end();
   } else {
     res.status(401).json({ error: 'unauthorized user' });
   }

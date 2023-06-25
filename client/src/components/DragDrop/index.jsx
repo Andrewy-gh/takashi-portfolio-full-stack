@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { DragDropContext } from 'react-beautiful-dnd';
 import Box from '@mui/material/Box';
@@ -26,6 +27,10 @@ export default function DragDrop() {
   const dispatch = useDispatch();
   const { data } = useSelector(({ images }) => images);
   const [imageOrder, setImageOrder] = useState(data);
+
+  useEffect(() => {
+    setImageOrder(data);
+  }, [data]);
 
   function handleOnDragEnd(result) {
     if (!result.destination) return;
