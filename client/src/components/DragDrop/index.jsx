@@ -43,16 +43,8 @@ export default function DragDrop() {
         <StrictModeDroppable droppableId="images">
           {(provided) => (
             <List {...provided.droppableProps} ref={provided.innerRef}>
-              {imageOrder.map(({ id, title, url }, index) => {
-                return (
-                  <DragItem
-                    key={id}
-                    id={id}
-                    title={title}
-                    url={url}
-                    index={index}
-                  />
-                );
+              {imageOrder.map((image, index) => {
+                return <DragItem key={image.id} image={image} index={index} />;
               })}
               {provided.placeholder}
             </List>

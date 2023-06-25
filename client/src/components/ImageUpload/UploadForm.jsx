@@ -27,6 +27,14 @@ import navigation from '../../data/navigation';
 
 import { theme } from '../../styles/styles';
 
+const fieldSpacing = {
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'center',
+  alignItems: 'center',
+  gap: '.5em',
+};
+
 // focused outline color styles
 const fieldStyle = {
   marginInline: 'auto',
@@ -92,8 +100,7 @@ export default function UploadForm({
     // formData.append('type', data.type);
     // formData.append('project', data.project);
     // setImages([]);
-    console.log(data);
-    console.log('submit successful');
+    console.log('submitting data: ', data);
     submitImageData(data);
     // dispatch(createPost(formData));
   };
@@ -148,15 +155,7 @@ export default function UploadForm({
           Reset
         </Button>
       </Toolbar>
-      <DialogContent
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          gap: '.5em',
-        }}
-      >
+      <DialogContent sx={fieldSpacing}>
         {/* TITLE */}
 
         <TextField
@@ -204,29 +203,27 @@ export default function UploadForm({
           defaultValue=""
         />
       </DialogContent>
-      <DialogActions sx={{ display: 'flex', justifyContent: 'center' }}>
+      <DialogActions
+        sx={{ display: 'flex', justifyContent: 'center', gap: '1.25rem' }}
+      >
         {/* UPLOAD  */}
-        <div>
-          <Button variant="contained" component="label">
-            Upload File
-            <input
-              type="file"
-              hidden
-              multiple
-              {...register('file')}
-              onChange={(e) => {
-                prepareImagePreview(e.target.files);
-                register('file').onChange(e);
-              }}
-            />
-          </Button>
-        </div>
+        <Button variant="contained" component="label">
+          Upload File
+          <input
+            type="file"
+            hidden
+            multiple
+            {...register('file')}
+            onChange={(e) => {
+              prepareImagePreview(e.target.files);
+              register('file').onChange(e);
+            }}
+          />
+        </Button>
         {/* SUBMIT */}
-        <div>
-          <Button type="submit" variant="contained">
-            Submit
-          </Button>
-        </div>
+        <Button type="submit" variant="contained">
+          Submit
+        </Button>
       </DialogActions>
     </form>
   );

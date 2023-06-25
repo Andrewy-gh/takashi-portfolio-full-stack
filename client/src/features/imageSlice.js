@@ -27,13 +27,11 @@ const imageSlice = createSlice({
     },
     updateOneImage(state, action) {
       const updatedimage = action.payload;
-      //   state.message = "image updated";
       state.data = state.data.map((image) =>
         image.id === updatedimage.id ? updatedimage : image
       );
     },
     updateOrder(state, action) {
-      console.log('successful order updated action');
       const updatedOrder = action.payload;
       //   state.message = "Order updated";
       state.data = state.data.map((image, i) => (image = updatedOrder[i]));
@@ -60,14 +58,15 @@ export const getAllImages = () => {
 };
 export const updateOneImage = (id, content) => {
   return async (dispatch) => {
+    console.log('thunk received');
     const updatedimage = await imageService.updateOneImage(id, content);
+    console.log('thunk response: ', updatedimage);
     dispatch(updateImage(updatedimage));
   };
 };
 export const updateImageOrder = (order) => {
   return async (dispatch) => {
     const updatedOrder = await imageService.updateImageOrder(order);
-    console.log('thunk response: ', updatedOrder);
     dispatch(updateOrder(updatedOrder));
   };
 };
