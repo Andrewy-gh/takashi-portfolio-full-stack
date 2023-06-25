@@ -6,6 +6,8 @@ import { theme } from '../styles/styles';
 
 export default function ButtonDialog({
   children,
+  buttonStyle,
+  variant = 'contained',
   buttonText,
   handleOpen,
   handleClose,
@@ -15,7 +17,7 @@ export default function ButtonDialog({
 
   return (
     <>
-      <Button variant="contained" onClick={handleOpen}>
+      <Button variant={variant} onClick={handleOpen} sx={buttonStyle}>
         {buttonText}
       </Button>
 
