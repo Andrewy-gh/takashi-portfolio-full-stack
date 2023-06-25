@@ -25,7 +25,7 @@ const imageSlice = createSlice({
     setImages(state, action) {
       state.data = action.payload;
     },
-    updateOneImage(state, action) {
+    updateImage(state, action) {
       const updatedimage = action.payload;
       state.data = state.data.map((image) =>
         image.id === updatedimage.id ? updatedimage : image

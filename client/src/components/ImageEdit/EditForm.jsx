@@ -59,14 +59,15 @@ export default function EditForm({ handleClose, image, updateImage }) {
     .filter((n) => n.type === 'filter')
     .map((n) => ({ id: n.id, name: n.name }));
 
-  const handleSubmit = () => updateImage({ title, type });
+  const handleSubmit = () => {
+    updateImage({ title, type });
+    handleClose();
+  };
 
   return (
     <div>
       <div>
-        <DialogTitle id="responsive-dialog-title" sx={{ textAlign: 'center' }}>
-          Edit Image
-        </DialogTitle>
+        <DialogTitle sx={{ textAlign: 'center' }}>Edit Image</DialogTitle>
       </div>
       <DialogContent sx={fieldSpacing}>
         <TextField

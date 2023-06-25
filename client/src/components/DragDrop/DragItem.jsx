@@ -3,7 +3,8 @@ import DragHandleIcon from '@mui/icons-material/DragHandle';
 import Button from '@mui/material/Button';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
-import EditButton from '../Edit/EditButton';
+import EditButton from '../ImageEdit/EditButton';
+import DeleteButton from '../ImageDelete/DeleteButton';
 
 const listItem = {
   display: 'flex',
@@ -57,7 +58,7 @@ export default function DragItem({ image, index }) {
           </div>
           <p style={thumbFont}>{image.title}</p>
           <EditButton image={image} />
-          <Button>DELETE</Button>
+          <DeleteButton image={image} />
         </ListItem>
       )}
     </Draggable>
