@@ -67,7 +67,7 @@ export default function EditForm({ handleClose, image, updateImage }) {
   return (
     <div>
       <div>
-        <DialogTitle sx={{ textAlign: 'center' }}>Edit Image</DialogTitle>
+        <DialogTitle sx={{ textAlign: 'center' }}>Edit Details</DialogTitle>
       </div>
       <DialogContent sx={fieldSpacing}>
         <TextField
