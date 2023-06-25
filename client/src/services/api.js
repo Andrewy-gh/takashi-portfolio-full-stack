@@ -2,13 +2,15 @@ import axios from 'axios';
 
 const api = axios.create({
   baseURL: 'http://localhost:3001',
-  headers: { 'Content-Type': 'application/json' },
   withCredentials: true,
 });
 
 let token = null;
 
-export const setToken = (newToken) => (token = `bearer ${newToken}`);
+export const setToken = (newToken) => {
+  token = `bearer ${newToken}`;
+  console.log('token', token);
+};
 
 api.interceptors.request.use(
   (config) => {

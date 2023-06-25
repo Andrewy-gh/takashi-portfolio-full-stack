@@ -1,7 +1,7 @@
-import axios from 'axios';
+import api from './api';
 
 const getCloudName = async () => {
-  const response = await axios.get('http://localhost:3001/cloudinary');
+  const response = await api.get('cloudinary');
   return response.data;
 };
 

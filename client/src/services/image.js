@@ -11,7 +11,10 @@ const updateImageOrder = async (order) => {
 };
 
 const uploadNewImage = async (content) => {
+  // having an issue here the token is not being found in my middleware but other requests are fine
+  console.log('services: ', content);
   const response = await api.post('/images', content);
+  console.log('service response: ', response);
   return response.data;
 };
 

@@ -6,19 +6,7 @@ import Typography from '@mui/material/Typography';
 import EditButton from '../ImageEdit/EditButton';
 import DeleteButton from '../ImageDelete/DeleteButton';
 import CldThumb from '../Images/CldThumb';
-import useMediaQuery from '@mui/material/useMediaQuery';
-import { theme } from '../../styles/styles';
 
-// const listItem = {
-//   display: 'flex',
-//   alignItems: 'center',
-//   justifyContent: 'center',
-//   border: 'solid 2px #d0d0d0',
-//   borderRadius: '.2em',
-//   padding: '.5em .8em .5em .5em',
-//   marginBottom: '1em',
-//   cursor: 'grab',
-// };
 const listItem = {
   display: 'flex',
   justifyContent: 'space-between',
@@ -48,9 +36,14 @@ const mobileWidth = {
   width: 'calc(100% - 2rem)',
 };
 
+const spaceBetween = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+};
+
 export default function DragItem({ image, index }) {
   const cloudName = useSelector(({ cloudName }) => cloudName);
-  const isMobile = useMediaQuery(theme.breakpoints.down('tablet'));
   return (
     <Draggable draggableId={image.id} index={index}>
       {(provided, snapshot) => (
@@ -67,9 +60,7 @@ export default function DragItem({ image, index }) {
 
           <div
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
+              ...spaceBetween,
               width: '60%',
             }}
           >
@@ -84,13 +75,7 @@ export default function DragItem({ image, index }) {
               <Typography variant="body2" sx={{ marginBottom: '.5rem' }}>
                 {image.title}
               </Typography>
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                }}
-              >
+              <div style={spaceBetween}>
                 <div>
                   <EditButton image={image} />
                   <DeleteButton image={image} />
