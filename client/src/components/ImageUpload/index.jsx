@@ -1,10 +1,10 @@
-import { useState } from "react";
-import { useDispatch } from "react-redux";
-import ButtonDialog from "../ButtonDialog";
-import Preview from "./Preview";
-import UploadForm from "./UploadForm";
+import { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import ButtonDialog from '../ButtonDialog';
+import Preview from './Preview';
+import UploadForm from './UploadForm';
 
-import { uploadNewImage } from "../../features/imageSlice";
+import { uploadNewImage } from '../../features/imageSlice';
 
 export default function ImageUpload() {
   const [open, setOpen] = useState(false);
@@ -25,25 +25,25 @@ export default function ImageUpload() {
   };
 
   const submitImageData = (data) => {
-    console.log("index data:", data);
+    console.log('index data:', data);
     const formData = new FormData();
     for (const image of images) {
-      formData.append("file", image.data);
+      formData.append('file', image.data);
     }
-    formData.append("title", data.title);
-    formData.append("type", data.type);
+    formData.append('title', data.title);
+    formData.append('type', data.type);
 
     // dispatch(createPost(formData));
 
     // if success, clear images
     console.log(formData);
     dispatch(uploadNewImage(formData));
-    console.log("submit successful");
+    console.log('submit successful');
     setImages([]);
   };
 
   const previewImages = (images) => {
-    console.log("index file, previewImages: ", images);
+    console.log('index file, previewImages: ', images);
     setImages(images);
   };
 
@@ -52,7 +52,7 @@ export default function ImageUpload() {
 
   return (
     <ButtonDialog
-      buttonText={"Image Upload"}
+      buttonText={'Image Upload'}
       handleClose={handleClose}
       handleOpen={handleOpen}
       open={open}

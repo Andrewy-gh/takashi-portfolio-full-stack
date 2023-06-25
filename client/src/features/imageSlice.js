@@ -71,8 +71,10 @@ export const updateImageOrder = (order) => {
   };
 };
 export const uploadNewImage = (content) => {
+  console.log('features received:', content);
   return async (dispatch) => {
     const response = await imageService.uploadNewImage(content);
+    console.log('feature response:', response);
     if (response.success) {
       dispatch(addNewImage(response));
     }

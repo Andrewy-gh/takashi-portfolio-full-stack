@@ -18,9 +18,17 @@ export default function App() {
   }, [dispatch]);
 
   const user = useSelector(({ user }) => user);
+
+  useEffect(() => {
+    if (user.loggedIn && user.userToken) {
+      setToken(user.userToken);
+    }
+  }, [user.loggedIn, user.userToken]);
+
   if (user.loggedIn) {
-    console.log(user.userToken);
-    setToken(user.userToken);
+    console.log('user logged in');
+  } else {
+    console.log('user not logged in');
   }
 
   return (
