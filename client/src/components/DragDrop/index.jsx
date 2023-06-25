@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+
 import { DragDropContext } from 'react-beautiful-dnd';
 import Box from '@mui/material/Box';
 import List from '@mui/material/List';
@@ -8,7 +8,6 @@ import DragHandleIcon from '@mui/icons-material/DragHandle';
 import { useState } from 'react';
 import DragItem from './DragItem';
 import StrictModeDroppable from './StrictModeDroppable';
-import { updateImageOrder } from '../../features/imageSlice';
 
 const containerStyle = {
   // textAlign: 'center'
@@ -20,26 +19,19 @@ const containerStyle = {
 };
 
 const listStyle = {
-  listStyle: 'none',
+  width: 'min(40ch, 100% - 2rem)',
+  marginInline: 'auto',
 };
 
-export default function DragDrop() {
-  const dispatch = useDispatch();
-  const { data } = useSelector(({ images }) => images);
-  const [imageOrder, setImageOrder] = useState(data);
-
-  useEffect(() => {
-    setImageOrder(data);
-  }, [data]);
+export default function DragDrop({ images, updateOrder }) {
+  const [imageOrder, setImageOrder] = useState(images);
 
   function handleOnDragEnd(result) {
     if (!result.destination) return;
     const images = Array.from(imageOrder);
     const [reorderedImages] = images.splice(result.source.index, 1);
     images.splice(result.destination.index, 0, reorderedImages);
-
-    // setImageOrder(images);
-    dispatch(updateImageOrder(images));
+    updateOrder(images);
     setImageOrder(images);
   }
   return (
@@ -47,7 +39,11 @@ export default function DragDrop() {
       <DragDropContext onDragEnd={handleOnDragEnd}>
         <StrictModeDroppable droppableId="images">
           {(provided) => (
-            <List {...provided.droppableProps} ref={provided.innerRef}>
+            <List
+              {...provided.droppableProps}
+              ref={provided.innerRef}
+              sx={listStyle}
+            >
               {imageOrder.map((image, index) => {
                 return <DragItem key={image.id} image={image} index={index} />;
               })}
