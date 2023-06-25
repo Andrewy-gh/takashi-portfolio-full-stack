@@ -1,7 +1,9 @@
 import { Draggable } from 'react-beautiful-dnd';
 import DragHandleIcon from '@mui/icons-material/DragHandle';
+import Button from '@mui/material/Button';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
+import EditButton from '../Edit/EditButton';
 
 const listItem = {
   display: 'flex',
@@ -10,6 +12,7 @@ const listItem = {
   borderRadius: '.2em',
   padding: '.5em .8em .5em .5em',
   marginBottom: '1em',
+  cursor: 'grab',
 };
 
 const thumbImgContainer = {
@@ -34,9 +37,9 @@ const thumbFont = {
   margin: '0',
 };
 
-export default function DragItem({ id, url, title, index }) {
+export default function DragItem({ image, index }) {
   return (
-    <Draggable draggableId={id} index={index}>
+    <Draggable draggableId={image.id} index={index}>
       {(provided, snapshot) => (
         <ListItem
           {...provided.draggableProps}
@@ -46,10 +49,15 @@ export default function DragItem({ id, url, title, index }) {
           sx={listItem}
         >
           <div style={thumbImgContainer}>
-            <img src={url} alt={`${title} Thumb`} style={thumbImg} />
+            <img
+              src={image.url}
+              alt={`${image.title} Thumb`}
+              style={thumbImg}
+            />
           </div>
-          <p style={thumbFont}>{title}</p>
-          <p>{id}</p>
+          <p style={thumbFont}>{image.title}</p>
+          <EditButton image={image} />
+          <Button>DELETE</Button>
         </ListItem>
       )}
     </Draggable>
