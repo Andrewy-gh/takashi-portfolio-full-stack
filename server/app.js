@@ -3,6 +3,7 @@ const express = require('express');
 require('express-async-errors');
 const app = express();
 const cors = require('cors');
+const corsOptions = require('./utils/corsOptions');
 const passportSetup = require('./utils/passport');
 const passport = require('passport');
 
@@ -26,16 +27,18 @@ mongoose
   });
 
 app.use(passport.initialize());
-const corsOptions = {
-  origin: 'http://localhost:3000',
-  methods: 'GET,POST,PUT,DELETE',
-  credentials: true,
-};
 
 app.use(cors(corsOptions));
-app.use(express.static('build'));
+app.use(express.static('dist'));
 app.use(express.json());
 app.use(middleware.requestLogger);
+
+app.use('/assets', (req, res, next) => {
+  if (req.originalUrl.endsWith('.js')) {
+    res.setHeader('Content-Type', 'application/javascript');
+  }
+  next();
+});
 
 // TODO: insert routers and middleware
 app.use('/cloudinary', cloudinaryRouter);

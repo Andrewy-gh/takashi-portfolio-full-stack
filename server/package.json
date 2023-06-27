@@ -8,7 +8,7 @@
     "dev": "NODE_ENV=development nodemon index.js",
     "test": "NODE_ENV=test jest --verbose --runInBand --forceExit",
     "start:test": "cross-env NODE_ENV=test node index.js",
-    "build:ui": "rm -rf build && cd ../client && npm run build && cp -r build ../server",
+    "build:ui": "rm -rf dist && cd ../client && npm run build && cp -r dist ../server",
     "deploy": "flyctl deploy",
     "deploy:full": "npm run build:ui && npm run deploy",
     "logs:prod": "flyctl logs"

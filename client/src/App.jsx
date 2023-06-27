@@ -4,10 +4,12 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Edit from './pages/Edit';
 import Home from './pages/Home';
 import Profile from './pages/Profile';
-// import imageServices from './services/image';
 import { setToken } from './services/api';
 import { getAllImages } from './features/imageSlice';
 import { getCloudName } from './features/cloudinarySlice';
+import { disableReactDevTools } from '@fvilers/disable-react-devtools';
+
+if (process.env.NODE_ENV === 'production') disableReactDevTools();
 
 export default function App() {
   const dispatch = useDispatch();
