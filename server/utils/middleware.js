@@ -44,6 +44,7 @@ const errorHandler = (error, req, res, next) => {
       error: 'invalid token',
     });
   } else if (error.name === 'TokenExpiredError') {
+    res.clearCookie('jwtPortfolioApp');
     return res.status(401).json({
       error: 'token expired',
     });

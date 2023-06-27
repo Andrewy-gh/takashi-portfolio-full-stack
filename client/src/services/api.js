@@ -9,7 +9,6 @@ let token = null;
 
 export const setToken = (newToken) => {
   token = `bearer ${newToken}`;
-  console.log('token', token);
 };
 
 api.interceptors.request.use(
