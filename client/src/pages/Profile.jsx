@@ -1,14 +1,16 @@
-// import { useSelector } from 'react-redux';
+import { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import HomeIcon from '@mui/icons-material/Home';
 import IconButton from '@mui/material/IconButton';
 import { theme } from '../styles/styles';
-import Typography from '@mui/material/Typography';
-// import Admin from '../components/Menu/Admin';
-// import LogoutButton from '../components/Menu/LogoutButton';
-import LoginButton from '../components/Menu/LoginButton';
-import ProfileCover from '../assets/profile-cover.png';
-// import postServices from '../services/posts';
+import ProfileCover from '../assets/profile-cover.webp';
+import { AuthContext } from '../contexts/AuthContext';
+
+const BodyStyle = {
+  fontFamily: 'Judson',
+  fontSize: '1rem',
+  lineHeight: '1.6',
+};
 
 const HeaderStyle = {
   lineHeight: '1.6',
@@ -17,16 +19,15 @@ const HeaderStyle = {
   marginBottom: '.25rem',
 };
 
-const BodyStyle = {
-  fontFamily: 'Judson',
+const typographyStyle = {
+  fontSize: '1rem',
   lineHeight: '1.6',
+  fontFamily: 'Quando',
+  cursor: 'pointer',
 };
 
 export default function Profile() {
-  // const user = useSelector(({ user }) => user);
-  // if (user.loggedIn) {
-  //   postServices.setToken(user.userToken);
-  // }
+  const { loggedIn, token } = useContext(AuthContext);
   return (
     <div
       style={{
@@ -53,47 +54,39 @@ export default function Profile() {
           width: 'min(80ch, 100% - 2rem)',
         }}
       >
-        <Typography variant="body1" sx={BodyStyle}>
+        <p style={BodyStyle}>
           My name is Takashi Miyazaki. I&apos;m a university student in Tokyo,
-          studying language and international relations. I been in photography
-          for 5 years and has published his work on various platforms. I usually
-          shoots nature. I aim to create colors and images that are not
-          over-processed, just memories and colors that make you remember the
-          scene when you look at it.
-        </Typography>
-        <Typography variant="h5" sx={HeaderStyle}>
-          Genres:
-        </Typography>
-        <Typography variant="body1" sx={BodyStyle}>
-          Macro, Landscape, Animals, Nature, etc.
-        </Typography>
-        <Typography variant="h5" sx={HeaderStyle}>
-          Equipment:
-        </Typography>
-        <Typography variant="body1" sx={BodyStyle}>
+          studying language and international relations. I&apos;ve a photograper
+          for 5 years with published work on various platforms. Nature shots are
+          my preference. My aim is to create images with colors that are not
+          over-processed, and invokes emotions and memories of a scene as if you
+          were present.
+        </p>
+        <h3 style={HeaderStyle}>Genres:</h3>
+        <p style={BodyStyle}>Macro, Landscape, Animals, Nature, etc.</p>
+        <h3 style={HeaderStyle}>Equipment:</h3>
+        <p style={BodyStyle}>
           Camera: Nikon D500, Nikon D7000 Lens: Nikkor 50mm F1.4G, Nikkor 50mm
           F1.8D, Nikkor 35mm F1.8G, Nikkor 24mm F2.8D, Nikkor 105mm F2.8D,
           Nikkor 18-135mm F3.5-F5.6G , Nikkor 16-80mm F2.8-4E VR, F2.8, Nikkor
           10-24mm F3.5-4.5G, Nikkor 70-200mm F2.8G VRII
-        </Typography>
-        <Typography variant="h5" sx={HeaderStyle}>
-          Software:
-        </Typography>
-        <Typography variant="body1" sx={BodyStyle}>
-          DxO Photolab, Nik Collection
-        </Typography>
+        </p>
+        <h3 style={HeaderStyle}>Software:</h3>
+        <p style={BodyStyle}>DxO Photolab, Nik Collection</p>
       </div>
       <div style={{ flexGrow: 1 }}></div>
-      {/* Spacing */}
-      <div
-        style={{
-          placeSelf: 'center end',
-          padding: '2rem',
-        }}
-      >
-        {/* {user.loggedIn ? <LogoutButton /> : <LoginButton />} */}
-        <LoginButton />
-      </div>
+      {loggedIn && token ? null : (
+        <div
+          style={{
+            placeSelf: 'center end',
+            padding: '2rem',
+          }}
+        >
+          <div style={typographyStyle}>
+            <Link to="/login">Login</Link>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

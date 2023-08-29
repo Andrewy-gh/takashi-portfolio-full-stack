@@ -1,8 +1,5 @@
-// import { useSelector } from 'react-redux';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
-// import { useDispatch } from 'react-redux';
-// import { useTheme } from '@mui/material/styles';
 
 import Button from '@mui/material/Button';
 import DialogActions from '@mui/material/DialogActions';
@@ -18,13 +15,7 @@ import Toolbar from '@mui/material/Toolbar';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
 import CloseIcon from '@mui/icons-material/Close';
-
-// import Preview from './Preview';
-// import { createPost } from '../reducers/postReducer';
-// import { logout } from '../reducers/userReducer';
-
-import navigation from '../../data/navigation';
-
+import { types } from '../../data';
 import { theme } from '../../styles/styles';
 
 const fieldSpacing = {
@@ -62,14 +53,13 @@ export default function UploadForm({
   previewImages,
   submitImageData,
 }) {
-  // const dispatch = useDispatch();
   const {
     control,
     register,
     handleSubmit,
     reset,
     formState,
-    formState: { isSubmitSuccessful },
+    formState: { errors, isSubmitSuccessful },
   } = useForm({
     defaultValues: {
       title: '',
@@ -80,29 +70,15 @@ export default function UploadForm({
 
   useEffect(() => {
     if (formState.isSubmitSuccessful) {
-      console.log('form state: form submit is successful');
       reset({ title: '', type: '', file: undefined });
       handleClose();
     }
   }, [formState, reset]);
 
   const isMobile = useMediaQuery(theme.breakpoints.down('tablet'));
-  const types = navigation
-    .filter((n) => n.type === 'filter')
-    .map((n) => ({ id: n.id, name: n.name }));
 
   const onSubmit = (data) => {
-    // const formData = new FormData();
-    // for (const image of images) {
-    //   formData.append('file', image.data);
-    // }
-    // formData.append('title', data.title);
-    // formData.append('type', data.type);
-    // formData.append('project', data.project);
-    // setImages([]);
-    console.log('submitting data: ', data);
     submitImageData(data);
-    // dispatch(createPost(formData));
   };
 
   const prepareImagePreview = (files) => {
@@ -202,6 +178,9 @@ export default function UploadForm({
           control={control}
           defaultValue=""
         />
+        {errors.file?.type === 'required' && (
+          <p role="alert">Image is required</p>
+        )}
       </DialogContent>
       <DialogActions
         sx={{ display: 'flex', justifyContent: 'center', gap: '1.25rem' }}
@@ -213,7 +192,7 @@ export default function UploadForm({
             type="file"
             hidden
             multiple
-            {...register('file')}
+            {...register('file', { required: 'Image is required' })}
             onChange={(e) => {
               prepareImagePreview(e.target.files);
               register('file').onChange(e);
