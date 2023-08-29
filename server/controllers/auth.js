@@ -1,34 +1,27 @@
-const authRouter = require('express').Router();
-const passport = require('passport');
+const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const config = require('../utils/config');
+const User = require('../models/User');
+const AppError = require('../utils/AppError');
 
-authRouter.get(
-  '/google',
-  passport.authenticate('google', { scope: ['profile', 'email'] })
-);
+const handleLogin = async (req, res) => {
+  const { email, password } = req.body;
+  const user = await User.findOne({ email });
+  const passwordCorrect =
+    user === null ? false : await bcrypt.compare(password, user.passwordHash);
 
-authRouter.get(
-  '/google/callback',
-  passport.authenticate('google', {
-    session: false,
-  }),
-  (request, response) => {
-    const { id, displayName } = request.user;
-    // Only allows admin to log in
-    if (id !== config.ADMIN_ID)
-      return response.status(401).json({ error: 'unauthorized user' });
-    const user = { id, displayName };
-    const token = jwt.sign(
-      {
-        user,
-      },
-      process.env.SECRET,
-      { expiresIn: 60 * 60 }
-    );
-    response.cookie('jwtPortfolioApp', token);
-    response.status(200).redirect(config.CLIENT_URL);
+  if (!(user && passwordCorrect)) {
+    throw new AppError(401, 'invalid email or password');
   }
-);
 
-module.exports = authRouter;
+  const accessToken = {
+    id: user._id,
+  };
+
+  // token expires in 60*60 seconds, that is, in one hour
+  const token = jwt.sign(accessToken, process.env.ACCESS_TOKEN_SECRET, {
+    expiresIn: 60 * 60,
+  });
+  res.status(200).send(token);
+};
+
+module.exports = { handleLogin };

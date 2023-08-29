@@ -1,24 +1,16 @@
-const config = require('./utils/config');
+require('dotenv').config();
 const express = require('express');
 require('express-async-errors');
 const app = express();
 const cors = require('cors');
 const corsOptions = require('./utils/corsOptions');
-const passportSetup = require('./utils/passport');
-const passport = require('passport');
-
-// TODO: insert routers
-const loginRouter = require('./controllers/login');
-const authRouter = require('./controllers/auth');
-const cloudinaryRouter = require('./controllers/cloudinary');
-const imageRouter = require('./controllers/image');
-const imageOrderRouter = require('./controllers/imageOrder');
 const middleware = require('./utils/middleware');
 const logger = require('./utils/logger');
+const path = require('path');
 const mongoose = require('mongoose');
 
 mongoose
-  .connect(config.MONGODB_URI)
+  .connect(process.env.MONGODB_URI)
   .then(() => {
     logger.info('connected to MongoDB');
   })
@@ -26,28 +18,18 @@ mongoose
     logger.error('error connecting to MongoDB:', error.message);
   });
 
-app.use(passport.initialize());
-
 app.use(cors(corsOptions));
 app.use(express.static('dist'));
 app.use(express.json());
-app.use(middleware.requestLogger);
 
-app.use('/assets', (req, res, next) => {
-  if (req.originalUrl.endsWith('.js')) {
-    res.setHeader('Content-Type', 'application/javascript');
-  }
-  next();
+app.use('/api/cloudinary', require('./routes/cloudinary'));
+app.use('/auth', require('./routes/auth'));
+app.use('/user', require('./routes/user'));
+app.use('/api/imageOrder', require('./routes/imageOrder'));
+app.use('/api/images', require('./routes/images'));
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
-
-// TODO: insert routers and middleware
-app.use('/cloudinary', cloudinaryRouter);
-app.use('/login', loginRouter);
-app.use('/auth', authRouter);
-app.use('/imageOrder', imageOrderRouter);
-app.use(middleware.tokenExtractor);
-app.use('/images', middleware.userExtractor, imageRouter);
-app.use(middleware.unknownEndpoint);
 app.use(middleware.errorHandler);
 
 module.exports = app;

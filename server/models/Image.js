@@ -3,18 +3,18 @@ const mongoose = require('mongoose');
 const imageSchema = new mongoose.Schema({
   title: {
     type: String,
-    require: true,
+    required: true,
   },
   url: {
     type: String,
-    require: true,
+    required: true,
   },
   type: {
     type: String,
   },
   cloudinaryId: {
     type: String,
-    require: true,
+    required: true,
   },
   createdAt: {
     type: Date,
