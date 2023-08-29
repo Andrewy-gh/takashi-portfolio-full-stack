@@ -24,7 +24,7 @@ app.use(express.json());
 
 app.use('/api/cloudinary', require('./routes/cloudinary'));
 app.use('/auth', require('./routes/auth'));
-app.use('/user', require('./routes/user'));
+app.use('/api/user', require('./routes/user'));
 app.use('/api/imageOrder', require('./routes/imageOrder'));
 app.use('/api/images', require('./routes/images'));
 app.get('*', (req, res) => {
