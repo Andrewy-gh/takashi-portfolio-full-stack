@@ -1,14 +1,14 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:3001',
+  baseURL: 'http://localhost:3000',
   withCredentials: true,
 });
 
 let token = null;
 
 export const setToken = (newToken) => {
-  token = `bearer ${newToken}`;
+  token = `Bearer ${newToken}`;
 };
 
 api.interceptors.request.use(
@@ -21,6 +21,18 @@ api.interceptors.request.use(
     return config;
   },
   (error) => {
+    return Promise.reject(error);
+  }
+);
+
+api.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    if (error.response.data.error === 'token expired') {
+      return Promise.reject('token expired');
+    }
     return Promise.reject(error);
   }
 );

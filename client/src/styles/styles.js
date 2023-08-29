@@ -5,7 +5,7 @@ export const theme = createTheme({
     MuiCssBaseline: {
       styleOverrides: {
         body: {
-          backgroundColor: '#202020',
+          backgroundColor: '#1f1f1f',
         },
       },
     },
@@ -23,7 +23,7 @@ export const theme = createTheme({
     MuiDialog: {
       styleOverrides: {
         paper: {
-          backgroundColor: '#202020',
+          backgroundColor: '#1f1f1f',
         },
       },
     },
@@ -38,7 +38,7 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           color: '#f1eeeb',
-          backgroundColor: '#202020',
+          backgroundColor: '#1f1f1f',
         },
       },
     },
@@ -54,7 +54,7 @@ export const theme = createTheme({
     MuiList: {
       styleOverrides: {
         root: {
-          backgroundColor: '#202020',
+          backgroundColor: '#1f1f1f',
         },
       },
     },

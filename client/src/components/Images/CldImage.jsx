@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import {
   AdvancedImage,
   lazyload,
@@ -7,12 +8,17 @@ import {
 import { Cloudinary } from '@cloudinary/url-gen';
 
 export default function CldImage({ cloudName, cloudinaryId }) {
-  const cld = new Cloudinary({
-    cloud: {
-      cloudName: cloudName,
-    },
-  });
-  const myImage = cld.image(cloudinaryId);
+  const cld = useMemo(() => {
+    return new Cloudinary({
+      cloud: {
+        cloudName: cloudName,
+      },
+    });
+  }, [cloudName]);
+
+  const myImage = useMemo(() => {
+    return cld.image(cloudinaryId);
+  }, [cld, cloudinaryId]);
 
   return (
     <AdvancedImage
