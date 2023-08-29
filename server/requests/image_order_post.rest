@@ -1,2 +1,0 @@
-POST http://localhost:3001/imageOrder
-Content-Type: application/json
