@@ -75,7 +75,6 @@ export function useImage() {
       if (updatedImageOrder.success) {
         handleSuccess(updatedImageOrder.message);
         setImages(updatedImageOrder.data);
-        return { success: true };
       }
     } catch (error) {
       if (error === 'token expired') {
