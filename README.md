@@ -40,7 +40,7 @@ Material UI for components, styles, theming, and responsiveness. Cloudinary API 
 
 9. After the build is done, you are ready to use. Just run `npm run start`.
 
-## Usage
+## Usage:
 
 The login is located at the bottom of the Profile page.
 After logging in, all CRUD actions are located on the Edit page. `react-beautiful-dnd` allows editing the image order via dragging and dropping.
@@ -48,6 +48,6 @@ After logging in, all CRUD actions are located on the Edit page. `react-beautifu
 
 Image types can be filtered via the menu on the left or top if on mobile on the home page. Image types can be edited in `client/data/index.js`. This affects the menu bar and the select options on the image upload component.
 
-### Optimizations
+## Optimizations:
 
 As the portfolio grows bigger with time, pagination will be added so that load times and server response times can be kept minimal.
