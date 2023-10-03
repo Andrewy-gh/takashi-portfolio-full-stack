@@ -5,9 +5,9 @@ const User = require('../models/User');
 const checkAdminPresence = async (req, res) => {
   const config = await Config.findOne({});
   if (!config?.adminCreated) {
-    return res.status(200).json({ status: 'admin not present' });
+    return res.status(200).json({ status: 'No admin present' });
   }
-  res.status(200).json({ status: 'admin is already present' });
+  res.status(200).json({ status: 'Admin setup complete' });
 };
 
 const createAdmin = async (req, res) => {
@@ -35,7 +35,10 @@ const createAdmin = async (req, res) => {
   });
 
   const savedUser = await user.save();
-  res.status(201).json(savedUser);
+  res.status(201).json({
+    success: true,
+    message: 'Admin successfully created',
+  });
 };
 
 module.exports = {
