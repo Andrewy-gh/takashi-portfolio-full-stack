@@ -2,6 +2,8 @@ const logger = require('./logger');
 const jwt = require('jsonwebtoken');
 const AppError = require('./AppError');
 
+const User = require('../models/User');
+
 const requestLogger = (req, res, next) => {
   // prevents logging of user information
   if (req.path !== '/auth') {
@@ -13,21 +15,21 @@ const requestLogger = (req, res, next) => {
   next();
 };
 
-const verifyJWT = (req, res, next) => {
+const verifyJWT = async (req, res, next) => {
   const authHeader = req.headers.authorization || req.headers.Authorization;
   if (!authHeader?.startsWith('Bearer ')) {
     throw new AppError(401, 'Unauthorized');
   }
+
   const token = authHeader.split(' ')[1];
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
-    if (err) {
-      next(err);
-    }
-    if (decoded.id !== process.env.ADMIN_ID) {
-      throw new AppError(401, 'Unauthorized');
-    }
-    next();
-  });
+
+  const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+  const user = await User.findOne({ _id: decoded.id });
+  if (user.role !== 'admin') {
+    throw new AppError(401, 'Unauthorized');
+  }
+
+  next();
 };
 
 const errorHandler = (err, req, res, next) => {
