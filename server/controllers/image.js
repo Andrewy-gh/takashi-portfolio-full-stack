@@ -10,7 +10,7 @@ const getImageOrder = async (req, res) => {
     type: 1,
     cloudinaryId: 1,
   });
-  const imageOrder = images.order;
+  const imageOrder = images?.order;
   res.json(imageOrder);
 };
 
