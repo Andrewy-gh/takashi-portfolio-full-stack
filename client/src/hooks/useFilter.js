@@ -5,6 +5,7 @@ export function useFilter() {
 
   const handleFilterChange = (filter) => {
     setFilter(filter);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
   return { filter, handleFilterChange };
 }
