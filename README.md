@@ -29,11 +29,9 @@ Material UI for components, styles, theming, and responsiveness. Cloudinary API 
 
 3. Open your editor, locate the `.env-example` file at `/server/.env-example` and change to `.env`. Fill in all the appropiate information from the requirements.
 
-4. Once all env variables are filled except `ADMIN_ID` run `npm run dev` while still in the `/server` directory
+4. Run `npm run build:ui`. Make sure you are still in the `/server` directory. This creates the build process for the client side code and moves the finished build folder into your server directory.
 
-5. Turn off the server and run `npm run build:ui`. Make sure you are still in the `/server` directory. This creates the build process for the client side code and moves the finished build folder into your server directory.
-
-6. After the build is done, you are ready to use. Just run `npm run start`.
+5. After the build is done, you are ready to use. Just run `npm run start`.
 
 ## Usage:
 
