@@ -37,7 +37,7 @@ Material UI for components, styles, theming, and responsiveness. Cloudinary API 
 
 ## Usage:
 
-The login is located at the bottom of the Profile page.
+The login is located at the bottom of the Profile page. Create an admin user first, and log in.
 After logging in, all CRUD actions are located on the Edit page. `react-beautiful-dnd` allows editing the image order via dragging and dropping.
 [![Demonstration](https://user-images.githubusercontent.com/17731837/264174575-c52b57a2-d846-4686-b29c-cefcbf10dec9.mp4)]
 
