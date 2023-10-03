@@ -11,6 +11,8 @@ import { setToken } from '../services/api';
 
 import { AuthContext } from '../contexts/AuthContext';
 
+import configServices from '../services/config';
+
 const flex = {
   display: 'flex',
   flexDirection: 'column',
@@ -49,6 +51,16 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const { loggedIn, token, handleLogin } = useContext(AuthContext);
 
+  const [adminStatus, setAdminStatus] = useState('');
+
+  useEffect(() => {
+    const checkAdmin = async () => {
+      const res = await configServices.checkAdmin();
+      setAdminStatus(res.status);
+    };
+    checkAdmin();
+  }, []);
+
   useEffect(() => {
     if (loggedIn && token) {
       saveToken(token);
@@ -59,8 +71,23 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await handleLogin({ email, password });
+    if (adminStatus === 'admin not present') {
+      await configServices.createAdmin({ email, password });
+      navigate('/login');
+    } else {
+      await handleLogin({ email, password });
+    }
   };
+
+  let title;
+  let button;
+  if (adminStatus === 'admin not present') {
+    title = 'Register New Admin';
+    button = 'Create Admin';
+  } else {
+    title = 'Log in';
+    button = 'Submit';
+  }
 
   return (
     <div style={flex}>
@@ -76,7 +103,7 @@ export default function Login() {
         <img src={ProfileCover} alt="logo" />
       </div>
       <div style={formStyle}>
-        <h1 style={{ marginBottom: '1rem' }}>Log In</h1>
+        <h1 style={{ marginBottom: '1rem' }}>{title}</h1>
         <form onSubmit={handleSubmit}>
           <TextField
             label="Email"
@@ -103,7 +130,7 @@ export default function Login() {
             fullWidth
             sx={{ mt: 2, mb: 3 }}
           >
-            Submit
+            {button}
           </Button>
         </form>
       </div>

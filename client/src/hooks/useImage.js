@@ -10,7 +10,7 @@ export function useImage() {
 
   const getAllImages = async () => {
     const initialImages = await imageServices.getAllImages();
-    setImages(initialImages);
+    if (initialImages) setImages(initialImages);
   };
 
   useEffect(() => {
@@ -75,6 +75,7 @@ export function useImage() {
       if (updatedImageOrder.success) {
         handleSuccess(updatedImageOrder.message);
         setImages(updatedImageOrder.data);
+        return { success: true };
       }
     } catch (error) {
       if (error === 'token expired') {

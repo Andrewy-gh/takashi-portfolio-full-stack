@@ -15,7 +15,23 @@ export default function Edit({
   removeOneImage,
   uploadNewImage,
 }) {
-  if (!images.length) return <p>Loading...</p>;
+  let content;
+  if (!images.length) {
+    content = <h1 style={{ textAlign: 'center' }}>No images uploaded</h1>;
+  } else {
+    content = (
+      <>
+        <DragDrop
+          cloudName={cloudName}
+          images={images}
+          updateImageOrder={updateImageOrder}
+          updateImageDetails={updateImageDetails}
+          removeOneImage={removeOneImage}
+        />
+        <FloatingButton />
+      </>
+    );
+  }
 
   return (
     <>
@@ -39,14 +55,7 @@ export default function Edit({
           uploadNewImage={uploadNewImage}
         />
       </Box>
-      <DragDrop
-        cloudName={cloudName}
-        images={images}
-        updateImageOrder={updateImageOrder}
-        updateImageDetails={updateImageDetails}
-        removeOneImage={removeOneImage}
-      />
-      <FloatingButton />
+      {content}
     </>
   );
 }
