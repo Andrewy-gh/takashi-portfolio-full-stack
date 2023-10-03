@@ -36,7 +36,7 @@ Material UI for components, styles, theming, and responsiveness. Cloudinary API 
 ## Usage:
 
 The login is located at the bottom of the Profile page. Create an admin user first, and log in.
-After logging in, all CRUD actions are located on the Edit page. `react-beautiful-dnd` allows editing the image order via dragging and dropping.
+After logging in, all CRUD actions are located on the Edit page. Once images have been uploaded, `react-beautiful-dnd` allows editing the image order via dragging and dropping.
 [![Demonstration](https://user-images.githubusercontent.com/17731837/264174575-c52b57a2-d846-4686-b29c-cefcbf10dec9.mp4)]
 
 Image types can be filtered via the menu on the left or top if on mobile on the home page. Image types can be edited in `client/data/index.js`. This affects the menu bar and the select options on the image upload component.
