@@ -16,7 +16,7 @@ Material UI for components, styles, theming, and responsiveness. Cloudinary API 
 
 ## Requirements:
 
-1. Cloudinary account: Used to save and upload your images. You'll need a cloudinary cloudname, API key, and API secret.
+1. Cloudinary account: Used for uploading your images. You'll need a cloudinary cloudname, API key, and API secret.
 2. Mongo DB account: A connection string to save your cloudinary image urls into your database.
 
 ## How to Run:
