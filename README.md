@@ -27,7 +27,7 @@ Material UI for components, styles, theming, and responsiveness. Cloudinary API 
    `cd client && npm install` to install client side dependencies, and then
    `cd ../server && npm install` to install server side dependencies
 
-3. Open your editor, locate the `.env-example` file at `/server/.env-example` and change to `.env`. Fill in all the appropiate information from the requirements.
+3. Open your editor, locate the `.env.example` file at `/server/.env.example` and change to `.env`. Fill in all the appropiate information from the requirements.
 
 4. Run `npm run build:ui`. Make sure you are still in the `/server` directory. This creates the build process for the client side code and moves the finished build folder into your server directory.
 
