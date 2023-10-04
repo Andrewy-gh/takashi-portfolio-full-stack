@@ -23,9 +23,9 @@ Material UI for components, styles, theming, and responsiveness. Cloudinary API 
 
 1. Clone the repository
 
-2. In the project root directory. Enter these commands:
+2. In the project root directory: Enter these commands:
    `cd client && npm install` to install client side dependencies, and then
-   `cd ../server && npm install` to install server side dependencies
+   `cd ../server && npm install` to install server side dependencies.
 
 3. Open your editor, locate the `.env.example` file at `/server/.env.example` and change to `.env`. Fill in all the appropiate information from the requirements.
 
