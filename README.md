@@ -2,7 +2,7 @@
 
 Portfolio web page for a photographer
 
-**Link to project:** https://takashi-photos.fly.dev
+**Link to live site:** https://takashi-photos.fly.dev
 
 ![alt tag](https://user-images.githubusercontent.com/17731837/264175251-732a9a1f-e474-4b0b-bd15-0ff0bfa80014.jpeg)
 
