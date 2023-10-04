@@ -1,6 +1,6 @@
 # Takashi Miyazaki
 
-Portfolio web page for a photographer
+Portfolio web page for an international photographer.
 
 **Link to live site:** https://takashi-photos.fly.dev
 
