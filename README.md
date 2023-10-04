@@ -10,7 +10,7 @@ Portfolio web page for an international photographer.
 
 **Frontend:** Javascript, React, Material UI, Cloudinary, Vite
 
-Material UI for components, styles, theming, and responsiveness. Cloudinary API allows images to be delivered with lazy loading and placeholders. It also handles transformations for different image sizes like the thumbnails on the Edit page. Vite allows larger bundles to be separate so that initial page load time is kept minimal.
+Material UI for components, styles, theming, and responsiveness. Cloudinary API allows images to be delivered with lazy loading and placeholders. It also handles transformations for different image sizes like the thumbnails on the Edit page. Vite allows larger bundles to be separated so that initial page load time is kept minimal.
 
 **Backend:** Node.js, Express, MonogDB
 
