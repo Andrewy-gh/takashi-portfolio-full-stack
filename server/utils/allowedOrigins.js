@@ -1,5 +1,5 @@
 const allowedOrigins = [
-  'https://server-small-dew-6160.fly.dev',
+  'https://takashi-photos.fly.dev/',
   'http://localhost:3000',
 ];
 
