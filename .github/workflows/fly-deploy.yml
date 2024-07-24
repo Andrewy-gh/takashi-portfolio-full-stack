@@ -17,7 +17,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 'latest' # specify the node version you are using
+          node-version: '20' # specify the node version you are using
 
       # Install pnpm globally
       - name: Install pnpm
