@@ -1,9 +1,9 @@
-# fly.toml app configuration file generated for fly-server-testing on 2024-07-23T07:32:56-04:00
+# fly.toml app configuration file generated for server-small-dew-6160 on 2024-07-23T21:46:15-04:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'fly-server-testing'
+app = 'server-small-dew-6160'
 primary_region = 'ewr'
 
 [build]
