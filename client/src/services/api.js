@@ -1,5 +1,9 @@
+/* eslint-disable no-undef */
 import axios from 'axios';
-const baseUrl = 'http://localhost:3000'; // if deployed, change to production url
+const baseUrl =
+  process.env.NODE_ENV === 'production'
+    ? 'https://takashi-photos.fly.dev/'
+    : 'http://localhost:3000'; // if deployed, change to production url
 
 const api = axios.create({
   baseURL: baseUrl,
