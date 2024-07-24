@@ -2,8 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { CssBaseline, ThemeProvider, responsiveFontSizes } from '@mui/material';
 import { theme } from './styles/styles.js';
-import { AuthProvider } from './contexts/AuthContext.jsx';
-import { NotificationProvider } from './contexts/NotificationContext.jsx';
+import { AuthProvider } from './contexts/AuthContext';
+import { NotificationProvider } from './contexts/NotificationContext';
 import App from './App.jsx';
 import './index.css';
 

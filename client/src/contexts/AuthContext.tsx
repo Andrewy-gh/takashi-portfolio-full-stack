@@ -1,16 +1,17 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, type ReactNode } from 'react';
 import { login } from '../services/auth';
 import { removeToken } from '../services/authStorage';
 import { NotificationContext } from './NotificationContext';
+import type { AuthContextType, Credentials } from '../utils/types';
 
-export const AuthContext = createContext();
+export const AuthContext = createContext<AuthContextType | null>(null);
 
-export const AuthProvider = ({ children }) => {
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loggedIn, setLoggedIn] = useState(false);
-  const [token, setToken] = useState(null);
+  const [token, setToken] = useState<Credentials | null>(null);
   const { handleSuccess, handleError } = useContext(NotificationContext);
 
-  const handleLogin = async (credentials) => {
+  const handleLogin = async (credentials: Credentials) => {
     try {
       const userToken = await login(credentials);
       if (userToken) {
@@ -30,7 +31,7 @@ export const AuthProvider = ({ children }) => {
     removeToken();
   };
 
-  const setCredentials = (credentials) => {
+  const setCredentials = (credentials: Credentials) => {
     setLoggedIn(true);
     setToken(credentials);
   };

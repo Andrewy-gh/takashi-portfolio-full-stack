@@ -12,5 +12,5 @@ export default function FloatingButton() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  return <ArrowCircleUpIcon style={buttonStyle} onClick={handleScrollToTop} />;
+  return <ArrowCircleUpIcon sx={buttonStyle} onClick={handleScrollToTop} />;
 }

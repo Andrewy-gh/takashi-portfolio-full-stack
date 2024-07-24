@@ -1,17 +1,25 @@
-import { createContext, useState } from 'react';
+import { createContext, useState, type ReactNode } from 'react';
+import type { ErrorResponse, NotificationContextType } from '../utils/types';
 
-export const NotificationContext = createContext();
+export const NotificationContext =
+  createContext<NotificationContextType | null>(null);
 
-export const NotificationProvider = ({ children }) => {
+export const NotificationProvider = ({ children }: { children: ReactNode }) => {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState('');
   const [severity, setSeverity] = useState('success');
-  const handleSuccess = (message) => {
+  const handleSuccess = (message: string) => {
     setOpen(true);
     setMessage(message);
   };
-  const handleError = (error) => {
-    const errorMessage = error?.response?.data?.error || error;
+
+  const handleError = (error: ErrorResponse | string) => {
+    let errorMessage: string;
+    if (typeof error === 'string') {
+      errorMessage = error;
+    } else {
+      errorMessage = error.response?.data?.error || 'An unknown error occurred';
+    }
     setOpen(true);
     setSeverity('error');
     setMessage(`Error: ${errorMessage}`);
