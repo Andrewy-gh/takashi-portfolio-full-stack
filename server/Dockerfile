@@ -32,7 +32,12 @@ RUN apt-get update -qq && \
   apt-get install --no-install-recommends -y build-essential node-gyp pkg-config python-is-python3
 COPY --link server/package.json server/pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile --prod
-COPY --link server/ ./
+# Copy only runtime server source (avoid node_modules/.env)
+COPY --link server/app.js server/index.js ./
+COPY --link server/controllers ./controllers
+COPY --link server/models ./models
+COPY --link server/routes ./routes
+COPY --link server/utils ./utils
 
 # Final stage for app image
 FROM base as runtime

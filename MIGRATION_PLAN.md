@@ -14,7 +14,7 @@ AB Dashboard v2 repo is located one level up at `C:\E\2026\ab-dashboard-v2`.
 
 - [x] Monorepo scaffold with pnpm workspaces
 - [x] TypeScript baseline and shared tooling
-- [ ] Hono API + Postgres/Drizzle foundation
+- [x] Hono API + Postgres/Drizzle foundation (scaffold only; deps/wiring later)
 - [ ] Cloudinary signed upload + webhook flow
 - [ ] MongoDB -> Postgres one-shot data migration
 - [ ] Batch Cloudinary upload/import script
@@ -31,3 +31,25 @@ AB Dashboard v2 repo is located one level up at `C:\E\2026\ab-dashboard-v2`.
 - Portfolio remains client-rendered and fetches from API (not fully static)
 - Dashboard uses AB v2 frontend stack as-is
 - Migration: one-time Mongo import; no dual-write period
+
+## Handoff Notes (Jan 27, 2026)
+
+- Added Hono/Drizzle scaffold (not wired): `server/hono/*` (app/server/db/schema + README).
+- Dockerfile tightened to avoid copying host `node_modules`/`.env` and to copy only runtime server sources.
+- Tasks discussed (not implemented): finalize Drizzle schema w/ categories + image ordering table; decide ordering mode (custom vs created_at/title); drop Config table; add width/height + rename `cloudinary_id`.
+- Full gate not run after recent changes.
+- Suggested next commit message: `chore: add hono scaffold and refine docker build`
+
+## Drizzle Schema Note (Proposed)
+
+Tables:
+- `categories`: id (uuid pk), name (text unique), slug (text unique), sort_mode (text default "custom")
+- `images`: id (uuid pk), title (text), url (text), category (text nullable), cloudinary_id (text unique), width (int), height (int), created_at, updated_at
+- `image_categories`: image_id (fk), category_id (fk), unique(image_id, category_id)
+- `image_order`: image_id (fk), category_id (fk nullable for home/global), position (int), unique(category_id, position), unique(category_id, image_id)
+- `users`: id (uuid pk), email (text unique), password_hash (text), role (text)
+
+Notes:
+- `image_order.category_id` nullable => global/home ordering.
+- `sort_mode` values: `custom|created_at|title|cloudinary` (dash to be finalized).
+- Config table to be removed; use migrations/seeds instead.
