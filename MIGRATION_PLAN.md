@@ -15,6 +15,7 @@ AB Dashboard v2 repo is located one level up at `C:\E\2026\ab-dashboard-v2`.
 - [x] Monorepo scaffold with pnpm workspaces
 - [x] TypeScript baseline and shared tooling
 - [x] Hono API + Postgres/Drizzle foundation (scaffold only; deps/wiring later)
+- [x] Drizzle migrations setup + baseline schema
 - [ ] Cloudinary signed upload + webhook flow
 - [ ] MongoDB -> Postgres one-shot data migration
 - [ ] Batch Cloudinary upload/import script
@@ -31,6 +32,24 @@ AB Dashboard v2 repo is located one level up at `C:\E\2026\ab-dashboard-v2`.
 - Portfolio remains client-rendered and fetches from API (not fully static)
 - Dashboard uses AB v2 frontend stack as-is
 - Migration: one-time Mongo import; no dual-write period
+
+## Drizzle Migrations Setup (Plan)
+
+- [x] Add deps (server): `drizzle-orm`, `drizzle-kit`, `pg`, `@types/pg`
+- [x] Create `server/drizzle.config.ts` (or `server/hono/drizzle.config.ts`) with:
+  - schema path: `server/hono/schema.ts`
+  - out dir: `server/hono/migrations`
+  - driver: `pg`
+  - db creds via env (DATABASE_URL or host/user/pass)
+- [x] Add server scripts:
+  - `db:generate` => `drizzle-kit generate`
+  - `db:migrate` => `drizzle-kit migrate`
+  - `db:studio` => `drizzle-kit studio`
+- [x] Create first migration from current Drizzle schema (baseline)
+- [x] Add migration runner for prod (Hono boot step or separate CLI)
+- [x] Add `db:push` (dev only) if needed; avoid in prod
+- [x] Document env vars + local flow in `server/hono/README.md`
+- [x] Decide migration ownership in deploy (CI step vs app startup)
 
 ## Handoff Notes (Jan 27, 2026)
 
