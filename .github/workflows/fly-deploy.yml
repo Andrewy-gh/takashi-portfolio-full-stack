@@ -13,40 +13,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Set up Node.js environment
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20' # specify the node version you are using
-
-      # Install pnpm globally
-      - name: Install pnpm
-        run: npm install -g pnpm
-
-      # Install dependencies in the client directory
-      - name: Install client dependencies
-        run: pnpm install
-        working-directory: ./client
-
-      # Build the client
-      - name: Build client
-        run: pnpm run build
-        working-directory: ./client
-
-      # Move the built client files to the server directory
-      - name: Move built client to server
-        run: mv ./client/dist ./server
-
-      # Install dependencies in the server directory
-      - name: Install server dependencies
-        run: pnpm install
-        working-directory: ./server
-
       # Set up Flyctl
       - uses: superfly/flyctl-actions/setup-flyctl@master
 
       # Deploy to Fly.io
-      - run: flyctl deploy --remote-only
-        working-directory: ./server
+      - run: flyctl deploy --remote-only --config server/fly.toml --dockerfile server/Dockerfile
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

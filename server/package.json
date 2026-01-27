@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "build:ui": "rm -rf dist && cd ../client && npm run build && mv dist ../server"
+    "build:ui": "rm -rf dist && cd ../client && npm run build && mv dist ../server",
+    "typecheck": "tsc -p tsconfig.json"
   },
   "author": "",
   "license": "ISC",
@@ -25,6 +26,8 @@
   "devDependencies": {
     "@flydotio/dockerfile": "^0.3.3",
     "cross-env": "^7.0.3",
-    "nodemon": "^2.0.22"
+    "nodemon": "^2.0.22",
+    "typescript": "^5.4.5",
+    "@types/node": "^20.12.7"
   }
 }
