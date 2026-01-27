@@ -26,3 +26,38 @@ From repo root:
 - `pnpm db:up` (or `docker compose up -d db`)
 - Use `DATABASE_URL=postgresql://postgres:postgres@localhost:5432/takashi_photos`
 - `pnpm db:down` (keeps data) or `docker compose down -v` (reset)
+
+## Cloudinary signed uploads + webhook
+
+Env:
+- `CLOUD_NAME`, `API_KEY`, `API_SECRET`
+- Optional: `CLOUDINARY_NOTIFICATION_URL` (forces the upload notification URL)
+
+Routes (when Hono is wired):
+- `GET /api/cloudinary/config` -> `{ cloudName, apiKey }`
+- `POST /api/cloudinary/signature` -> `{ signature, timestamp, apiKey, cloudName, params }`
+- `POST /api/cloudinary/webhook` -> verifies Cloudinary notification signature and upserts `images`
+
+## MongoDB -> Postgres migration (one-shot)
+
+From repo root:
+- Ensure `MONGODB_URI` + `DATABASE_URL` are set
+- Run `pnpm -C server db:migrate:mongo`
+- Optional output: `server/hono/scripts/mongo-image-order.json` (ordered Cloudinary IDs)
+
+## Batch Cloudinary upload/import (one-shot)
+
+Uploads a local folder to Cloudinary and inserts rows into Postgres.
+
+From repo root:
+- `pnpm -C server cloud:batch -- --dir "C:\\path\\to\\images"`
+
+Options:
+- `--cloud-folder "takashi"` (base folder in Cloudinary)
+- `--category-mode top|full` (default: top-level folder)
+- `--category-default "uncategorized"`
+- `--concurrency 3`
+- `--dry-run`
+- `--no-db` (skip Postgres writes)
+
+Report output: `server/hono/scripts/cloudinary-import-report.json`
