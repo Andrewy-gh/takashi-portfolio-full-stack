@@ -1,10 +1,8 @@
-import { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import HomeIcon from '@mui/icons-material/Home';
 import IconButton from '@mui/material/IconButton';
 import { theme } from '../styles/styles';
 import ProfileCover from '../assets/profile-cover.webp';
-import { AuthContext } from '../contexts/AuthContext';
 
 const BodyStyle = {
   fontFamily: 'Judson',
@@ -19,15 +17,7 @@ const HeaderStyle = {
   marginBottom: '.25rem',
 };
 
-const typographyStyle = {
-  fontSize: '1rem',
-  lineHeight: '1.6',
-  fontFamily: 'Quando',
-  cursor: 'pointer',
-};
-
 export default function Profile() {
-  const { loggedIn, token } = useContext(AuthContext);
   return (
     <div
       style={{
@@ -75,18 +65,6 @@ export default function Profile() {
         <p style={BodyStyle}>DxO Photolab, Nik Collection</p>
       </div>
       <div style={{ flexGrow: 1 }}></div>
-      {loggedIn && token ? null : (
-        <div
-          style={{
-            placeSelf: 'center end',
-            padding: '2rem',
-          }}
-        >
-          <div style={typographyStyle}>
-            <Link to="/login">Login</Link>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

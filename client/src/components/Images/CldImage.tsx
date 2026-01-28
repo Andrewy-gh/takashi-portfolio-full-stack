@@ -7,7 +7,12 @@ import {
 } from '@cloudinary/react';
 import { Cloudinary } from '@cloudinary/url-gen';
 
-export default function CldImage({ cloudName, cloudinaryId }) {
+type CldImageProps = {
+  cloudName: string;
+  publicId: string;
+};
+
+export default function CldImage({ cloudName, publicId }: CldImageProps) {
   const cld = useMemo(() => {
     return new Cloudinary({
       cloud: {
@@ -17,8 +22,8 @@ export default function CldImage({ cloudName, cloudinaryId }) {
   }, [cloudName]);
 
   const myImage = useMemo(() => {
-    return cld.image(cloudinaryId);
-  }, [cld, cloudinaryId]);
+    return cld.image(publicId);
+  }, [cld, publicId]);
 
   return (
     <AdvancedImage

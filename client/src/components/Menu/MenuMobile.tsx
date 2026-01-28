@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import DrawerMenu from './DrawerMenu';
+import type { NavigationItem } from '../../data';
 
 const flex = {
   display: 'flex',
@@ -21,10 +22,11 @@ const logoStyle = {
 export default function MenuMobile({
   filter,
   handleFilterChange,
-  handleLogout,
-  loggedIn,
   navigation,
-  token,
+}: {
+  filter: string | null;
+  handleFilterChange: (filter: string | null) => void;
+  navigation: NavigationItem[];
 }) {
   return (
     <div style={{ paddingInline: '.5rem' }}>
@@ -38,9 +40,6 @@ export default function MenuMobile({
           navigation={navigation}
           filter={filter}
           handleFilterChange={handleFilterChange}
-          handleLogout={handleLogout}
-          loggedIn={loggedIn}
-          token={token}
         />
       </div>
     </div>

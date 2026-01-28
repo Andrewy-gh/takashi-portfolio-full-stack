@@ -2,14 +2,15 @@ import { useMediaQuery } from '@mui/material/';
 import MenuDesktop from './MenuDesktop';
 import MenuMobile from './MenuMobile';
 import { theme } from '../../styles/styles';
-import { navigation } from '../../data/index';
+import { navigation } from '../../data';
 
-import { AuthContext } from '../../contexts/AuthContext';
-import { useContext } from 'react';
+type MenuProps = {
+  filter: string | null;
+  handleFilterChange: (filter: string | null) => void;
+};
 
-export default function Menu({ filter, handleFilterChange }) {
+export default function Menu({ filter, handleFilterChange }: MenuProps) {
   const isMobile = useMediaQuery(theme.breakpoints.down('tablet'));
-  const { loggedIn, token, handleLogout } = useContext(AuthContext);
 
   return (
     <>
@@ -17,19 +18,13 @@ export default function Menu({ filter, handleFilterChange }) {
         <MenuMobile
           filter={filter}
           handleFilterChange={handleFilterChange}
-          handleLogout={handleLogout}
-          loggedIn={loggedIn}
           navigation={navigation}
-          token={token}
         />
       ) : (
         <MenuDesktop
           filter={filter}
           handleFilterChange={handleFilterChange}
-          handleLogout={handleLogout}
-          loggedIn={loggedIn}
           navigation={navigation}
-          token={token}
         />
       )}
     </>

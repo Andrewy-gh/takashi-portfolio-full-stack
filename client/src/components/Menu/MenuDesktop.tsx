@@ -1,7 +1,15 @@
 import { Link } from 'react-router-dom';
 import Default from '../../assets/default.webp';
-import { renderLink } from '../../utils/navigation';
 import { theme } from '../../styles/styles';
+import type { NavigationItem } from '../../data';
+
+type NavigationItem = {
+  id: number;
+  name: string;
+  type: 'filter' | 'link';
+  filter?: string;
+  path?: string;
+};
 
 const activeStyle = {
   color: theme.palette.custom.main,
@@ -34,10 +42,11 @@ const typographyStyle = {
 export default function MenuDesktop({
   filter,
   handleFilterChange,
-  handleLogout,
-  loggedIn,
   navigation,
-  token,
+}: {
+  filter: string | null;
+  handleFilterChange: (filter: string | null) => void;
+  navigation: NavigationItem[];
 }) {
   return (
     <div style={sticky}>
@@ -56,20 +65,15 @@ export default function MenuDesktop({
                   ...typographyStyle,
                   ...(filter === nav.filter ? activeStyle : inActiveStyle),
                 }}
-                onClick={() => handleFilterChange(nav.filter)}
+                onClick={() => handleFilterChange(nav.filter ?? null)}
               >
                 {nav.name}
               </li>
-            ) : renderLink(nav, loggedIn, token) ? (
+            ) : nav.path ? (
               <li key={nav.id} style={typographyStyle}>
                 <Link to={nav.path}>{nav.name}</Link>
               </li>
             ) : null
-          )}
-          {loggedIn && token && (
-            <li style={typographyStyle} onClick={handleLogout}>
-              Logout
-            </li>
           )}
         </ul>
       </div>

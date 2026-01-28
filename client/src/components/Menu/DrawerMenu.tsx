@@ -5,8 +5,8 @@ import ButtonBase from '@mui/material/ButtonBase';
 import Drawer from '@mui/material/Drawer';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
-import { renderLink } from '../../utils/navigation';
 import { theme } from '../../styles/styles';
+import type { NavigationItem } from '../../data';
 
 const activeStyle = {
   color: theme.palette.custom.main,
@@ -32,10 +32,11 @@ const buttonStyle = {
 export default function DrawerMenu({
   filter,
   handleFilterChange,
-  loggedIn,
-  handleLogout,
   navigation,
-  token,
+}: {
+  filter: string | null;
+  handleFilterChange: (filter: string | null) => void;
+  navigation: NavigationItem[];
 }) {
   const [open, setOpen] = useState(false);
 
@@ -46,7 +47,7 @@ export default function DrawerMenu({
           <ListItem
             key={nav.id}
             sx={{ cursor: 'pointer' }}
-            onClick={() => handleFilterChange(nav.filter)}
+            onClick={() => handleFilterChange(nav.filter ?? null)}
           >
             <ListItemText
               primary={nav.name}
@@ -54,7 +55,7 @@ export default function DrawerMenu({
               sx={filter === nav.filter ? activeStyle : inActiveStyle}
             />
           </ListItem>
-        ) : renderLink(nav, loggedIn, token) ? (
+        ) : nav.path ? (
           <ListItem key={nav.id}>
             <Link to={nav.path}>
               <ListItemText
@@ -64,16 +65,6 @@ export default function DrawerMenu({
             </Link>
           </ListItem>
         ) : null
-      )}
-      {loggedIn && token && (
-        <>
-          <ListItem onClick={handleLogout} style={{ cursor: 'pointer' }}>
-            <ListItemText
-              primary={'Logout'}
-              primaryTypographyProps={{ variant: 'h4' }}
-            />
-          </ListItem>
-        </>
       )}
     </Box>
   );
