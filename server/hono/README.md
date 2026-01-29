@@ -44,13 +44,6 @@ Routes (when Hono is wired):
 - `POST /api/auth/login` -> `{ token }`
 - `GET /api/auth` -> `{ ok: true, sub, role }`
 
-## MongoDB -> Postgres migration (one-shot)
-
-From repo root:
-- Ensure `MONGODB_URI` + `DATABASE_URL` are set
-- Run `pnpm -C server db:migrate:mongo`
-- Optional output: `server/hono/scripts/mongo-image-order.json` (ordered Cloudinary IDs)
-
 ## Batch Cloudinary upload/import (one-shot)
 
 Uploads a local folder to Cloudinary and inserts rows into Postgres.
