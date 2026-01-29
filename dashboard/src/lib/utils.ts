@@ -160,7 +160,7 @@ export async function generateThumbnail(imageUrl: string): Promise<string> {
 
 // MARK: Table
 export function hasDataChanged<
-  T extends { sequence: number | null; id: number },
+  T extends { sequence: number | null; id: string },
 >(initial: T[], updated: T[]): boolean {
   return initial.some((item, index) => {
     return (

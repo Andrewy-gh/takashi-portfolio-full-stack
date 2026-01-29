@@ -44,35 +44,37 @@ function RouteComponent() {
               {category.name}
             </h2>
           </Link>
-          {category.projects.length > 0 ? (
+          {category.images.length > 0 ? (
             <>
               {/* Grid */}
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
-                {category.projects.map((project) => (
+                {category.images.map((image) => (
                   <Link
-                    key={project.id}
-                    to="/projects/$projectId"
-                    params={{ projectId: project.id }}
+                    key={image.id}
+                    to="/images/$imageId"
+                    params={{ imageId: image.id }}
                   >
-                    {project.thumbnail ? (
+                    {image.url ? (
                       <div className="group relative aspect-[3/4]">
                         {/* Thumbnail */}
                         <img
-                          src={project.thumbnail?.url}
-                          alt={project.name}
+                          src={image.url}
+                          alt={image.title ?? 'Image'}
                           className="absolute inset-0 h-full w-full rounded-lg object-cover"
                         />
                         {/* Overlay */}
                         <div className="mouse">
                           <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-gray-800 bg-opacity-0 transition-opacity duration-300 group-hover:bg-opacity-70">
                             <p className="text-center font-header text-2xl text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                              {project.name}
+                              {image.title ?? 'Untitled'}
                             </p>
                           </div>
                         </div>
                         {/* Caption for touch devices */}
                         <div className="touch mt-2">
-                          <p className="font-body text-xl">{project.name}</p>
+                          <p className="font-body text-xl">
+                            {image.title ?? 'Untitled'}
+                          </p>
                         </div>
                       </div>
                     ) : (
@@ -80,7 +82,7 @@ function RouteComponent() {
                       <div className="flex aspect-[3/4] h-full w-full flex-col items-center justify-center rounded-lg bg-gray-200 text-gray-400">
                         <ImageOff className="mb-2 h-12 w-12" />
                         <p className="px-2 text-center text-sm">
-                          {project.name}
+                          {image.title ?? 'Untitled'}
                         </p>
                       </div>
                     )}
@@ -89,7 +91,7 @@ function RouteComponent() {
               </div>
             </>
           ) : (
-            <p className="text-gray-400 text-lg">No projects</p>
+            <p className="text-gray-400 text-lg">No images</p>
           )}
         </section>
       ))}

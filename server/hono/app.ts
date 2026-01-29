@@ -3,6 +3,8 @@ import { cors } from "hono/cors";
 import cloudinaryRoutes from "./routes/cloudinary";
 import authRoutes from "./routes/auth";
 import imagesRoutes from "./routes/images";
+import categoriesRoutes from "./routes/categories";
+import dashboardRoutes from "./routes/dashboard";
 
 const app = new Hono();
 
@@ -24,7 +26,9 @@ const routes = app
   .get("/health", (c) => c.json({ ok: true }))
   .route("/api/auth", authRoutes)
   .route("/api/cloudinary", cloudinaryRoutes)
-  .route("/api/images", imagesRoutes);
+  .route("/api/images", imagesRoutes)
+  .route("/api/categories", categoriesRoutes)
+  .route("/api/dashboard", dashboardRoutes);
 
 export type AppType = typeof routes;
 

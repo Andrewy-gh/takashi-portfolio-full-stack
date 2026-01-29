@@ -9,29 +9,16 @@ import {
   type GetImageByIdResponse,
   useUpdateImageMutation,
 } from '@/lib/images.queries';
-import type { GetProjectsSelectResponse } from '@/lib/projects.queries';
 
-export function EditImageForm({
-  image,
-  projects,
-}: {
-  image: GetImageByIdResponse;
-  projects: GetProjectsSelectResponse;
-}) {
+export function EditImageForm({ image }: { image: GetImageByIdResponse }) {
   const router = useRouter();
   const canGoBack = useCanGoBack();
   const updateImage = useUpdateImageMutation(image.id);
 
-  // Extract extension from original name
-  const fileExtension = image?.name?.split('.').pop() || '';
-  const nameWithoutExtension =
-    image?.name?.replace(`.${fileExtension}`, '') || '';
-
   const form = useAppForm({
     defaultValues: {
-      name: nameWithoutExtension,
-      description: image?.description ?? '',
-      projectId: image?.projectId,
+      name: image?.title ?? '',
+      description: '',
     },
     validators: {
       onSubmit: editImageSchema,
@@ -39,13 +26,12 @@ export function EditImageForm({
     onSubmit: async ({ value }) => {
       await updateImage.mutateAsync(
         {
-          name: `${value.name}.${fileExtension}`,
+          name: value.name,
           description: value.description,
-          projectId: value.projectId,
         },
         {
           onSuccess: () => {
-            toast.success('Image updated 🎉');
+            toast.success('Image updated');
           },
           onError: () => {
             toast.error('Failed to update image');
@@ -75,15 +61,11 @@ export function EditImageForm({
       >
         <form.AppField
           name="name"
-          children={(field) => <field.TextField label="Name:" />}
+          children={(field) => <field.TextField label="Title:" />}
         />
         <form.AppField
           name="description"
           children={(field) => <field.TextArea label="Description:" />}
-        />
-        <form.AppField
-          name="projectId"
-          children={(field) => <field.ProjectCombobox projects={projects} />}
         />
         <div className="flex gap-4">
           <form.AppForm>

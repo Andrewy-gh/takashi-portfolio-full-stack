@@ -38,15 +38,9 @@ export const imagesQueryOptions = ({
   });
 
 // MARK: POST
-async function uploadImage({
-  projectId,
-  files,
-}: {
-  projectId: number | null;
-  files: File[];
-}) {
+async function uploadImage({ files }: { files: File[] }) {
   const res = await client.api.images.$post({
-    form: { projectId: projectId ? String(projectId) : '', files },
+    form: { files },
   });
   if (!res.ok) throw new Error(await res.text());
   return await res.json();
@@ -65,12 +59,6 @@ export const useUploadImageMutation = () => {
         newImages.forEach((newImage) => {
           queryClient.setQueryData(['images', 'detail', newImage.id], newImage);
         });
-
-        if (newImages[0].projectId) {
-          queryClient.invalidateQueries({
-            queryKey: ['projects', 'detail', newImages[0].projectId],
-          });
-        }
       }
 
       queryClient.invalidateQueries({
@@ -84,7 +72,7 @@ export const useUploadImageMutation = () => {
 async function updateImageSequence({
   images,
 }: {
-  images: { id: number; sequence: number }[];
+  images: { id: string; sequence: number }[];
 }) {
   const res = await client.api.images.$put({
     json: { images },
@@ -101,26 +89,22 @@ export const useUpdateImageSequenceMutation = () => {
         queryKey: ['images', 'list'],
         exact: false,
       });
-      queryClient.invalidateQueries({
-        queryKey: ['projects'],
-        exact: false,
-      });
     },
   });
 };
 
 // MARK: GET :id
-async function getImageById(imageId: number) {
-  const res = await client.api.images[':id{[0-9]+}'].$get({
+async function getImageById(imageId: string) {
+  const res = await client.api.images[':id'].$get({
     param: {
-      id: String(imageId),
+      id: imageId,
     },
   });
   if (!res.ok) throw new Error(await res.text());
   return await res.json();
 }
 
-export const imageQueryOptions = (imageId: number) =>
+export const imageQueryOptions = (imageId: string) =>
   queryOptions({
     queryKey: ['images', 'detail', imageId],
     queryFn: () => getImageById(imageId),
@@ -129,40 +113,37 @@ export const imageQueryOptions = (imageId: number) =>
 // MARK: PUT :id
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const getSingleImage = client.api.images[':id{[0-9]+}'].$get;
+const getSingleImage = client.api.images[':id'].$get;
 export type GetImageByIdResponse = InferResponseType<
   typeof getSingleImage,
   200
 >;
 
 async function updateImageById(
-  imageId: number,
+  imageId: string,
   {
     name,
     description,
-    projectId,
   }: {
     name?: string;
     description?: string;
-    projectId?: number | null;
   }
 ) {
-  const res = await client.api.images[':id{[0-9]+}'].$put({
+  const res = await client.api.images[':id'].$put({
     param: {
-      id: String(imageId),
+      id: imageId,
     },
-    json: { name, description, projectId },
+    json: { name, description },
   });
   if (!res.ok) throw new Error(await res.text());
   return await res.json();
 }
 
-export const useUpdateImageMutation = (imageId: number) => {
+export const useUpdateImageMutation = (imageId: string) => {
   return useMutation({
     mutationFn: (data: {
       name?: string;
       description?: string;
-      projectId?: number | null;
     }) => updateImageById(imageId, data),
     onSuccess: (updatedImage) => {
       queryClient.setQueryData(
@@ -178,20 +159,20 @@ export const useUpdateImageMutation = (imageId: number) => {
 };
 
 // MARK: DELETE :id
-async function deleteImageById(imageId: number) {
-  const res = await client.api.images[':id{[0-9]+}'].$delete({
+async function deleteImageById(imageId: string) {
+  const res = await client.api.images[':id'].$delete({
     param: {
-      id: String(imageId),
+      id: imageId,
     },
   });
   if (!res.ok) throw new Error(await res.text());
   return await res.json();
 }
 
-export const useDeleteImageMutation = (imageId: number) => {
+export const useDeleteImageMutation = (imageId: string) => {
   return useMutation({
     mutationFn: () => deleteImageById(imageId),
-    onSuccess: (deletedImage) => {
+    onSuccess: () => {
       queryClient.removeQueries({
         queryKey: ['images', 'detail', imageId],
         exact: true,
@@ -200,16 +181,6 @@ export const useDeleteImageMutation = (imageId: number) => {
         queryKey: ['images', 'list'],
         exact: false,
       });
-      if (deletedImage.projectId) {
-        queryClient.invalidateQueries({
-          queryKey: ['projects', 'detail', deletedImage.projectId],
-        });
-      }
-      if (deletedImage.featuredImageId) {
-        queryClient.invalidateQueries({
-          queryKey: ['featured-images', 'list'],
-        });
-      }
       queryClient.invalidateQueries({
         queryKey: ['dashboard', 'list'],
       });

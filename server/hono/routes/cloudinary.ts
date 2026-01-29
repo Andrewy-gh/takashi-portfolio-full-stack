@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { eq } from "drizzle-orm";
 import { db } from "../db";
-import { images } from "../schema";
+import { categories, imageCategories, images } from "../schema";
 import {
   buildUploadSignature,
   cloudinaryConfig,
@@ -12,9 +12,44 @@ type CloudinaryNotification = {
   public_id?: string;
   secure_url?: string;
   original_filename?: string;
+  width?: number;
+  height?: number;
   context?: {
     custom?: Record<string, string>;
   };
+};
+
+const HOME_CATEGORY_SLUG = "home";
+const HOME_CATEGORY_NAME = "Home";
+
+const ensureHomeCategory = async () => {
+  const existing = await db
+    .select({ id: categories.id })
+    .from(categories)
+    .where(eq(categories.slug, HOME_CATEGORY_SLUG))
+    .limit(1);
+
+  if (existing.length > 0) {
+    return existing[0].id;
+  }
+
+  const inserted = await db
+    .insert(categories)
+    .values({ name: HOME_CATEGORY_NAME, slug: HOME_CATEGORY_SLUG })
+    .onConflictDoNothing()
+    .returning({ id: categories.id });
+
+  if (inserted.length > 0) {
+    return inserted[0].id;
+  }
+
+  const fallback = await db
+    .select({ id: categories.id })
+    .from(categories)
+    .where(eq(categories.slug, HOME_CATEGORY_SLUG))
+    .limit(1);
+
+  return fallback[0]?.id;
 };
 
 const serializeContext = (value: unknown) => {
@@ -128,25 +163,67 @@ const cloudinaryRoutes = new Hono()
 
   const title = buildTitle(payload);
 
+  const width =
+    typeof payload.width === "number" ? payload.width : undefined;
+  const height =
+    typeof payload.height === "number" ? payload.height : undefined;
+
+  let imageId = existing[0]?.id;
+
   if (existing.length === 0) {
-    await db.insert(images).values({
-      publicId: payload.public_id,
-      url: payload.secure_url,
-      title,
-    });
+    const inserted = await db
+      .insert(images)
+      .values({
+        publicId: payload.public_id,
+        url: payload.secure_url,
+        title,
+        width,
+        height,
+      })
+      .returning({ id: images.id });
+    imageId = inserted[0]?.id;
   } else {
-    const updates: { url?: string; title?: string | null } = {};
+    const updates: {
+      url?: string;
+      title?: string | null;
+      width?: number | null;
+      height?: number | null;
+      updatedAt?: Date;
+    } = {};
     if (payload.secure_url && payload.secure_url !== existing[0].url) {
       updates.url = payload.secure_url;
     }
     if (!existing[0].title && title) {
       updates.title = title;
     }
+    if (
+      typeof width === "number" &&
+      width !== existing[0].width
+    ) {
+      updates.width = width;
+    }
+    if (
+      typeof height === "number" &&
+      height !== existing[0].height
+    ) {
+      updates.height = height;
+    }
     if (Object.keys(updates).length > 0) {
+      updates.updatedAt = new Date();
       await db
         .update(images)
         .set(updates)
         .where(eq(images.publicId, payload.public_id));
+    }
+  }
+
+  if (imageId) {
+    const homeCategoryId = await ensureHomeCategory();
+    if (homeCategoryId) {
+      await db
+        .insert(imageCategories)
+        .values({ imageId, categoryId: homeCategoryId })
+        .onConflictDoNothing();
     }
   }
 

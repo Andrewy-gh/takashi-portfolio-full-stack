@@ -61,7 +61,7 @@ export function DiscrepancyTable({ discrepancies, onSuccess }: DiscrepancyTableP
     );
   };
 
-  const handleDeleteFromDB = async (imageId: number, fileId: string) => {
+  const handleDeleteFromDB = async (imageId: string, fileId: string) => {
     await deleteFileFromDbMutation.mutateAsync(imageId, {
       onSuccess() {
         toast.success('File removed from database');

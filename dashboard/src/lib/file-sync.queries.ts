@@ -57,9 +57,9 @@ export const useAddFileToDbMutation = () => {
 };
 
 // MARK: DELETE DB
-async function deleteFileFromDb(imageId: number) {
-  const res = await client.api['file-sync'][':imageId{[0-9]+}'].$delete({
-    param: { imageId: String(imageId) },
+async function deleteFileFromDb(imageId: string) {
+  const res = await client.api['file-sync'][':imageId'].$delete({
+    param: { imageId },
   });
   if (!res.ok) throw new Error(await res.text());
   return await res.json();

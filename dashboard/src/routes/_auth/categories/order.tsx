@@ -69,7 +69,7 @@ function RouteComponent() {
         id: 'drag-handle',
         header: 'Move',
         cell: ({ row }) =>
-          row.original.sequence ? (
+          row.original.sequence !== null && row.original.sequence !== undefined ? (
             <RowDragHandleCell rowId={row.id.toString()} />
           ) : null,
         size: 60,
@@ -80,9 +80,9 @@ function RouteComponent() {
         cell: (info) => info.getValue(),
       },
       {
-        accessorKey: 'totalProjects',
-        header: 'Total Projects',
-        cell: ({ row }) => <span>{row.original.totalProjects ?? 0}</span>,
+        accessorKey: 'totalImages',
+        header: 'Total Images',
+        cell: ({ row }) => <span>{row.original.totalImages ?? 0}</span>,
       },
       {
         accessorKey: 'sequence',
@@ -93,7 +93,8 @@ function RouteComponent() {
         header: 'Add/Remove',
         cell: ({ row }) => (
           <>
-            {row.original.sequence ? (
+            {row.original.sequence !== null &&
+            row.original.sequence !== undefined ? (
               <Button
                 size="icon"
                 variant="ghost"
@@ -105,7 +106,10 @@ function RouteComponent() {
                     const sortedData = sortBySequenceThenName(updatedData);
                     const reorderedData = sortedData.map((d, i) => ({
                       ...d,
-                      sequence: d.sequence !== null ? i + 1 : null,
+                      sequence:
+                        d.sequence !== null && d.sequence !== undefined
+                          ? i + 1
+                          : null,
                     }));
                     return reorderedData;
                   })
@@ -169,17 +173,19 @@ function RouteComponent() {
         const newData = arrayMove(data, oldIndex, newIndex).map((d, i) => ({
           ...d,
           // Only remap orders for items that have non null orders
-          sequence: d.sequence ? i + 1 : null,
-        }));
-        return newData;
-      });
-    }
+              sequence:
+                d.sequence !== null && d.sequence !== undefined ? i + 1 : null,
+            }));
+            return newData;
+          });
+        }
   }
 
   function handleSequenceUpdate() {
     const categoriesWithSequence = data.map((d) => ({
       id: d.id,
-      sequence: d.sequence ? d.sequence : null,
+      sequence:
+        d.sequence !== null && d.sequence !== undefined ? d.sequence : null,
     }));
     updateCategoriesTable.mutate(categoriesWithSequence, {
       onSuccess: () => {

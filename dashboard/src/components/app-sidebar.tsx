@@ -2,7 +2,6 @@ import * as React from 'react';
 import {
   AudioWaveform,
   BookOpen,
-  Bot,
   Command,
   Frame,
   GalleryVerticalEnd,
@@ -66,21 +65,6 @@ const data = {
       ],
     },
     {
-      title: 'Projects',
-      url: '/projects',
-      icon: Bot,
-      items: [
-        {
-          title: 'All',
-          url: '/projects',
-        },
-        {
-          title: 'New',
-          url: '/projects/new',
-        },
-      ],
-    },
-    {
       title: 'Categories',
       url: '/categories',
       icon: BookOpen,
@@ -100,21 +84,6 @@ const data = {
         {
           title: 'Order',
           url: '/categories/order',
-        },
-      ],
-    },
-    {
-      title: 'Featured Images',
-      url: '/featured-images',
-      icon: BookOpen,
-      items: [
-        {
-          title: 'All',
-          url: '/featured-images',
-        },
-        {
-          title: 'Preview',
-          url: '/featured-images/preview',
         },
       ],
     },

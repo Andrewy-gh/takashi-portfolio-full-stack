@@ -23,12 +23,6 @@ export const projectSchemaWithFiles = projectSchema.extend({
 });
 
 // Image Schemas
-export const projectIdSchema = z.number().int().nullable();
+export const editImageSchema = nameDescriptionSchema;
 
-export const editImageSchema = nameDescriptionSchema.extend({
-  projectId: projectIdSchema,
-});
-
-export const uploadImageSchema = requiredFilesSchema.extend({
-  projectId: projectIdSchema,
-});
+export const uploadImageSchema = requiredFilesSchema;

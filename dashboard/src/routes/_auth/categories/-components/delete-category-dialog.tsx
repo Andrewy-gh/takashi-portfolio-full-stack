@@ -19,7 +19,7 @@ export function DeleteCategoryDialog({
   id,
 }: {
   isOpen: boolean;
-  id: number;
+  id: string;
 }) {
   const navigate = useNavigate();
   const deleteCategory = useDeleteCategoryMutation(id);
@@ -53,7 +53,7 @@ export function DeleteCategoryDialog({
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
             This action cannot be undone. This category will be permanently
-            deleted. The projects will <b>not be deleted</b> but will have{' '}
+            deleted. The images will <b>not be deleted</b> but will have{' '}
             <b>no associated category</b>.
           </AlertDialogDescription>
         </AlertDialogHeader>

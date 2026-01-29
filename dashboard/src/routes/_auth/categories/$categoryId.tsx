@@ -5,8 +5,7 @@ import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { DeleteCategoryDialog } from './-components/delete-category-dialog';
 import { EditCategoryForm } from './-components/edit-category-form';
-import { ListOrdered, Pencil, Trash2 } from 'lucide-react';
-import { ProjectGrid } from '@/components/project-grid';
+import { Pencil, Trash2 } from 'lucide-react';
 
 import {
   type SortType,
@@ -15,7 +14,6 @@ import {
   DirectionTypeSchema,
 } from '@server/lib/shared-types';
 import { categoryQueryOptions } from '@/lib/categories.queries';
-import { projectsSelectQueryOptions } from '@/lib/projects.queries';
 import { SortDropdown } from '@/components/sort-dropdown';
 
 const categoryOptionsSchema = z.object({
@@ -28,14 +26,13 @@ const categoryOptionsSchema = z.object({
 export const Route = createFileRoute('/_auth/categories/$categoryId')({
   params: {
     parse: (params) => ({
-      categoryId: z.coerce.number().int().parse(params.categoryId),
+      categoryId: z.string().min(1).parse(params.categoryId),
     }),
   },
   loader(opts) {
     opts.context.queryClient.ensureQueryData(
       categoryQueryOptions(opts.params.categoryId)
     );
-    opts.context.queryClient.ensureQueryData(projectsSelectQueryOptions());
   },
   component: RouteComponent,
   validateSearch: categoryOptionsSchema,
@@ -62,15 +59,15 @@ function RouteComponent() {
     });
   };
 
-  const sortedProjects = category.projects
-    ? [...category.projects].sort((a, b) => {
+  const sortedImages = category.images
+    ? [...category.images].sort((a, b) => {
         if (!sort) return 0;
 
         const modifier = direction === 'asc' ? 1 : -1;
 
         switch (sort) {
           case 'name':
-            return a.name.localeCompare(b.name) * modifier;
+            return (a.title ?? '').localeCompare(b.title ?? '') * modifier;
           case 'createdAt':
             return (
               (new Date(a.createdAt).getTime() -
@@ -110,14 +107,6 @@ function RouteComponent() {
               <Pencil className="mr-2 h-4 w-4" /> Edit
             </Link>
           </Button>
-          <Button asChild variant="outline">
-            <Link
-              to="/categories/$categoryId/project-order"
-              params={{ categoryId: category.id }}
-            >
-              <ListOrdered className="mr-2 h-4 w-4" /> Order
-            </Link>
-          </Button>
           <Button asChild variant="destructive">
             <Link to="." search={{ delete: true }}>
               <Trash2 className="mr-2 h-4 w-4" /> Delete
@@ -128,10 +117,29 @@ function RouteComponent() {
       <nav>
         <SortDropdown sort={sort} direction={direction} onChange={handleSort} />
       </nav>
-      {sortedProjects.length ? (
-        <ProjectGrid projects={sortedProjects} />
+      {sortedImages.length ? (
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {sortedImages.map((image) => (
+            <Link
+              key={image.id}
+              to="/images/$imageId"
+              params={{ imageId: image.id }}
+            >
+              <div className="relative h-64 w-full overflow-hidden rounded-md bg-slate-900">
+                <img
+                  src={image.url}
+                  alt={image.title ?? 'Image'}
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
+              </div>
+              <p className="mt-2 text-sm text-muted-foreground">
+                {image.title ?? 'Untitled'}
+              </p>
+            </Link>
+          ))}
+        </div>
       ) : (
-        <p>No Projects Found</p>
+        <p>No Images Found</p>
       )}
     </section>
   );

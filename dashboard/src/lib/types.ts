@@ -1,6 +1,3 @@
-import { z } from 'zod';
-import { projectIdSchema } from './schema';
-
 export type FileWithValidation = {
   file: File;
   error?: string[];
@@ -15,7 +12,7 @@ export type ImageFile = {
   dimensions: { width: number; height: number };
 };
 
-export type ProjectId = z.infer<typeof projectIdSchema>;
+export type ImageId = string;
 
 export type SearchType = {
   page: number;
@@ -32,7 +29,7 @@ export type BaseDiscrepancy = {
 
 export type DbDiscrepancy = BaseDiscrepancy & {
   source: 'database';
-  imageId: number;
+  imageId: string;
 };
 
 export type ImagekitDiscrepancy = BaseDiscrepancy & {

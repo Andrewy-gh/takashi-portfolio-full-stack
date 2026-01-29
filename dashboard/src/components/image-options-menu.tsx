@@ -2,13 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 
 import { Button } from '@/components/ui/button';
-import {
-  CirclePlus,
-  CircleX,
-  MoreHorizontal,
-  Pencil,
-  Trash2,
-} from 'lucide-react';
+import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import { ActionButtons } from '@/components/action-buttons';
 import { DialogBase } from '@/components/dialog-base';
 import {
@@ -21,28 +15,20 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
 
-import {
-  useAddFeaturedImageMutation,
-  useRemoveFeaturedImageMutation,
-} from '@/lib/featured-images.queries';
 import { useDeleteImageMutation } from '@/lib/images.queries';
-import { cn } from '@/lib/utils';
 
 export function ImageOptionsMenu({
   image,
 }: {
   image: {
-    id: number;
-    name: string;
+    id: string;
+    title?: string | null;
     url: string;
-    featuredImageId: number | null;
   };
 }) {
   const navigate = useNavigate();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const deleteImage = useDeleteImageMutation(image.id);
-  const removeFeaturedImage = useRemoveFeaturedImageMutation();
-  const addFeaturedImage = useAddFeaturedImageMutation();
 
   const handleOpenDeleteDialog = () => {
     setIsDeleteDialogOpen(true);
@@ -64,27 +50,6 @@ export function ImageOptionsMenu({
     });
   };
 
-  const handleUpdateFeaturedImage = () => {
-    if (image.featuredImageId) {
-      removeFeaturedImage.mutate(image.featuredImageId, {
-        onSuccess: () => {
-          toast.success('Image removed from featured images');
-        },
-        onError: () => {
-          toast.error('Failed to remove image from featured images');
-        },
-      });
-    } else {
-      addFeaturedImage.mutate(image.id, {
-        onSuccess: () => {
-          toast.success('Image added to featured images 🎉');
-        },
-        onError: () => {
-          toast.error('Failed to add image to featured images');
-        },
-      });
-    }
-  };
 
   const handleViewClick = () => {
     window.open(image.url, '_blank', 'noopener,noreferrer');
@@ -118,21 +83,6 @@ export function ImageOptionsMenu({
               Edit
             </DropdownMenuItem>
             <DropdownMenuItem
-              onClick={handleUpdateFeaturedImage}
-              className={cn(image.featuredImageId && 'text-red-500')}
-            >
-              {image.featuredImageId ? (
-                <>
-                  <CircleX className="mr-2 h-4 w-4" /> Featured
-                </>
-              ) : (
-                <>
-                  <CirclePlus className="mr-2 h-4 w-4" />
-                  Featured
-                </>
-              )}
-            </DropdownMenuItem>
-            <DropdownMenuItem
               onClick={handleOpenDeleteDialog}
               className="text-red-500"
             >
@@ -147,8 +97,9 @@ export function ImageOptionsMenu({
             isOpen={isDeleteDialogOpen}
             description={
               <>
-                Are you sure you want to delete <b>{image.name}</b>? This action
-                cannot be undone.
+                Are you sure you want to delete{' '}
+                <b>{image.title ?? 'this image'}</b>? This action cannot be
+                undone.
               </>
             }
           >
@@ -164,3 +115,6 @@ export function ImageOptionsMenu({
     </div>
   );
 }
+
+
+

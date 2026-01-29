@@ -7,7 +7,7 @@ import {
   CardTitle,
   CardFooter,
 } from '@/components/ui/card';
-import { ListOrderedIcon, Pencil } from 'lucide-react';
+import { Pencil } from 'lucide-react';
 import type { GetCategoriesResponse } from '@/lib/categories.queries';
 
 export function CategoriesGrid({
@@ -28,7 +28,7 @@ export function CategoriesGrid({
                 {category.name}
               </Link>{' '}
             </CardTitle>
-            {category.sequence && (
+            {category.sequence !== null && category.sequence !== undefined && (
               <div className="absolute top-3 right-3 bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center font-semibold">
                 {category.sequence}
               </div>
@@ -57,7 +57,7 @@ export function CategoriesGrid({
                 )}
               </Link>
             </div>
-            <p>{category.totalProjects ?? 0} Projects</p>
+            <p>{category.totalImages ?? 0} Images</p>
           </CardContent>
           <CardFooter className="flex flex-wrap justify-between gap-4">
             <Button asChild variant="outline">
@@ -69,16 +69,6 @@ export function CategoriesGrid({
                 <Pencil className="mr-2 h-4 w-4" /> View
               </Link>
             </Button>
-            {category.sequence && (
-              <Button asChild variant="outline">
-                <Link
-                  to={`/categories/$categoryId/project-order`}
-                  params={{ categoryId: category.id }}
-                >
-                  <ListOrderedIcon className="mr-2 h-4 w-4" /> Project Order
-                </Link>
-              </Button>
-            )}
           </CardFooter>
         </Card>
       ))}

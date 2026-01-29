@@ -83,6 +83,9 @@ const reportPath =
   args.report ||
   path.resolve(__dirname, "cloudinary-import-report.json");
 
+const HOME_CATEGORY_NAME = "Home";
+const HOME_CATEGORY_SLUG = "home";
+
 const slugify = (value) =>
   value
     .toLowerCase()
@@ -273,6 +276,7 @@ const main = async () => {
   let supportsImageCategories = false;
   let supportsCategorySlug = false;
   let existingPublicIds = new Set();
+  let homeCategoryId = null;
 
   if (pool) {
     supportsCategoryColumn = await columnExists(pool, "images", "category");
@@ -284,6 +288,15 @@ const main = async () => {
       ? await columnExists(pool, "categories", "slug")
       : false;
     existingPublicIds = await getExistingPublicIds(pool);
+
+    if (supportsCategoriesTable && supportsImageCategories) {
+      homeCategoryId = await ensureCategory(
+        pool,
+        HOME_CATEGORY_NAME,
+        HOME_CATEGORY_SLUG,
+        supportsCategorySlug
+      );
+    }
   }
 
   let processed = 0;
@@ -383,6 +396,9 @@ const main = async () => {
                 supportsCategorySlug
               );
               await insertImageCategory(pool, imageId, categoryId);
+              if (homeCategoryId) {
+                await insertImageCategory(pool, imageId, homeCategoryId);
+              }
             }
           }
 

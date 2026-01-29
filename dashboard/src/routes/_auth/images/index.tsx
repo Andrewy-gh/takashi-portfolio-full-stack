@@ -9,7 +9,6 @@ import Masonry from 'react-masonry-css';
 import { Pagination } from '@/components/pagination';
 import {
   PlusIcon,
-  Sparkles,
   CheckSquare,
   X,
   Trash2,
@@ -59,7 +58,7 @@ function RouteComponent() {
 
   // Multi-select state
   const [isSelectMode, setIsSelectMode] = useState(false);
-  const [selectedImageIds, setSelectedImageIds] = useState<Set<number>>(
+  const [selectedImageIds, setSelectedImageIds] = useState<Set<string>>(
     new Set()
   );
 
@@ -114,7 +113,7 @@ function RouteComponent() {
     }
   };
 
-  const toggleImageSelection = useCallback((imageId: number) => {
+  const toggleImageSelection = useCallback((imageId: string) => {
     setSelectedImageIds((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(imageId)) {
@@ -282,8 +281,8 @@ function RouteComponent() {
               }
             >
               <img
-                src={image.thumbnailUrl}
-                alt={image?.description ?? image?.name ?? 'Image'}
+                src={image.url}
+                alt={image?.title ?? 'Image'}
                 className={`w-full ${isSelectMode && selectedImageIds.has(image.id) ? 'opacity-90' : ''}`}
               />
 
@@ -319,22 +318,10 @@ function RouteComponent() {
                 <ImageOptionsMenu
                   image={{
                     id: image.id,
-                    name: image.name,
+                    title: image.title,
                     url: image.url,
-                    featuredImageId: image.featuredImageId,
                   }}
                 />
-              )}
-
-              {/* MARK: Featured image indicator */}
-              {image.featuredImageId && (
-                <div className="absolute bottom-2 right-2">
-                  <Sparkles
-                    className="text-yellow-400"
-                    size={32}
-                    fill="rgb(253 224 71)"
-                  />
-                </div>
               )}
             </div>
           </div>

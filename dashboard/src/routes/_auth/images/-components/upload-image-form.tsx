@@ -7,14 +7,12 @@ import { CancelButton } from '@/components/form/cancel-button';
 import { toast } from 'sonner';
 import { X } from 'lucide-react';
 
-import type { GetProjectsSelectResponse } from '@/lib/projects.queries';
-import type { ImageFile, ProjectId } from '@/lib/types';
+import type { ImageFile } from '@/lib/types';
 import { uploadImageSchema } from '@/lib/schema';
 import { useUploadImageMutation } from '@/lib/images.queries';
 
 const formOpts = formOptions({
   defaultValues: {
-    projectId: null as ProjectId,
     files: [] as ImageFile[],
   },
   validators: {
@@ -53,7 +51,7 @@ const FilesField = withForm({
                       variant="destructive"
                       className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
                       onClick={() => {
-                        field.removeValue(index)
+                        field.removeValue(index);
                       }}
                     >
                       <X className="h-4 w-4" />
@@ -70,11 +68,7 @@ const FilesField = withForm({
   },
 });
 
-export function UploadImageForm({
-  projects,
-}: {
-  projects: GetProjectsSelectResponse;
-}) {
+export function UploadImageForm() {
   const router = useRouter();
   const canGoBack = useCanGoBack();
 
@@ -86,11 +80,11 @@ export function UploadImageForm({
       toast.loading('Uploading images...');
       const files = value.files.map((file) => file.file);
       await uploadImage.mutateAsync(
-        { projectId: value.projectId, files },
+        { files },
         {
           onSuccess() {
             toast.dismiss();
-            toast.success('Images uploaded successfully 🎉');
+            toast.success('Images uploaded successfully');
             router.navigate({
               to: '/images',
             });
@@ -120,10 +114,6 @@ export function UploadImageForm({
       }}
       className="space-y-8"
     >
-      <form.AppField
-        name="projectId"
-        children={(field) => <field.ProjectCombobox projects={projects} />}
-      />
       <FilesField form={form} />
       {/* MARK: Submit */}
       <div className="flex gap-4">

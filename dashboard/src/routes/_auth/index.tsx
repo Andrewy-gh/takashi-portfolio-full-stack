@@ -40,7 +40,7 @@ function DashboardCard({
 
 function RouteComponent() {
   const { data: dashboard } = useSuspenseQuery(dashboardQueryOptions());
-  const { images, categories, projects, featuredImages } = dashboard;
+  const { images, categories } = dashboard;
 
   return (
     <section>
@@ -59,18 +59,6 @@ function RouteComponent() {
             count={categories.count}
             href="/categories"
             text="Manage Categories"
-          />
-          <DashboardCard
-            title="Projects"
-            count={projects.count}
-            href="/projects"
-            text="Manage Projects"
-          />
-          <DashboardCard
-            title="Featured Images"
-            count={featuredImages.count}
-            href="/featured-images"
-            text="Manage Featured Images"
           />
         </div>
       </div>

@@ -63,23 +63,23 @@ export const useCreateCategoryMutation = () => {
 
 // MARK: GET :id
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const getCategoryByIdRequest = client.api.categories[':id{[0-9]+}'].$get;
+const getCategoryByIdRequest = client.api.categories[':id'].$get;
 export type GetCategoryByIdResponse = InferResponseType<
   typeof getCategoryByIdRequest,
   200
 >;
 
-async function getCategoryById(categoryId: number) {
-  const res = await client.api.categories[':id{[0-9]+}'].$get({
+async function getCategoryById(categoryId: string) {
+  const res = await client.api.categories[':id'].$get({
     param: {
-      id: String(categoryId),
+      id: categoryId,
     },
   });
   if (!res.ok) throw new Error(await res.text());
   return await res.json();
 }
 
-export const categoryQueryOptions = (categoryId: number) =>
+export const categoryQueryOptions = (categoryId: string) =>
   queryOptions({
     queryKey: ['categories', 'detail', categoryId],
     queryFn: () => getCategoryById(categoryId),
@@ -87,7 +87,7 @@ export const categoryQueryOptions = (categoryId: number) =>
 
 // MARK: PUT :id
 async function updateCategoryById(
-  categoryId: number,
+  categoryId: string,
   {
     name,
     description,
@@ -96,9 +96,9 @@ async function updateCategoryById(
     description: string;
   }
 ) {
-  const res = await client.api.categories[':id{[0-9]+}'].$put({
+  const res = await client.api.categories[':id'].$put({
     param: {
-      id: String(categoryId),
+      id: categoryId,
     },
     json: { name, description },
   });
@@ -106,7 +106,7 @@ async function updateCategoryById(
   return await res.json();
 }
 
-export const useUpdateCategoryMutation = (categoryId: number) => {
+export const useUpdateCategoryMutation = (categoryId: string) => {
   return useMutation({
     mutationFn: (data: { name: string; description: string }) =>
       updateCategoryById(categoryId, data),
@@ -124,17 +124,17 @@ export const useUpdateCategoryMutation = (categoryId: number) => {
 };
 
 // MARK: DELETE :id
-async function deleteCategoryById(categoryId: number) {
-  const res = await client.api.categories[':id{[0-9]+}'].$delete({
+async function deleteCategoryById(categoryId: string) {
+  const res = await client.api.categories[':id'].$delete({
     param: {
-      id: String(categoryId),
+      id: categoryId,
     },
   });
   if (!res.ok) throw new Error(await res.text());
   return await res.json();
 }
 
-export const useDeleteCategoryMutation = (categoryId: number) => {
+export const useDeleteCategoryMutation = (categoryId: string) => {
   return useMutation({
     mutationFn: () => deleteCategoryById(categoryId),
     onSuccess: (deletedCategory) => {
@@ -193,7 +193,7 @@ export const categoriesTableQueryOptions = () =>
 
 // MARK: PUT /table
 export async function updateCategoriesTable(
-  categories: { id: number; sequence: number | null }[]
+  categories: { id: string; sequence: number | null }[]
 ) {
   const res = await client.api.categories.table.$put({
     json: categories,
