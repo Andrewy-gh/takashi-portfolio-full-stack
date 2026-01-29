@@ -3,7 +3,8 @@ import { hc } from 'hono/client';
 import { QueryClient } from '@tanstack/react-query';
 import { queryOptions } from '@tanstack/react-query';
 
-export const client = hc<AppType>('/');
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? '';
+export const client = hc<AppType>(apiBaseUrl);
 
 export const queryClient = new QueryClient();
 

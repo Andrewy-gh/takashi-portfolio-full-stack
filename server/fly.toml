@@ -16,6 +16,9 @@ primary_region = 'ewr'
   min_machines_running = 0
   processes = ['app']
 
+[deploy]
+  release_command = "pnpm -C server db:migrate"
+
 [[vm]]
   memory = '1gb'
   cpu_kind = 'shared'
