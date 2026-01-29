@@ -3,6 +3,39 @@ import { client, queryClient } from './api';
 import { queryOptions, useMutation } from '@tanstack/react-query';
 import type { SearchType } from './types';
 import type { InferResponseType } from 'hono/client';
+import { uploadToCloudinary } from './cloudinary.queries';
+
+const delay = (ms: number) =>
+  new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+
+const stripExtension = (filename: string) =>
+  filename.replace(/\.[^/.]+$/, '');
+
+async function waitForImageByPublicId(
+  publicId: string,
+  { attempts = 12, delayMs = 1000 } = {}
+) {
+  for (let i = 0; i < attempts; i += 1) {
+    const res = await client.api.images.$get({
+      query: {
+        page: '1',
+        pageSize: '1',
+        publicId,
+      },
+    });
+    if (!res.ok) {
+      throw new Error(await res.text());
+    }
+    const data = await res.json();
+    if (Array.isArray(data.images) && data.images.length > 0) {
+      return data.images[0];
+    }
+    await delay(delayMs);
+  }
+  throw new Error('Timed out waiting for Cloudinary webhook');
+}
 
 // MARK: GET
 async function getImages({
@@ -39,11 +72,23 @@ export const imagesQueryOptions = ({
 
 // MARK: POST
 async function uploadImage({ files }: { files: File[] }) {
-  const res = await client.api.images.$post({
-    form: { files },
-  });
-  if (!res.ok) throw new Error(await res.text());
-  return await res.json();
+  const uploaded = [];
+  for (const file of files) {
+    const title = stripExtension(file.name);
+    const uploadResult = await uploadToCloudinary(file, {
+      context: title ? { title } : undefined,
+    });
+    const publicId =
+      typeof uploadResult?.public_id === 'string'
+        ? uploadResult.public_id
+        : null;
+    if (!publicId) {
+      throw new Error('Cloudinary response missing public_id');
+    }
+    const storedImage = await waitForImageByPublicId(publicId);
+    uploaded.push(storedImage);
+  }
+  return uploaded;
 }
 
 export const useUploadImageMutation = () => {

@@ -8,350 +8,102 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-// Import Routes
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as UnauthorizedRouteImport } from './routes/unauthorized'
+import { Route as SignInRouteImport } from './routes/sign-in'
+import { Route as AuthRouteImport } from './routes/_auth'
+import { Route as AuthIndexRouteImport } from './routes/_auth/index'
+import { Route as AuthImagesIndexRouteImport } from './routes/_auth/images/index'
+import { Route as AuthCategoriesIndexRouteImport } from './routes/_auth/categories/index'
+import { Route as AuthImagesUploadRouteImport } from './routes/_auth/images/upload'
+import { Route as AuthImagesImageIdRouteImport } from './routes/_auth/images/$imageId'
+import { Route as AuthCategoriesPreviewRouteImport } from './routes/_auth/categories/preview'
+import { Route as AuthCategoriesOrderRouteImport } from './routes/_auth/categories/order'
+import { Route as AuthCategoriesNewRouteImport } from './routes/_auth/categories/new'
+import { Route as AuthCategoriesCategoryIdRouteImport } from './routes/_auth/categories/$categoryId'
+import { Route as AuthCategoriesCategoryIdProjectOrderRouteImport } from './routes/_auth/categories/$categoryId_.project-order'
 
-import { Route as rootRoute } from './routes/__root'
-import { Route as UnauthorizedImport } from './routes/unauthorized'
-import { Route as SignInImport } from './routes/sign-in'
-import { Route as AuthImport } from './routes/_auth'
-import { Route as AuthIndexImport } from './routes/_auth/index'
-import { Route as AuthProjectsIndexImport } from './routes/_auth/projects/index'
-import { Route as AuthImagesIndexImport } from './routes/_auth/images/index'
-import { Route as AuthFileSyncIndexImport } from './routes/_auth/file-sync/index'
-import { Route as AuthFeaturedImagesIndexImport } from './routes/_auth/featured-images/index'
-import { Route as AuthCategoriesIndexImport } from './routes/_auth/categories/index'
-import { Route as AuthProjectsNewImport } from './routes/_auth/projects/new'
-import { Route as AuthProjectsProjectIdImport } from './routes/_auth/projects/$projectId'
-import { Route as AuthImagesUploadImport } from './routes/_auth/images/upload'
-import { Route as AuthImagesImageIdImport } from './routes/_auth/images/$imageId'
-import { Route as AuthFeaturedImagesPreviewImport } from './routes/_auth/featured-images/preview'
-import { Route as AuthCategoriesPreviewImport } from './routes/_auth/categories/preview'
-import { Route as AuthCategoriesOrderImport } from './routes/_auth/categories/order'
-import { Route as AuthCategoriesNewImport } from './routes/_auth/categories/new'
-import { Route as AuthCategoriesCategoryIdImport } from './routes/_auth/categories/$categoryId'
-import { Route as AuthCategoriesCategoryIdProjectOrderImport } from './routes/_auth/categories/$categoryId_.project-order'
-
-// Create/Update Routes
-
-const UnauthorizedRoute = UnauthorizedImport.update({
+const UnauthorizedRoute = UnauthorizedRouteImport.update({
   id: '/unauthorized',
   path: '/unauthorized',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const SignInRoute = SignInImport.update({
+const SignInRoute = SignInRouteImport.update({
   id: '/sign-in',
   path: '/sign-in',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const AuthRoute = AuthImport.update({
+const AuthRoute = AuthRouteImport.update({
   id: '/_auth',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const AuthIndexRoute = AuthIndexImport.update({
+const AuthIndexRoute = AuthIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AuthRoute,
 } as any)
-
-const AuthProjectsIndexRoute = AuthProjectsIndexImport.update({
-  id: '/projects/',
-  path: '/projects/',
-  getParentRoute: () => AuthRoute,
-} as any)
-
-const AuthImagesIndexRoute = AuthImagesIndexImport.update({
+const AuthImagesIndexRoute = AuthImagesIndexRouteImport.update({
   id: '/images/',
   path: '/images/',
   getParentRoute: () => AuthRoute,
 } as any)
-
-const AuthFileSyncIndexRoute = AuthFileSyncIndexImport.update({
-  id: '/file-sync/',
-  path: '/file-sync/',
-  getParentRoute: () => AuthRoute,
-} as any)
-
-const AuthFeaturedImagesIndexRoute = AuthFeaturedImagesIndexImport.update({
-  id: '/featured-images/',
-  path: '/featured-images/',
-  getParentRoute: () => AuthRoute,
-} as any)
-
-const AuthCategoriesIndexRoute = AuthCategoriesIndexImport.update({
+const AuthCategoriesIndexRoute = AuthCategoriesIndexRouteImport.update({
   id: '/categories/',
   path: '/categories/',
   getParentRoute: () => AuthRoute,
 } as any)
-
-const AuthProjectsNewRoute = AuthProjectsNewImport.update({
-  id: '/projects/new',
-  path: '/projects/new',
-  getParentRoute: () => AuthRoute,
-} as any)
-
-const AuthProjectsProjectIdRoute = AuthProjectsProjectIdImport.update({
-  id: '/projects/$projectId',
-  path: '/projects/$projectId',
-  getParentRoute: () => AuthRoute,
-} as any)
-
-const AuthImagesUploadRoute = AuthImagesUploadImport.update({
+const AuthImagesUploadRoute = AuthImagesUploadRouteImport.update({
   id: '/images/upload',
   path: '/images/upload',
   getParentRoute: () => AuthRoute,
 } as any)
-
-const AuthImagesImageIdRoute = AuthImagesImageIdImport.update({
+const AuthImagesImageIdRoute = AuthImagesImageIdRouteImport.update({
   id: '/images/$imageId',
   path: '/images/$imageId',
   getParentRoute: () => AuthRoute,
 } as any)
-
-const AuthFeaturedImagesPreviewRoute = AuthFeaturedImagesPreviewImport.update({
-  id: '/featured-images/preview',
-  path: '/featured-images/preview',
-  getParentRoute: () => AuthRoute,
-} as any)
-
-const AuthCategoriesPreviewRoute = AuthCategoriesPreviewImport.update({
+const AuthCategoriesPreviewRoute = AuthCategoriesPreviewRouteImport.update({
   id: '/categories/preview',
   path: '/categories/preview',
   getParentRoute: () => AuthRoute,
 } as any)
-
-const AuthCategoriesOrderRoute = AuthCategoriesOrderImport.update({
+const AuthCategoriesOrderRoute = AuthCategoriesOrderRouteImport.update({
   id: '/categories/order',
   path: '/categories/order',
   getParentRoute: () => AuthRoute,
 } as any)
-
-const AuthCategoriesNewRoute = AuthCategoriesNewImport.update({
+const AuthCategoriesNewRoute = AuthCategoriesNewRouteImport.update({
   id: '/categories/new',
   path: '/categories/new',
   getParentRoute: () => AuthRoute,
 } as any)
-
-const AuthCategoriesCategoryIdRoute = AuthCategoriesCategoryIdImport.update({
-  id: '/categories/$categoryId',
-  path: '/categories/$categoryId',
-  getParentRoute: () => AuthRoute,
-} as any)
-
+const AuthCategoriesCategoryIdRoute =
+  AuthCategoriesCategoryIdRouteImport.update({
+    id: '/categories/$categoryId',
+    path: '/categories/$categoryId',
+    getParentRoute: () => AuthRoute,
+  } as any)
 const AuthCategoriesCategoryIdProjectOrderRoute =
-  AuthCategoriesCategoryIdProjectOrderImport.update({
+  AuthCategoriesCategoryIdProjectOrderRouteImport.update({
     id: '/categories/$categoryId_/project-order',
     path: '/categories/$categoryId/project-order',
     getParentRoute: () => AuthRoute,
   } as any)
 
-// Populate the FileRoutesByPath interface
-
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/_auth': {
-      id: '/_auth'
-      path: ''
-      fullPath: ''
-      preLoaderRoute: typeof AuthImport
-      parentRoute: typeof rootRoute
-    }
-    '/sign-in': {
-      id: '/sign-in'
-      path: '/sign-in'
-      fullPath: '/sign-in'
-      preLoaderRoute: typeof SignInImport
-      parentRoute: typeof rootRoute
-    }
-    '/unauthorized': {
-      id: '/unauthorized'
-      path: '/unauthorized'
-      fullPath: '/unauthorized'
-      preLoaderRoute: typeof UnauthorizedImport
-      parentRoute: typeof rootRoute
-    }
-    '/_auth/': {
-      id: '/_auth/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof AuthIndexImport
-      parentRoute: typeof AuthImport
-    }
-    '/_auth/categories/$categoryId': {
-      id: '/_auth/categories/$categoryId'
-      path: '/categories/$categoryId'
-      fullPath: '/categories/$categoryId'
-      preLoaderRoute: typeof AuthCategoriesCategoryIdImport
-      parentRoute: typeof AuthImport
-    }
-    '/_auth/categories/new': {
-      id: '/_auth/categories/new'
-      path: '/categories/new'
-      fullPath: '/categories/new'
-      preLoaderRoute: typeof AuthCategoriesNewImport
-      parentRoute: typeof AuthImport
-    }
-    '/_auth/categories/order': {
-      id: '/_auth/categories/order'
-      path: '/categories/order'
-      fullPath: '/categories/order'
-      preLoaderRoute: typeof AuthCategoriesOrderImport
-      parentRoute: typeof AuthImport
-    }
-    '/_auth/categories/preview': {
-      id: '/_auth/categories/preview'
-      path: '/categories/preview'
-      fullPath: '/categories/preview'
-      preLoaderRoute: typeof AuthCategoriesPreviewImport
-      parentRoute: typeof AuthImport
-    }
-    '/_auth/featured-images/preview': {
-      id: '/_auth/featured-images/preview'
-      path: '/featured-images/preview'
-      fullPath: '/featured-images/preview'
-      preLoaderRoute: typeof AuthFeaturedImagesPreviewImport
-      parentRoute: typeof AuthImport
-    }
-    '/_auth/images/$imageId': {
-      id: '/_auth/images/$imageId'
-      path: '/images/$imageId'
-      fullPath: '/images/$imageId'
-      preLoaderRoute: typeof AuthImagesImageIdImport
-      parentRoute: typeof AuthImport
-    }
-    '/_auth/images/upload': {
-      id: '/_auth/images/upload'
-      path: '/images/upload'
-      fullPath: '/images/upload'
-      preLoaderRoute: typeof AuthImagesUploadImport
-      parentRoute: typeof AuthImport
-    }
-    '/_auth/projects/$projectId': {
-      id: '/_auth/projects/$projectId'
-      path: '/projects/$projectId'
-      fullPath: '/projects/$projectId'
-      preLoaderRoute: typeof AuthProjectsProjectIdImport
-      parentRoute: typeof AuthImport
-    }
-    '/_auth/projects/new': {
-      id: '/_auth/projects/new'
-      path: '/projects/new'
-      fullPath: '/projects/new'
-      preLoaderRoute: typeof AuthProjectsNewImport
-      parentRoute: typeof AuthImport
-    }
-    '/_auth/categories/': {
-      id: '/_auth/categories/'
-      path: '/categories'
-      fullPath: '/categories'
-      preLoaderRoute: typeof AuthCategoriesIndexImport
-      parentRoute: typeof AuthImport
-    }
-    '/_auth/featured-images/': {
-      id: '/_auth/featured-images/'
-      path: '/featured-images'
-      fullPath: '/featured-images'
-      preLoaderRoute: typeof AuthFeaturedImagesIndexImport
-      parentRoute: typeof AuthImport
-    }
-    '/_auth/file-sync/': {
-      id: '/_auth/file-sync/'
-      path: '/file-sync'
-      fullPath: '/file-sync'
-      preLoaderRoute: typeof AuthFileSyncIndexImport
-      parentRoute: typeof AuthImport
-    }
-    '/_auth/images/': {
-      id: '/_auth/images/'
-      path: '/images'
-      fullPath: '/images'
-      preLoaderRoute: typeof AuthImagesIndexImport
-      parentRoute: typeof AuthImport
-    }
-    '/_auth/projects/': {
-      id: '/_auth/projects/'
-      path: '/projects'
-      fullPath: '/projects'
-      preLoaderRoute: typeof AuthProjectsIndexImport
-      parentRoute: typeof AuthImport
-    }
-    '/_auth/categories/$categoryId_/project-order': {
-      id: '/_auth/categories/$categoryId_/project-order'
-      path: '/categories/$categoryId/project-order'
-      fullPath: '/categories/$categoryId/project-order'
-      preLoaderRoute: typeof AuthCategoriesCategoryIdProjectOrderImport
-      parentRoute: typeof AuthImport
-    }
-  }
-}
-
-// Create and export the route tree
-
-interface AuthRouteChildren {
-  AuthIndexRoute: typeof AuthIndexRoute
-  AuthCategoriesCategoryIdRoute: typeof AuthCategoriesCategoryIdRoute
-  AuthCategoriesNewRoute: typeof AuthCategoriesNewRoute
-  AuthCategoriesOrderRoute: typeof AuthCategoriesOrderRoute
-  AuthCategoriesPreviewRoute: typeof AuthCategoriesPreviewRoute
-  AuthFeaturedImagesPreviewRoute: typeof AuthFeaturedImagesPreviewRoute
-  AuthImagesImageIdRoute: typeof AuthImagesImageIdRoute
-  AuthImagesUploadRoute: typeof AuthImagesUploadRoute
-  AuthProjectsProjectIdRoute: typeof AuthProjectsProjectIdRoute
-  AuthProjectsNewRoute: typeof AuthProjectsNewRoute
-  AuthCategoriesIndexRoute: typeof AuthCategoriesIndexRoute
-  AuthFeaturedImagesIndexRoute: typeof AuthFeaturedImagesIndexRoute
-  AuthFileSyncIndexRoute: typeof AuthFileSyncIndexRoute
-  AuthImagesIndexRoute: typeof AuthImagesIndexRoute
-  AuthProjectsIndexRoute: typeof AuthProjectsIndexRoute
-  AuthCategoriesCategoryIdProjectOrderRoute: typeof AuthCategoriesCategoryIdProjectOrderRoute
-}
-
-const AuthRouteChildren: AuthRouteChildren = {
-  AuthIndexRoute: AuthIndexRoute,
-  AuthCategoriesCategoryIdRoute: AuthCategoriesCategoryIdRoute,
-  AuthCategoriesNewRoute: AuthCategoriesNewRoute,
-  AuthCategoriesOrderRoute: AuthCategoriesOrderRoute,
-  AuthCategoriesPreviewRoute: AuthCategoriesPreviewRoute,
-  AuthFeaturedImagesPreviewRoute: AuthFeaturedImagesPreviewRoute,
-  AuthImagesImageIdRoute: AuthImagesImageIdRoute,
-  AuthImagesUploadRoute: AuthImagesUploadRoute,
-  AuthProjectsProjectIdRoute: AuthProjectsProjectIdRoute,
-  AuthProjectsNewRoute: AuthProjectsNewRoute,
-  AuthCategoriesIndexRoute: AuthCategoriesIndexRoute,
-  AuthFeaturedImagesIndexRoute: AuthFeaturedImagesIndexRoute,
-  AuthFileSyncIndexRoute: AuthFileSyncIndexRoute,
-  AuthImagesIndexRoute: AuthImagesIndexRoute,
-  AuthProjectsIndexRoute: AuthProjectsIndexRoute,
-  AuthCategoriesCategoryIdProjectOrderRoute:
-    AuthCategoriesCategoryIdProjectOrderRoute,
-}
-
-const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
-
 export interface FileRoutesByFullPath {
-  '': typeof AuthRouteWithChildren
+  '/': typeof AuthIndexRoute
   '/sign-in': typeof SignInRoute
   '/unauthorized': typeof UnauthorizedRoute
-  '/': typeof AuthIndexRoute
   '/categories/$categoryId': typeof AuthCategoriesCategoryIdRoute
   '/categories/new': typeof AuthCategoriesNewRoute
   '/categories/order': typeof AuthCategoriesOrderRoute
   '/categories/preview': typeof AuthCategoriesPreviewRoute
-  '/featured-images/preview': typeof AuthFeaturedImagesPreviewRoute
   '/images/$imageId': typeof AuthImagesImageIdRoute
   '/images/upload': typeof AuthImagesUploadRoute
-  '/projects/$projectId': typeof AuthProjectsProjectIdRoute
-  '/projects/new': typeof AuthProjectsNewRoute
-  '/categories': typeof AuthCategoriesIndexRoute
-  '/featured-images': typeof AuthFeaturedImagesIndexRoute
-  '/file-sync': typeof AuthFileSyncIndexRoute
-  '/images': typeof AuthImagesIndexRoute
-  '/projects': typeof AuthProjectsIndexRoute
+  '/categories/': typeof AuthCategoriesIndexRoute
+  '/images/': typeof AuthImagesIndexRoute
   '/categories/$categoryId/project-order': typeof AuthCategoriesCategoryIdProjectOrderRoute
 }
-
 export interface FileRoutesByTo {
   '/sign-in': typeof SignInRoute
   '/unauthorized': typeof UnauthorizedRoute
@@ -360,21 +112,14 @@ export interface FileRoutesByTo {
   '/categories/new': typeof AuthCategoriesNewRoute
   '/categories/order': typeof AuthCategoriesOrderRoute
   '/categories/preview': typeof AuthCategoriesPreviewRoute
-  '/featured-images/preview': typeof AuthFeaturedImagesPreviewRoute
   '/images/$imageId': typeof AuthImagesImageIdRoute
   '/images/upload': typeof AuthImagesUploadRoute
-  '/projects/$projectId': typeof AuthProjectsProjectIdRoute
-  '/projects/new': typeof AuthProjectsNewRoute
   '/categories': typeof AuthCategoriesIndexRoute
-  '/featured-images': typeof AuthFeaturedImagesIndexRoute
-  '/file-sync': typeof AuthFileSyncIndexRoute
   '/images': typeof AuthImagesIndexRoute
-  '/projects': typeof AuthProjectsIndexRoute
   '/categories/$categoryId/project-order': typeof AuthCategoriesCategoryIdProjectOrderRoute
 }
-
 export interface FileRoutesById {
-  __root__: typeof rootRoute
+  __root__: typeof rootRouteImport
   '/_auth': typeof AuthRouteWithChildren
   '/sign-in': typeof SignInRoute
   '/unauthorized': typeof UnauthorizedRoute
@@ -383,40 +128,26 @@ export interface FileRoutesById {
   '/_auth/categories/new': typeof AuthCategoriesNewRoute
   '/_auth/categories/order': typeof AuthCategoriesOrderRoute
   '/_auth/categories/preview': typeof AuthCategoriesPreviewRoute
-  '/_auth/featured-images/preview': typeof AuthFeaturedImagesPreviewRoute
   '/_auth/images/$imageId': typeof AuthImagesImageIdRoute
   '/_auth/images/upload': typeof AuthImagesUploadRoute
-  '/_auth/projects/$projectId': typeof AuthProjectsProjectIdRoute
-  '/_auth/projects/new': typeof AuthProjectsNewRoute
   '/_auth/categories/': typeof AuthCategoriesIndexRoute
-  '/_auth/featured-images/': typeof AuthFeaturedImagesIndexRoute
-  '/_auth/file-sync/': typeof AuthFileSyncIndexRoute
   '/_auth/images/': typeof AuthImagesIndexRoute
-  '/_auth/projects/': typeof AuthProjectsIndexRoute
   '/_auth/categories/$categoryId_/project-order': typeof AuthCategoriesCategoryIdProjectOrderRoute
 }
-
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | ''
+    | '/'
     | '/sign-in'
     | '/unauthorized'
-    | '/'
     | '/categories/$categoryId'
     | '/categories/new'
     | '/categories/order'
     | '/categories/preview'
-    | '/featured-images/preview'
     | '/images/$imageId'
     | '/images/upload'
-    | '/projects/$projectId'
-    | '/projects/new'
-    | '/categories'
-    | '/featured-images'
-    | '/file-sync'
-    | '/images'
-    | '/projects'
+    | '/categories/'
+    | '/images/'
     | '/categories/$categoryId/project-order'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -427,16 +158,10 @@ export interface FileRouteTypes {
     | '/categories/new'
     | '/categories/order'
     | '/categories/preview'
-    | '/featured-images/preview'
     | '/images/$imageId'
     | '/images/upload'
-    | '/projects/$projectId'
-    | '/projects/new'
     | '/categories'
-    | '/featured-images'
-    | '/file-sync'
     | '/images'
-    | '/projects'
     | '/categories/$categoryId/project-order'
   id:
     | '__root__'
@@ -448,138 +173,149 @@ export interface FileRouteTypes {
     | '/_auth/categories/new'
     | '/_auth/categories/order'
     | '/_auth/categories/preview'
-    | '/_auth/featured-images/preview'
     | '/_auth/images/$imageId'
     | '/_auth/images/upload'
-    | '/_auth/projects/$projectId'
-    | '/_auth/projects/new'
     | '/_auth/categories/'
-    | '/_auth/featured-images/'
-    | '/_auth/file-sync/'
     | '/_auth/images/'
-    | '/_auth/projects/'
     | '/_auth/categories/$categoryId_/project-order'
   fileRoutesById: FileRoutesById
 }
-
 export interface RootRouteChildren {
   AuthRoute: typeof AuthRouteWithChildren
   SignInRoute: typeof SignInRoute
   UnauthorizedRoute: typeof UnauthorizedRoute
 }
 
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/unauthorized': {
+      id: '/unauthorized'
+      path: '/unauthorized'
+      fullPath: '/unauthorized'
+      preLoaderRoute: typeof UnauthorizedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sign-in': {
+      id: '/sign-in'
+      path: '/sign-in'
+      fullPath: '/sign-in'
+      preLoaderRoute: typeof SignInRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_auth': {
+      id: '/_auth'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_auth/': {
+      id: '/_auth/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof AuthIndexRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/images/': {
+      id: '/_auth/images/'
+      path: '/images'
+      fullPath: '/images/'
+      preLoaderRoute: typeof AuthImagesIndexRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/categories/': {
+      id: '/_auth/categories/'
+      path: '/categories'
+      fullPath: '/categories/'
+      preLoaderRoute: typeof AuthCategoriesIndexRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/images/upload': {
+      id: '/_auth/images/upload'
+      path: '/images/upload'
+      fullPath: '/images/upload'
+      preLoaderRoute: typeof AuthImagesUploadRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/images/$imageId': {
+      id: '/_auth/images/$imageId'
+      path: '/images/$imageId'
+      fullPath: '/images/$imageId'
+      preLoaderRoute: typeof AuthImagesImageIdRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/categories/preview': {
+      id: '/_auth/categories/preview'
+      path: '/categories/preview'
+      fullPath: '/categories/preview'
+      preLoaderRoute: typeof AuthCategoriesPreviewRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/categories/order': {
+      id: '/_auth/categories/order'
+      path: '/categories/order'
+      fullPath: '/categories/order'
+      preLoaderRoute: typeof AuthCategoriesOrderRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/categories/new': {
+      id: '/_auth/categories/new'
+      path: '/categories/new'
+      fullPath: '/categories/new'
+      preLoaderRoute: typeof AuthCategoriesNewRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/categories/$categoryId': {
+      id: '/_auth/categories/$categoryId'
+      path: '/categories/$categoryId'
+      fullPath: '/categories/$categoryId'
+      preLoaderRoute: typeof AuthCategoriesCategoryIdRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/categories/$categoryId_/project-order': {
+      id: '/_auth/categories/$categoryId_/project-order'
+      path: '/categories/$categoryId/project-order'
+      fullPath: '/categories/$categoryId/project-order'
+      preLoaderRoute: typeof AuthCategoriesCategoryIdProjectOrderRouteImport
+      parentRoute: typeof AuthRoute
+    }
+  }
+}
+
+interface AuthRouteChildren {
+  AuthIndexRoute: typeof AuthIndexRoute
+  AuthCategoriesCategoryIdRoute: typeof AuthCategoriesCategoryIdRoute
+  AuthCategoriesNewRoute: typeof AuthCategoriesNewRoute
+  AuthCategoriesOrderRoute: typeof AuthCategoriesOrderRoute
+  AuthCategoriesPreviewRoute: typeof AuthCategoriesPreviewRoute
+  AuthImagesImageIdRoute: typeof AuthImagesImageIdRoute
+  AuthImagesUploadRoute: typeof AuthImagesUploadRoute
+  AuthCategoriesIndexRoute: typeof AuthCategoriesIndexRoute
+  AuthImagesIndexRoute: typeof AuthImagesIndexRoute
+  AuthCategoriesCategoryIdProjectOrderRoute: typeof AuthCategoriesCategoryIdProjectOrderRoute
+}
+
+const AuthRouteChildren: AuthRouteChildren = {
+  AuthIndexRoute: AuthIndexRoute,
+  AuthCategoriesCategoryIdRoute: AuthCategoriesCategoryIdRoute,
+  AuthCategoriesNewRoute: AuthCategoriesNewRoute,
+  AuthCategoriesOrderRoute: AuthCategoriesOrderRoute,
+  AuthCategoriesPreviewRoute: AuthCategoriesPreviewRoute,
+  AuthImagesImageIdRoute: AuthImagesImageIdRoute,
+  AuthImagesUploadRoute: AuthImagesUploadRoute,
+  AuthCategoriesIndexRoute: AuthCategoriesIndexRoute,
+  AuthImagesIndexRoute: AuthImagesIndexRoute,
+  AuthCategoriesCategoryIdProjectOrderRoute:
+    AuthCategoriesCategoryIdProjectOrderRoute,
+}
+
+const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRouteWithChildren,
   SignInRoute: SignInRoute,
   UnauthorizedRoute: UnauthorizedRoute,
 }
-
-export const routeTree = rootRoute
+export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-/* ROUTE_MANIFEST_START
-{
-  "routes": {
-    "__root__": {
-      "filePath": "__root.tsx",
-      "children": [
-        "/_auth",
-        "/sign-in",
-        "/unauthorized"
-      ]
-    },
-    "/_auth": {
-      "filePath": "_auth.tsx",
-      "children": [
-        "/_auth/",
-        "/_auth/categories/$categoryId",
-        "/_auth/categories/new",
-        "/_auth/categories/order",
-        "/_auth/categories/preview",
-        "/_auth/featured-images/preview",
-        "/_auth/images/$imageId",
-        "/_auth/images/upload",
-        "/_auth/projects/$projectId",
-        "/_auth/projects/new",
-        "/_auth/categories/",
-        "/_auth/featured-images/",
-        "/_auth/file-sync/",
-        "/_auth/images/",
-        "/_auth/projects/",
-        "/_auth/categories/$categoryId_/project-order"
-      ]
-    },
-    "/sign-in": {
-      "filePath": "sign-in.tsx"
-    },
-    "/unauthorized": {
-      "filePath": "unauthorized.tsx"
-    },
-    "/_auth/": {
-      "filePath": "_auth/index.tsx",
-      "parent": "/_auth"
-    },
-    "/_auth/categories/$categoryId": {
-      "filePath": "_auth/categories/$categoryId.tsx",
-      "parent": "/_auth"
-    },
-    "/_auth/categories/new": {
-      "filePath": "_auth/categories/new.tsx",
-      "parent": "/_auth"
-    },
-    "/_auth/categories/order": {
-      "filePath": "_auth/categories/order.tsx",
-      "parent": "/_auth"
-    },
-    "/_auth/categories/preview": {
-      "filePath": "_auth/categories/preview.tsx",
-      "parent": "/_auth"
-    },
-    "/_auth/featured-images/preview": {
-      "filePath": "_auth/featured-images/preview.tsx",
-      "parent": "/_auth"
-    },
-    "/_auth/images/$imageId": {
-      "filePath": "_auth/images/$imageId.tsx",
-      "parent": "/_auth"
-    },
-    "/_auth/images/upload": {
-      "filePath": "_auth/images/upload.tsx",
-      "parent": "/_auth"
-    },
-    "/_auth/projects/$projectId": {
-      "filePath": "_auth/projects/$projectId.tsx",
-      "parent": "/_auth"
-    },
-    "/_auth/projects/new": {
-      "filePath": "_auth/projects/new.tsx",
-      "parent": "/_auth"
-    },
-    "/_auth/categories/": {
-      "filePath": "_auth/categories/index.tsx",
-      "parent": "/_auth"
-    },
-    "/_auth/featured-images/": {
-      "filePath": "_auth/featured-images/index.tsx",
-      "parent": "/_auth"
-    },
-    "/_auth/file-sync/": {
-      "filePath": "_auth/file-sync/index.tsx",
-      "parent": "/_auth"
-    },
-    "/_auth/images/": {
-      "filePath": "_auth/images/index.tsx",
-      "parent": "/_auth"
-    },
-    "/_auth/projects/": {
-      "filePath": "_auth/projects/index.tsx",
-      "parent": "/_auth"
-    },
-    "/_auth/categories/$categoryId_/project-order": {
-      "filePath": "_auth/categories/$categoryId_.project-order.tsx",
-      "parent": "/_auth"
-    }
-  }
-}
-ROUTE_MANIFEST_END */

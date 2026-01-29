@@ -3,7 +3,6 @@ import {
   AudioWaveform,
   BookOpen,
   Command,
-  Frame,
   GalleryVerticalEnd,
   // Map,
   // PieChart,
@@ -89,11 +88,6 @@ const data = {
     },
   ],
   tools: [
-    {
-      name: 'File Sync',
-      url: '/file-sync',
-      icon: Frame,
-    },
     // {
     //   name: 'Sales & Marketing',
     //   url: '#',

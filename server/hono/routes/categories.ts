@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { asc, desc, eq, ilike, inArray, sql } from "drizzle-orm";
+import { and, asc, desc, eq, ilike, inArray, sql } from "drizzle-orm";
 import { db } from "../db";
 import { categories, imageCategories, images } from "../schema";
 
@@ -39,6 +39,7 @@ const fetchCategoryImages = async (categoryId: string, sortMode: string) => {
       updatedAt: images.updatedAt,
       width: images.width,
       height: images.height,
+      position: imageCategories.position,
     })
     .from(imageCategories)
     .innerJoin(images, eq(imageCategories.imageId, images.id))
@@ -212,6 +213,100 @@ const categoriesRoutes = new Hono()
     );
 
     return c.json(payload);
+  })
+  .put("/:id/images/positions", async (c) => {
+    const categoryId = c.req.param("id");
+    const body = await c.req.json().catch(() => null);
+    if (!Array.isArray(body)) {
+      return c.json({ error: "Invalid payload" }, 400);
+    }
+
+    const updates = body
+      .map((entry) => ({
+        id: typeof entry?.id === "string" ? entry.id : null,
+        position: Number.isFinite(entry?.position)
+          ? Number(entry.position)
+          : entry?.position === null
+            ? null
+            : undefined,
+      }))
+      .filter((entry) => Boolean(entry.id));
+
+    if (updates.length === 0) {
+      return c.json({ error: "No updates provided" }, 400);
+    }
+
+    const seenIds = new Set<string>();
+    for (const update of updates) {
+      if (!update.id) continue;
+      if (seenIds.has(update.id)) {
+        return c.json({ error: "Duplicate image ids" }, 400);
+      }
+      seenIds.add(update.id);
+    }
+
+    const positions = updates
+      .map((update) => update.position)
+      .filter((position): position is number => typeof position === "number");
+    for (const position of positions) {
+      if (!Number.isInteger(position) || position < 1) {
+        return c.json({ error: "Positions must be positive integers" }, 400);
+      }
+    }
+    const uniquePositions = new Set(positions);
+    if (uniquePositions.size !== positions.length) {
+      return c.json({ error: "Duplicate positions" }, 400);
+    }
+
+    const existingCategory = await db
+      .select({ id: categories.id, sortMode: categories.sortMode })
+      .from(categories)
+      .where(eq(categories.id, categoryId))
+      .limit(1);
+    if (existingCategory.length === 0) {
+      return c.json({ error: "Not found" }, 404);
+    }
+
+    const existingImages = await db
+      .select({ imageId: imageCategories.imageId })
+      .from(imageCategories)
+      .where(eq(imageCategories.categoryId, categoryId));
+    const existingSet = new Set(
+      existingImages.map((row) => row.imageId)
+    );
+    for (const update of updates) {
+      if (update.id && !existingSet.has(update.id)) {
+        return c.json({ error: "Image not in category" }, 400);
+      }
+    }
+
+    await db.transaction(async (tx) => {
+      await tx
+        .update(categories)
+        .set({ sortMode: "custom", updatedAt: new Date() })
+        .where(eq(categories.id, categoryId));
+
+      await tx
+        .update(imageCategories)
+        .set({ position: null })
+        .where(eq(imageCategories.categoryId, categoryId));
+
+      for (const update of updates) {
+        if (!update.id || update.position === undefined) continue;
+        await tx
+          .update(imageCategories)
+          .set({ position: update.position })
+          .where(
+            and(
+              eq(imageCategories.categoryId, categoryId),
+              eq(imageCategories.imageId, update.id)
+            )
+          );
+      }
+    });
+
+    const images = await fetchCategoryImages(categoryId, "custom");
+    return c.json({ ok: true, images });
   })
   .get("/:id", async (c) => {
     const id = c.req.param("id");

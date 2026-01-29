@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { DeleteCategoryDialog } from './-components/delete-category-dialog';
 import { EditCategoryForm } from './-components/edit-category-form';
-import { Pencil, Trash2 } from 'lucide-react';
+import { ListOrdered, Pencil, Trash2 } from 'lucide-react';
 
 import {
   type SortType,
@@ -102,6 +102,11 @@ function RouteComponent() {
           {category?.name}
         </h1>
         <nav className="flex gap-4">
+          <Button asChild variant="outline">
+            <Link to="/categories/$categoryId/project-order" params={params}>
+              <ListOrdered className="mr-2 h-4 w-4" /> Image Order
+            </Link>
+          </Button>
           <Button asChild>
             <Link to="." search={{ edit: true }}>
               <Pencil className="mr-2 h-4 w-4" /> Edit

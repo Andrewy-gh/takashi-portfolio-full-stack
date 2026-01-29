@@ -13,9 +13,6 @@ const ImagePreviews = lazy(
   () => import('../components/form/image-previews.tsx')
 );
 const ImageSize = lazy(() => import('../components/form/image-size.tsx'));
-const ProjectCombobox = lazy(
-  () => import('../components/form/project-combobox.tsx')
-);
 const SubscribeButton = lazy(
   () => import('../components/form/subscribe-button.tsx')
 );
@@ -31,7 +28,6 @@ export const { useAppForm, withForm } = createFormHook({
     ImageMegaPixels,
     ImagePreviews,
     ImageSize,
-    ProjectCombobox,
     TextArea,
     TextField,
   },

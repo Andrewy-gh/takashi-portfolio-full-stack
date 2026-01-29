@@ -30,6 +30,16 @@ const routes = app
   .route("/api/categories", categoriesRoutes)
   .route("/api/dashboard", dashboardRoutes);
 
+const retired = (feature: string) => (c) =>
+  c.json({ error: `${feature} endpoints are retired` }, 410);
+
+app.all("/api/projects", retired("Projects"));
+app.all("/api/projects/*", retired("Projects"));
+app.all("/api/featured-images", retired("Featured images"));
+app.all("/api/featured-images/*", retired("Featured images"));
+app.all("/api/file-sync", retired("File sync"));
+app.all("/api/file-sync/*", retired("File sync"));
+
 export type AppType = typeof routes;
 
 export default app;

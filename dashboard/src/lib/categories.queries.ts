@@ -226,3 +226,33 @@ export const categoriesPreviewQueryOptions = () =>
     queryKey: ['categories', 'list', 'preview'],
     queryFn: getCategoriesPreview,
   });
+
+// MARK: PUT /:id/images/positions
+export async function updateCategoryImagePositions(
+  categoryId: string,
+  images: { id: string; position: number | null }[]
+) {
+  const res = await client.api.categories[':id'].images.positions.$put({
+    param: {
+      id: categoryId,
+    },
+    json: images,
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return await res.json();
+}
+
+export const useUpdateCategoryImagePositionsMutation = (categoryId: string) => {
+  return useMutation({
+    mutationFn: (images: { id: string; position: number | null }[]) =>
+      updateCategoryImagePositions(categoryId, images),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['categories', 'detail', categoryId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['categories', 'list', 'preview'],
+      });
+    },
+  });
+};

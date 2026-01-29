@@ -1,19 +1,29 @@
 import { createFileRoute } from '@tanstack/react-router';
+import { useSuspenseQuery } from '@tanstack/react-query';
+import { z } from 'zod';
+import { categoryQueryOptions } from '@/lib/categories.queries';
+import { CategoryImageOrderForm } from './-components/category-image-order-form';
 
 export const Route = createFileRoute(
   '/_auth/categories/$categoryId_/project-order'
 )({
+  params: {
+    parse: (params) => ({
+      categoryId: z.string().min(1).parse(params.categoryId),
+    }),
+  },
+  loader(opts) {
+    opts.context.queryClient.ensureQueryData(
+      categoryQueryOptions(opts.params.categoryId)
+    );
+  },
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  return (
-    <section className="container space-y-4 p-6">
-      <h1 className="text-2xl font-semibold">Image ordering</h1>
-      <p className="text-muted-foreground">
-        Category-level image ordering is not wired yet. Use the default sort
-        mode for now.
-      </p>
-    </section>
+  const params = Route.useParams();
+  const { data: category } = useSuspenseQuery(
+    categoryQueryOptions(params.categoryId)
   );
+  return <CategoryImageOrderForm category={category} />;
 }

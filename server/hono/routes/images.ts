@@ -33,12 +33,15 @@ const imagesRoutes = new Hono()
       100
     );
     const search = query.search?.trim();
+    const publicId = query.publicId?.trim();
     const sortColumn = getSortColumn(query.sort);
     const direction = query.direction === "asc" ? asc : desc;
 
-    const whereClause = search
-      ? ilike(images.title, `%${search}%`)
-      : undefined;
+    const whereClause = publicId
+      ? eq(images.publicId, publicId)
+      : search
+        ? ilike(images.title, `%${search}%`)
+        : undefined;
 
     const [{ count }] = await db
       .select({
