@@ -58,7 +58,6 @@ export default function UploadForm({
     register,
     handleSubmit,
     reset,
-    formState,
     formState: { errors, isSubmitSuccessful },
   } = useForm({
     defaultValues: {
@@ -69,11 +68,11 @@ export default function UploadForm({
   });
 
   useEffect(() => {
-    if (formState.isSubmitSuccessful) {
+    if (isSubmitSuccessful) {
       reset({ title: '', type: '', file: undefined });
       handleClose();
     }
-  }, [formState, reset]);
+  }, [handleClose, isSubmitSuccessful, reset]);
 
   const isMobile = useMediaQuery(theme.breakpoints.down('tablet'));
 

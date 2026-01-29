@@ -59,7 +59,7 @@ export default function Login() {
       setToken(token);
       navigate('/');
     }
-  }, [loggedIn, token]);
+  }, [loggedIn, navigate, token]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

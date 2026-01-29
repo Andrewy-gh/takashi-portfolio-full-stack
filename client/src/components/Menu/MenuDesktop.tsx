@@ -1,36 +1,29 @@
+import type { CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
 import Default from '../../assets/default.webp';
 import { theme } from '../../styles/styles';
 import type { NavigationItem } from '../../data';
 
-type NavigationItem = {
-  id: number;
-  name: string;
-  type: 'filter' | 'link';
-  filter?: string;
-  path?: string;
-};
-
-const activeStyle = {
+const activeStyle: CSSProperties = {
   color: theme.palette.custom.main,
 };
 
-const inActiveStyle = {
+const inActiveStyle: CSSProperties = {
   color: theme.palette.custom.light,
 };
 
-const flexColumns = {
+const flexColumns: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
 };
 
-const sticky = {
+const sticky: CSSProperties = {
   position: 'sticky',
   top: theme.spacing(2),
 };
 
-const typographyStyle = {
+const typographyStyle: CSSProperties = {
   fontSize: 'clamp(1.00rem, calc(0.85rem + 0.30vw), 1.25rem)',
   fontWeight: '300',
   lineHeight: '1.6',

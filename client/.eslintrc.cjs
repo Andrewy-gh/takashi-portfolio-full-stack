@@ -5,11 +5,18 @@ module.exports = {
     'plugin:react/recommended',
     'plugin:react/jsx-runtime',
     'plugin:react-hooks/recommended',
+    'plugin:@typescript-eslint/recommended',
   ],
-  parserOptions: { ecmaVersion: 'latest', sourceType: 'module' },
+  parser: '@typescript-eslint/parser',
+  parserOptions: {
+    ecmaVersion: 'latest',
+    sourceType: 'module',
+    ecmaFeatures: { jsx: true },
+  },
   settings: { react: { version: '18.2' } },
-  plugins: ['react-refresh'],
+  plugins: ['react-refresh', '@typescript-eslint'],
   rules: {
     'react-refresh/only-export-components': 'warn',
+    'react/prop-types': 'off',
   },
 }

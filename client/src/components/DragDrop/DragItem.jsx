@@ -30,12 +30,11 @@ const spaceBetween = {
 export default function DragItem({ children, cloudName, image, index }) {
   return (
     <Draggable key={image.id} draggableId={image.id} index={index}>
-      {(provided, snapshot) => (
+      {(provided) => (
         <ListItem
           {...provided.draggableProps}
           {...provided.dragHandleProps}
           ref={provided.innerRef}
-          // isDragging={snapshot.isDragging}
           sx={listItem}
         >
           <div>

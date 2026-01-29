@@ -26,7 +26,7 @@ export default function Images({
           paddingInline: '1rem',
         }}
       >
-        <h1>Loading…</h1>
+        <h1>Loading...</h1>
       </div>
     );
   } else if (error) {
@@ -57,13 +57,12 @@ export default function Images({
     );
   } else {
     content = (
-      <Masonry
-        variant="masonry"
-        columns={{ mobile: 1, tablet: 1, laptop: 2, desktop: 3 }}
-        spacing={2}
-        sx={{
-          marginInline: 'auto',
-          paddingInline: { mobile: 1, tablet: 1, laptop: 2 },
+        <Masonry
+          columns={{ mobile: 1, tablet: 1, laptop: 2, desktop: 3 }}
+          spacing={2}
+          sx={{
+            marginInline: 'auto',
+            paddingInline: { mobile: 1, tablet: 1, laptop: 2 },
         }}
       >
         {images.map((image, index) => {

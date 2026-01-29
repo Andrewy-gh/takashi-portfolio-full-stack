@@ -1,7 +1,8 @@
+import type { CSSProperties } from 'react';
 import ArrowCircleUpIcon from '@mui/icons-material/ArrowCircleUp';
 
 export default function FloatingButton() {
-  const buttonStyle = {
+  const buttonStyle: CSSProperties = {
     position: 'fixed',
     bottom: '20px',
     right: '20px',
