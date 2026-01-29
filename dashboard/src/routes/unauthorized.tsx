@@ -1,17 +1,13 @@
-import { createFileRoute } from '@tanstack/react-router';
-import {
-  OrganizationSwitcher,
-  SignInButton,
-  SignedIn,
-  SignedOut,
-  UserButton,
-} from '@clerk/clerk-react';
+import { createFileRoute, Link } from '@tanstack/react-router';
+import { Button } from '@/components/ui/button';
+import { useAuth } from '@/auth';
 
 export const Route = createFileRoute('/unauthorized')({
   component: RouteComponent,
 });
 
 function RouteComponent() {
+  const { isSignedIn, signOut } = useAuth();
   return (
     <div className="mt-24">
       <section className="flex items-center justify-center">
@@ -27,15 +23,15 @@ function RouteComponent() {
             with an account with appropriate permissions.
           </p>
           <div className="flex items-center">
-            <SignedOut>
-              <SignInButton>
-                <button>Sign In</button>
-              </SignInButton>
-            </SignedOut>
-            <SignedIn>
-              <UserButton />
-              <OrganizationSwitcher hidePersonal={true} />
-            </SignedIn>
+            {isSignedIn ? (
+              <Button variant="outline" onClick={signOut}>
+                Sign out
+              </Button>
+            ) : (
+              <Button asChild>
+                <Link to="/sign-in">Sign in</Link>
+              </Button>
+            )}
           </div>
         </div>
       </section>

@@ -20,13 +20,9 @@ import {
   SidebarHeader,
   SidebarRail,
 } from '@/components/ui/sidebar';
-
-import {
-  SignedIn,
-  SignedOut,
-  SignInButton,
-  UserButton,
-} from '@clerk/clerk-react';
+import { Button } from '@/components/ui/button';
+import { Link } from '@tanstack/react-router';
+import { useAuth } from '@/auth';
 
 // This is sample data.
 const data = {
@@ -143,16 +139,20 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { isSignedIn, signOut } = useAuth();
   return (
     <Sidebar {...props}>
       <SidebarHeader>
         {/* <TeamSwitcher teams={data.teams} /> */}
-        <SignedOut>
-          <SignInButton />
-        </SignedOut>
-        <SignedIn>
-          <UserButton />
-        </SignedIn>
+        {isSignedIn ? (
+          <Button variant="outline" onClick={signOut}>
+            Sign out
+          </Button>
+        ) : (
+          <Button asChild>
+            <Link to="/sign-in">Sign in</Link>
+          </Button>
+        )}
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />

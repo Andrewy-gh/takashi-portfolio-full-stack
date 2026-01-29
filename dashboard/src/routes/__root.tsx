@@ -1,11 +1,11 @@
 import { lazy, Suspense } from 'react';
 import { createRootRouteWithContext, Outlet } from '@tanstack/react-router';
 import { QueryClient } from '@tanstack/react-query';
-import { useAuth } from '@clerk/clerk-react';
 import { Toaster } from '@/components/ui/sonner';
+import type { AuthContextValue } from '@/auth';
 
 interface RouteContext {
-  auth: ReturnType<typeof useAuth>;
+  auth: AuthContextValue;
   queryClient: QueryClient;
 }
 

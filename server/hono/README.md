@@ -38,6 +38,17 @@ Routes (when Hono is wired):
 - `POST /api/cloudinary/signature` -> `{ signature, timestamp, apiKey, cloudName, params }`
 - `POST /api/cloudinary/webhook` -> verifies Cloudinary notification signature and upserts `images`
 
+## Auth (simple admin login)
+
+Env (pick one password option):
+- `AUTH_EMAIL` (or `DASHBOARD_EMAIL`)
+- `AUTH_PASSWORD_HASH` (bcrypt hash) or `AUTH_PASSWORD` (dev only)
+- `AUTH_JWT_SECRET` (or `DASHBOARD_JWT_SECRET`)
+
+Routes (when Hono is wired):
+- `POST /api/auth/login` -> `{ token }`
+- `GET /api/auth` -> `{ ok: true, sub, role }`
+
 ## MongoDB -> Postgres migration (one-shot)
 
 From repo root:

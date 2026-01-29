@@ -4,9 +4,9 @@ import {
   createRouter,
 } from '@tanstack/react-router';
 import { routeTree } from './routeTree.gen';
-import { useAuth } from '@clerk/clerk-react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from './lib/api';
+import { AuthProvider, useAuth } from './auth';
 import './index.css';
 
 // Set up a Router instance
@@ -33,6 +33,14 @@ declare module '@tanstack/react-router' {
 }
 
 export function App() {
+  return (
+    <AuthProvider>
+      <AppRoutes />
+    </AuthProvider>
+  );
+}
+
+function AppRoutes() {
   const auth = useAuth();
 
   return (
