@@ -22,7 +22,7 @@ AB Dashboard v2 repo is located one level up at `C:\E\2026\ab-dashboard-v2`.
 - [x] Portfolio frontend (React + Vite + MUI) TS migration and read-only cleanup
 - [x] Dashboard frontend integration (AB dashboard v2)
 - [x] Auth (simple login with future provider flexibility)
-- [ ] Fly deployment + environment strategy
+- [x] Fly deployment + environment strategy
 
 ## Notes / Constraints
 

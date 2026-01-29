@@ -53,6 +53,12 @@ const buildTitle = (payload: CloudinaryNotification) => {
 };
 
 const cloudinaryRoutes = new Hono()
+  .get("/", (c) =>
+    c.json({
+      cloudName: cloudinaryConfig.cloudName,
+      apiKey: cloudinaryConfig.apiKey,
+    })
+  )
   .get("/config", (c) =>
     c.json({
       cloudName: cloudinaryConfig.cloudName,

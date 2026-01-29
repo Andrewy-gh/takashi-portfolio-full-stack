@@ -3,7 +3,7 @@
 Follow root `AGENTS.md` in repo root.
 
 Current status:
-- Hono + Drizzle scaffold in `server/hono`.
+- Hono + Drizzle wired as the API runtime in `server/hono`.
 - Cloudinary signed upload + webhook routes wired in Hono.
 
 Next steps:
