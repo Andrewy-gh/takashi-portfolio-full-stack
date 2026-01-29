@@ -1,0 +1,34 @@
+import { clientImageFileSchema } from '@server/lib/shared-types';
+import { z } from 'zod';
+
+const textSchema = z.string().max(256, { message: 'Please enter a maximum of 256 characters' });
+
+export const nameDescriptionSchema = z.object({
+  name: z.string().min(1, { message: 'Name is required' }),
+  description: textSchema,
+});
+
+export const requiredFilesSchema = z.object({
+  files: z.array(clientImageFileSchema).min(1, 'At least one file is required'),
+});
+
+// Project Schemas
+export const projectSchema = nameDescriptionSchema.extend({
+  credits: textSchema,
+  categoryId: z.string(),
+});
+
+export const projectSchemaWithFiles = projectSchema.extend({
+  files: z.array(clientImageFileSchema),
+});
+
+// Image Schemas
+export const projectIdSchema = z.number().int().nullable();
+
+export const editImageSchema = nameDescriptionSchema.extend({
+  projectId: projectIdSchema,
+});
+
+export const uploadImageSchema = requiredFilesSchema.extend({
+  projectId: projectIdSchema,
+});

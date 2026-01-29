@@ -20,7 +20,7 @@ AB Dashboard v2 repo is located one level up at `C:\E\2026\ab-dashboard-v2`.
 - [x] MongoDB -> Postgres one-shot data migration
 - [x] Batch Cloudinary upload/import script
 - [x] Portfolio frontend (React + Vite + MUI) TS migration and read-only cleanup
-- [ ] Dashboard frontend integration (AB dashboard v2)
+- [x] Dashboard frontend integration (AB dashboard v2)
 - [ ] Auth (simple login with future provider flexibility)
 - [ ] Fly deployment + environment strategy
 
