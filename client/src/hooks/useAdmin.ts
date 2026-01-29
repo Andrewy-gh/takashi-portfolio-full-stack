@@ -1,10 +1,14 @@
-import { useContext, useEffect, useState } from 'react';
-import { NotificationContext } from '../contexts/NotificationContext';
+import { useEffect, useState } from 'react';
+import { useNotification } from '../contexts/NotificationContext';
 import configServices from '../services/config';
+import type { AdminCredentials } from '../services/config';
 
-export function useAdmin() {
+export function useAdmin(): {
+  adminStatus: string;
+  createAdmin: (credentials: AdminCredentials) => Promise<void>;
+} {
   const [adminStatus, setAdminStatus] = useState('');
-  const { handleSuccess, handleError } = useContext(NotificationContext);
+  const { handleSuccess, handleError } = useNotification();
 
   useEffect(() => {
     const checkAdmin = async () => {
@@ -14,7 +18,7 @@ export function useAdmin() {
     checkAdmin();
   }, []);
 
-  const createAdmin = async (credentials) => {
+  const createAdmin = async (credentials: AdminCredentials) => {
     try {
       const adminCreated = await configServices.createAdmin(credentials);
       if (adminCreated.success) {

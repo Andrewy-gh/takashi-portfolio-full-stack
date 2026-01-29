@@ -7,10 +7,12 @@ import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
+import type { SelectChangeEvent } from '@mui/material/Select';
 import TextField from '@mui/material/TextField';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { theme } from '../../styles/styles';
 import { types } from '../../data/index';
+import type { ImageRecord } from '../../services/image';
 
 const fieldSpacing = {
   display: 'flex',
@@ -48,9 +50,19 @@ const mobileWidth = {
   width: '100%',
 };
 
-export default function EditForm({ handleClose, image, updateImage }) {
-  const [title, setTitle] = useState(image.title);
-  const [type, setType] = useState(image.type);
+type EditFormProps = {
+  handleClose: () => void;
+  image: ImageRecord;
+  updateImage: (data: Partial<ImageRecord>) => void;
+};
+
+export default function EditForm({
+  handleClose,
+  image,
+  updateImage,
+}: EditFormProps) {
+  const [title, setTitle] = useState(image.title ?? '');
+  const [type, setType] = useState(image.type ?? '');
   const isMobile = useMediaQuery(theme.breakpoints.down('tablet'));
 
   const handleSubmit = () => {
@@ -67,7 +79,7 @@ export default function EditForm({ handleClose, image, updateImage }) {
         <TextField
           label="Title"
           variant="outlined"
-          defaultValue={image.title}
+          value={title}
           sx={{ ...fieldStyle, ...(isMobile ? mobileWidth : desktopWidth) }}
           onChange={(e) => setTitle(e.target.value)}
         />
@@ -81,13 +93,13 @@ export default function EditForm({ handleClose, image, updateImage }) {
           <InputLabel>Type</InputLabel>
           <Select
             label="type"
-            value={image.type}
+            value={type}
             MenuProps={{
               sx: {
-                selectItemStyle,
+                ...selectItemStyle,
               },
             }}
-            onChange={(e) => setType(e.target.value)}
+            onChange={(e: SelectChangeEvent) => setType(e.target.value)}
           >
             {types.map((type) => (
               <MenuItem value={type.name.toLowerCase()} key={type.id}>

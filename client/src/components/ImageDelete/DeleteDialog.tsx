@@ -5,7 +5,13 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { theme } from '../../styles/styles';
 
-export default function DeleteDialog({ handleClose, removeImage }) {
+export default function DeleteDialog({
+  handleClose,
+  removeImage,
+}: {
+  handleClose: () => void;
+  removeImage: () => void;
+}) {
   const handleAgree = () => {
     removeImage();
     handleClose();

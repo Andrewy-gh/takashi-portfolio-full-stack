@@ -1,4 +1,5 @@
-import { useContext, useEffect, useState } from 'react';
+import type { CSSProperties, FormEvent } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import HomeIcon from '@mui/icons-material/Home';
 import IconButton from '@mui/material/IconButton';
@@ -9,12 +10,12 @@ import ProfileCover from '../assets/profile-cover.webp';
 import { saveToken } from '../utils/authStorage';
 import { setToken } from '../services/api';
 
-import { AuthContext } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 
 // import configServices from '../services/config';
 import { useAdmin } from '../hooks/useAdmin';
 
-const flex = {
+const flex: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
   marginInline: 'auto',
@@ -34,7 +35,7 @@ const fieldStyle = {
   },
 };
 
-const formStyle = {
+const formStyle: CSSProperties = {
   placeSelf: 'center center',
   width: 'min(80ch, 100% - 2rem)',
   display: 'flex',
@@ -42,15 +43,15 @@ const formStyle = {
   justifyContent: 'center',
   flexDirection: 'column',
   gap: '10px',
-  mt: '8px',
-  padding: 2,
+  marginTop: '8px',
+  padding: '16px',
 };
 
 export default function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { loggedIn, token, handleLogin } = useContext(AuthContext);
+  const { loggedIn, token, handleLogin } = useAuth();
   const { adminStatus, createAdmin } = useAdmin();
 
   useEffect(() => {
@@ -61,7 +62,7 @@ export default function Login() {
     }
   }, [loggedIn, navigate, token]);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (adminStatus === 'No admin present') {
       await createAdmin({ email, password });
@@ -72,8 +73,8 @@ export default function Login() {
     }
   };
 
-  let title;
-  let button;
+  let title = 'Log in';
+  let button = 'Submit';
   if (adminStatus === 'No admin present') {
     title = 'Register New Admin';
     button = 'Create Admin';

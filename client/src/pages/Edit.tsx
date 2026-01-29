@@ -6,6 +6,7 @@ import DragDrop from '../components/DragDrop/index';
 import { theme } from '../styles/styles';
 import ImageUpload from '../components/ImageUpload';
 import FloatingButton from '../components/FloatingButton';
+import type { ImageRecord } from '../services/image';
 
 export default function Edit({
   cloudName,
@@ -14,6 +15,13 @@ export default function Edit({
   updateImageDetails,
   removeOneImage,
   uploadNewImage,
+}: {
+  cloudName: string;
+  images: ImageRecord[];
+  updateImageOrder: (images: ImageRecord[]) => void;
+  updateImageDetails: (id: string, updates: Partial<ImageRecord>) => void;
+  removeOneImage: (id: string) => void;
+  uploadNewImage: (data: FormData) => void | Promise<void>;
 }) {
   let content;
   if (!images.length) {

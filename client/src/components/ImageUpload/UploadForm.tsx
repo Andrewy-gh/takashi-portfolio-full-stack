@@ -47,11 +47,22 @@ const mobileWidth = {
   width: '100%',
 };
 
+type UploadFormData = {
+  title: string;
+  type: string;
+  file?: FileList;
+};
+
 export default function UploadForm({
   clearImages,
   handleClose,
   previewImages,
   submitImageData,
+}: {
+  clearImages: () => void;
+  handleClose: () => void;
+  previewImages: (images: { id: number; preview: string; data: File }[]) => void;
+  submitImageData: (data: UploadFormData) => void;
 }) {
   const {
     control,
@@ -59,7 +70,7 @@ export default function UploadForm({
     handleSubmit,
     reset,
     formState: { errors, isSubmitSuccessful },
-  } = useForm({
+  } = useForm<UploadFormData>({
     defaultValues: {
       title: '',
       type: '',
@@ -76,13 +87,14 @@ export default function UploadForm({
 
   const isMobile = useMediaQuery(theme.breakpoints.down('tablet'));
 
-  const onSubmit = (data) => {
+  const onSubmit = (data: UploadFormData) => {
     submitImageData(data);
   };
 
-  const prepareImagePreview = (files) => {
+  const prepareImagePreview = (files: FileList | null) => {
+    if (!files) return;
     clearImages();
-    let arr = [];
+    const arr: { id: number; preview: string; data: File }[] = [];
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       const img = {
@@ -94,6 +106,8 @@ export default function UploadForm({
     }
     previewImages(arr);
   };
+
+  const fileRegister = register('file', { required: 'Image is required' });
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} encType="multipart/form">
@@ -191,10 +205,10 @@ export default function UploadForm({
             type="file"
             hidden
             multiple
-            {...register('file', { required: 'Image is required' })}
+            {...fileRegister}
             onChange={(e) => {
               prepareImagePreview(e.target.files);
-              register('file').onChange(e);
+              fileRegister.onChange(e);
             }}
           />
         </Button>

@@ -2,10 +2,32 @@ import { useState } from 'react';
 import ButtonDialog from '../ButtonDialog';
 import Preview from './Preview';
 import UploadForm from './UploadForm';
+import type { SxProps, Theme } from '@mui/material/styles';
 
-export default function ImageUpload({ uploadNewImage }) {
+export type PreviewImage = {
+  id: number;
+  preview: string;
+  data: File;
+};
+
+type UploadFormData = {
+  title: string;
+  type: string;
+  file?: FileList;
+};
+
+export default function ImageUpload({
+  uploadNewImage,
+  buttonStyle,
+  style,
+}: {
+  uploadNewImage: (data: FormData) => void | Promise<void>;
+  buttonStyle?: SxProps<Theme>;
+  style?: SxProps<Theme>;
+}) {
   const [open, setOpen] = useState(false);
-  const [images, setImages] = useState([]);
+  const [images, setImages] = useState<PreviewImage[]>([]);
+  const resolvedButtonStyle = buttonStyle ?? style;
 
   const clearImages = () => {
     setImages([]);
@@ -20,7 +42,7 @@ export default function ImageUpload({ uploadNewImage }) {
     setImages([]);
   };
 
-  const submitImageData = (data) => {
+  const submitImageData = (data: UploadFormData) => {
     const formData = new FormData();
     for (const image of images) {
       formData.append('file', image.data);
@@ -31,11 +53,11 @@ export default function ImageUpload({ uploadNewImage }) {
     setImages([]);
   };
 
-  const previewImages = (images) => {
+  const previewImages = (images: PreviewImage[]) => {
     setImages(images);
   };
 
-  const removeImage = (id) =>
+  const removeImage = (id: number) =>
     setImages(images.filter((image) => image.id !== id));
 
   return (
@@ -44,6 +66,7 @@ export default function ImageUpload({ uploadNewImage }) {
       handleClose={handleClose}
       handleOpen={handleOpen}
       open={open}
+      buttonStyle={resolvedButtonStyle}
     >
       <UploadForm
         clearImages={clearImages}

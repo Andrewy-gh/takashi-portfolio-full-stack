@@ -2,7 +2,12 @@ import { useMemo } from 'react';
 import { Cloudinary } from '@cloudinary/url-gen';
 import { name } from '@cloudinary/url-gen/actions/namedTransformation';
 
-export default function CldThumb({ cloudName, cloudinaryId }) {
+type CldThumbProps = {
+  cloudName: string;
+  cloudinaryId: string;
+};
+
+export default function CldThumb({ cloudName, cloudinaryId }: CldThumbProps) {
   const cld = useMemo(() => {
     return new Cloudinary({
       cloud: {
@@ -17,7 +22,7 @@ export default function CldThumb({ cloudName, cloudinaryId }) {
 
   return (
     <div>
-      <img src={myImage.toURL()} />
+      <img src={myImage.toURL()} alt="" />
     </div>
   );
 }

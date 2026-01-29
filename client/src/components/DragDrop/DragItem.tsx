@@ -1,9 +1,11 @@
+import type { CSSProperties, ReactNode } from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import DragHandleIcon from '@mui/icons-material/DragHandle';
 import ListItem from '@mui/material/ListItem';
 import CldThumb from '../Images/CldThumb';
+import type { ImageRecord } from '../../services/image';
 
-const flexCol = {
+const flexCol: CSSProperties = {
   width: '100%',
   display: 'flex',
   flexDirection: 'column',
@@ -21,13 +23,23 @@ const listItem = {
   cursor: 'grab',
 };
 
-const spaceBetween = {
+const spaceBetween: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
 };
 
-export default function DragItem({ children, cloudName, image, index }) {
+export default function DragItem({
+  children,
+  cloudName,
+  image,
+  index,
+}: {
+  children: ReactNode;
+  cloudName: string;
+  image: ImageRecord;
+  index: number;
+}) {
   return (
     <Draggable key={image.id} draggableId={image.id} index={index}>
       {(provided) => (
@@ -38,7 +50,9 @@ export default function DragItem({ children, cloudName, image, index }) {
           sx={listItem}
         >
           <div>
-            <CldThumb cloudName={cloudName} cloudinaryId={image.cloudinaryId} />
+            {image.cloudinaryId ? (
+              <CldThumb cloudName={cloudName} cloudinaryId={image.cloudinaryId} />
+            ) : null}
           </div>
 
           <div

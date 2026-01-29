@@ -11,6 +11,14 @@ const api = axios.create({
   withCredentials: true,
 });
 
+export const setToken = (token: string | null): void => {
+  if (token) {
+    api.defaults.headers.common.Authorization = `Bearer ${token}`;
+  } else {
+    delete api.defaults.headers.common.Authorization;
+  }
+};
+
 api.interceptors.response.use(
   (response) => {
     return response;

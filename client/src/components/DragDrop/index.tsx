@@ -1,15 +1,18 @@
 import { DragDropContext } from 'react-beautiful-dnd';
+import type { DropResult } from 'react-beautiful-dnd';
 import List from '@mui/material/List';
+import type { CSSProperties } from 'react';
 import { useEffect, useState } from 'react';
 import DragItem from './DragItem';
 import StrictModeDroppable from './StrictModeDroppable';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { theme } from '../../styles/styles';
+import type { ImageRecord } from '../../services/image';
 
 import EditButton from '../ImageEdit/EditButton';
 import DeleteButton from '../ImageDelete/DeleteButton';
 
-const containerStyle = {
+const containerStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
@@ -32,15 +35,21 @@ export default function DragDrop({
   updateImageOrder,
   updateImageDetails,
   removeOneImage,
+}: {
+  cloudName: string;
+  images: ImageRecord[];
+  updateImageOrder: (images: ImageRecord[]) => void;
+  updateImageDetails: (id: string, updates: Partial<ImageRecord>) => void;
+  removeOneImage: (id: string) => void;
 }) {
-  const [imageOrder, setImageOrder] = useState(images);
+  const [imageOrder, setImageOrder] = useState<ImageRecord[]>(images);
   const isMobile = useMediaQuery(theme.breakpoints.down('tablet'));
 
   useEffect(() => {
     setImageOrder(images);
   }, [images]);
 
-  const handleOnDragEnd = async (result) => {
+  const handleOnDragEnd = async (result: DropResult) => {
     if (!result.destination) return;
     const images = Array.from(imageOrder);
     const [reorderedImages] = images.splice(result.source.index, 1);
