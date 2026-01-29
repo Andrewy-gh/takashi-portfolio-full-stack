@@ -34,3 +34,8 @@ One-shot scripts only (local):
 Notes:
 - Only `VITE_*` values are exposed to frontend bundles.
 - Keep API secrets in Fly secrets (not in Vite env files).
+
+## Smoke Test (Local)
+
+With `API_SECRET` set (and optional `API_BASE_URL`), run:
+- `pnpm -C server smoke:api`
