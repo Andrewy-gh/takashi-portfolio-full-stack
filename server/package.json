@@ -12,7 +12,8 @@
     "db:migrate": "node_modules/.bin/drizzle-kit migrate --config drizzle.config.ts",
     "db:studio": "node_modules/.bin/drizzle-kit studio --config drizzle.config.ts",
     "db:push": "node_modules/.bin/drizzle-kit push --config drizzle.config.ts",
-    "cloud:batch": "node hono/scripts/batch-cloudinary-import.js"
+    "cloud:batch": "node hono/scripts/batch-cloudinary-import.js",
+    "smoke:api": "node hono/scripts/smoke-api.js"
   },
   "author": "",
   "license": "ISC",

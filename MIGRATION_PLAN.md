@@ -4,7 +4,7 @@ This is a living checklist. When an agent completes a task, mark it as done with
 
 ## Purpose / End State
 
-Convert this repo into a pnpm monorepo with TypeScript across apps, a Node + Hono API backed by Postgres/Drizzle, a read-only portfolio frontend (React + Vite + MUI) that fetches image data from the API, and a separate dashboard frontend (based on AB Dashboard v2) for admin image management. Media storage uses Cloudinary with signed uploads and webhook callbacks. Migration is a one-time MongoDB -> Postgres import plus a batch Cloudinary upload/import script.
+Convert this repo into a pnpm monorepo with TypeScript across apps, a Node + Hono API backed by Postgres/Drizzle, a read-only portfolio frontend (React + Vite + MUI) that fetches image data from the API, and a separate dashboard frontend (based on AB Dashboard v2) for admin image management. Media storage uses Cloudinary with signed uploads and webhook callbacks. Optional batch Cloudinary upload/import script supports one-shot seeding.
 
 ## Template Reference
 
@@ -17,7 +17,7 @@ AB Dashboard v2 repo is located one level up at `C:\E\2026\ab-dashboard-v2`.
 - [x] Hono API + Postgres/Drizzle foundation (scaffold only; deps/wiring later)
 - [x] Drizzle migrations setup + baseline schema
 - [x] Cloudinary signed upload + webhook flow
-- [x] MongoDB -> Postgres one-shot data migration
+- [x] Legacy Express/Mongo stack removal
 - [x] Batch Cloudinary upload/import script
 - [x] Portfolio frontend (React + Vite + MUI) TS migration and read-only cleanup
 - [x] Dashboard frontend integration (AB dashboard v2)
@@ -31,7 +31,7 @@ AB Dashboard v2 repo is located one level up at `C:\E\2026\ab-dashboard-v2`.
 - Media: Cloudinary with signed uploads and webhook callbacks
 - Portfolio remains client-rendered and fetches from API (not fully static)
 - Dashboard uses AB v2 frontend stack as-is
-- Migration: one-time Mongo import; no dual-write period
+- Postgres is the source of truth; Mongo/Express legacy removed
 
 ## Drizzle Migrations Setup (Plan)
 
@@ -59,16 +59,19 @@ AB Dashboard v2 repo is located one level up at `C:\E\2026\ab-dashboard-v2`.
 - Full gate not run after recent changes.
 - Suggested next commit message: `chore: add hono scaffold and refine docker build`
 
+## Handoff Notes (Jan 29, 2026)
+
+- Legacy Express/Mongo stack removed; migration script retired.
+
 ## Drizzle Schema Note (Proposed)
 
 Tables:
 - `categories`: id (uuid pk), name (text unique), slug (text unique), sort_mode (text default "custom")
 - `images`: id (uuid pk), title (text), url (text), category (text nullable), cloudinary_id (text unique), width (int), height (int), created_at, updated_at
-- `image_categories`: image_id (fk), category_id (fk), unique(image_id, category_id)
-- `image_order`: image_id (fk), category_id (fk nullable for home/global), position (int), unique(category_id, position), unique(category_id, image_id)
+- `image_categories`: image_id (fk), category_id (fk), position (int), unique(image_id, category_id)
 - `users`: id (uuid pk), email (text unique), password_hash (text), role (text)
 
 Notes:
-- `image_order.category_id` nullable => global/home ordering.
-- `sort_mode` values: `custom|created_at|title|cloudinary` (dash to be finalized).
+- `image_categories.position` drives custom ordering per category.
+- `sort_mode` values: `custom|created_at|title` (dash to be finalized).
 - Config table to be removed; use migrations/seeds instead.

@@ -20,8 +20,7 @@ Optional:
 - `CLOUDINARY_NOTIFICATION_URL`
 
 One-shot scripts only (local):
-- `MONGODB_URI`
-- `IMAGE_IMPORT_DIR`
+- `IMAGE_IMPORT_DIR` (batch upload helper only)
 
 ## Frontend env (Vite build-time)
 
