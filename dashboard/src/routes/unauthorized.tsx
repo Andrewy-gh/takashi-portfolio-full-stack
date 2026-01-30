@@ -7,7 +7,7 @@ export const Route = createFileRoute('/unauthorized')({
 });
 
 function RouteComponent() {
-  const { isSignedIn, signOut } = useAuth();
+  const { meta, actions } = useAuth();
   return (
     <div className="mt-24">
       <section className="flex items-center justify-center">
@@ -23,8 +23,8 @@ function RouteComponent() {
             with an account with appropriate permissions.
           </p>
           <div className="flex items-center">
-            {isSignedIn ? (
-              <Button variant="outline" onClick={signOut}>
+            {meta.isSignedIn ? (
+              <Button variant="outline" onClick={actions.signOut}>
                 Sign out
               </Button>
             ) : (

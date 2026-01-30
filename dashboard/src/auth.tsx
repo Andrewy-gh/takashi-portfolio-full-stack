@@ -5,11 +5,17 @@ import { createContext, useCallback, useContext, useMemo, useState } from 'react
 const TOKEN_STORAGE_KEY = 'takashi.dashboard.token';
 
 export type AuthContextValue = {
-  token: string | null;
-  isSignedIn: boolean;
-  getToken: () => Promise<string | null>;
-  setToken: (token: string) => void;
-  signOut: () => void;
+  state: {
+    token: string | null;
+  };
+  actions: {
+    getToken: () => Promise<string | null>;
+    setToken: (token: string) => void;
+    signOut: () => void;
+  };
+  meta: {
+    isSignedIn: boolean;
+  };
 };
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -36,11 +42,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo(
     () => ({
-      token,
-      isSignedIn: Boolean(token),
-      getToken,
-      setToken,
-      signOut,
+      state: { token },
+      actions: { getToken, setToken, signOut },
+      meta: { isSignedIn: Boolean(token) },
     }),
     [getToken, signOut, setToken, token]
   );

@@ -1,10 +1,12 @@
-import { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 
 import { Button } from '@/components/ui/button';
 import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
-import { ActionButtons } from '@/components/action-buttons';
-import { DialogBase } from '@/components/dialog-base';
+import {
+  ConfirmDialogContent,
+  ConfirmDialogRoot,
+  ConfirmDialogTrigger,
+} from '@/components/confirm-dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,19 +29,9 @@ export function ImageOptionsMenu({
   };
 }) {
   const navigate = useNavigate();
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const deleteImage = useDeleteImageMutation(image.id);
 
-  const handleOpenDeleteDialog = () => {
-    setIsDeleteDialogOpen(true);
-  };
-
-  const handleCloseDeleteDialog = () => {
-    setIsDeleteDialogOpen(false);
-  };
-
   const handleDeleteImage = () => {
-    setIsDeleteDialogOpen(false);
     deleteImage.mutate(undefined, {
       onSuccess: () => {
         toast.success('Image deleted');
@@ -65,36 +57,33 @@ export function ImageOptionsMenu({
   };
 
   return (
-    <div className="absolute inset-0 cursor-pointer bg-black bg-opacity-0 text-white opacity-0 transition-opacity duration-300 group-hover:bg-opacity-25 group-hover:opacity-100">
-      <div className="right-2 p-2">
-        <DropdownMenu modal={false}>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem onClick={handleViewClick}>View</DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleEditClick}>
-              <Pencil className="mr-2 h-4 w-4" />
-              Edit
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={handleOpenDeleteDialog}
-              className="text-red-500"
-            >
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-        {/* MARK: Dialog */}
-        {isDeleteDialogOpen && (
-          <DialogBase
-            isOpen={isDeleteDialogOpen}
+    <ConfirmDialogRoot onConfirm={handleDeleteImage} confirmLabel="Delete">
+      <div className="absolute inset-0 cursor-pointer bg-black bg-opacity-0 text-white opacity-0 transition-opacity duration-300 group-hover:bg-opacity-25 group-hover:opacity-100">
+        <div className="right-2 p-2">
+          <DropdownMenu modal={false}>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuItem onClick={handleViewClick}>View</DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleEditClick}>
+                <Pencil className="mr-2 h-4 w-4" />
+                Edit
+              </DropdownMenuItem>
+              <ConfirmDialogTrigger asChild>
+                <DropdownMenuItem className="text-red-500">
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete
+                </DropdownMenuItem>
+              </ConfirmDialogTrigger>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <ConfirmDialogContent
             description={
               <>
                 Are you sure you want to delete{' '}
@@ -102,17 +91,10 @@ export function ImageOptionsMenu({
                 undone.
               </>
             }
-          >
-            <ActionButtons
-              onCancel={handleCloseDeleteDialog}
-              onConfirm={handleDeleteImage}
-            >
-              Delete
-            </ActionButtons>
-          </DialogBase>
-        )}
+          />
+        </div>
       </div>
-    </div>
+    </ConfirmDialogRoot>
   );
 }
 

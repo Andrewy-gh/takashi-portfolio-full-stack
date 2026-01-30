@@ -102,13 +102,13 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { isSignedIn, signOut } = useAuth();
+  const { meta, actions } = useAuth();
   return (
     <Sidebar {...props}>
       <SidebarHeader>
         {/* <TeamSwitcher teams={data.teams} /> */}
-        {isSignedIn ? (
-          <Button variant="outline" onClick={signOut}>
+        {meta.isSignedIn ? (
+          <Button variant="outline" onClick={actions.signOut}>
             Sign out
           </Button>
         ) : (

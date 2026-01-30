@@ -27,7 +27,7 @@ import { checkAuth } from '@/lib/api';
 
 export const Route = createFileRoute('/_auth')({
   beforeLoad: async ({ context }) => {
-    const token = await context.auth.getToken();
+    const token = await context.auth.actions.getToken();
     if (!token) {
       throw redirect({
         to: '/sign-in',

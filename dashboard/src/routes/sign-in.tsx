@@ -12,17 +12,17 @@ export const Route = createFileRoute('/sign-in')({
 
 function RouteComponent() {
   const navigate = useNavigate();
-  const { isSignedIn, setToken } = useAuth();
+  const { meta, actions } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    if (isSignedIn) {
+    if (meta.isSignedIn) {
       navigate({ to: '/' });
     }
-  }, [isSignedIn, navigate]);
+  }, [meta.isSignedIn, navigate]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -41,7 +41,7 @@ function RouteComponent() {
       if (!payload.token) {
         throw new Error('Missing token in response');
       }
-      setToken(payload.token);
+      actions.setToken(payload.token);
       navigate({ to: '/' });
     } catch (err) {
       const message =
