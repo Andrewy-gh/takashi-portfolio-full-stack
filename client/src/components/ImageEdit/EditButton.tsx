@@ -1,6 +1,5 @@
-import ButtonDialog from '../ButtonDialog';
 import EditForm from './EditForm';
-import { useDialog } from '../../hooks/useDialog';
+import { DialogContent, DialogRoot, DialogTrigger } from '../Dialog';
 import type { ImageRecord } from '../../services/image';
 
 export default function EditButton({
@@ -10,8 +9,6 @@ export default function EditButton({
   image: ImageRecord;
   updateImageDetails: (id: string, updates: Partial<ImageRecord>) => void;
 }) {
-  const { open, handleClose, handleOpen } = useDialog();
-
   const updateImage = (newData: Partial<ImageRecord>) =>
     updateImageDetails(image.id, newData);
 
@@ -21,19 +18,13 @@ export default function EditButton({
   };
 
   return (
-    <ButtonDialog
-      variant={'text'}
-      buttonText={'EDIT'}
-      buttonStyle={buttonStyle}
-      handleOpen={handleOpen}
-      handleClose={handleClose}
-      open={open}
-    >
-      <EditForm
-        handleClose={handleClose}
-        image={image}
-        updateImage={updateImage}
-      />
-    </ButtonDialog>
+    <DialogRoot>
+      <DialogTrigger variant="text" sx={buttonStyle}>
+        EDIT
+      </DialogTrigger>
+      <DialogContent maxWidth="desktop">
+        <EditForm image={image} updateImage={updateImage} />
+      </DialogContent>
+    </DialogRoot>
   );
 }

@@ -13,6 +13,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { theme } from '../../styles/styles';
 import { types } from '../../data/index';
 import type { ImageRecord } from '../../services/image';
+import { useDialogContext } from '../Dialog';
 
 const fieldSpacing = {
   display: 'flex',
@@ -51,23 +52,22 @@ const mobileWidth = {
 };
 
 type EditFormProps = {
-  handleClose: () => void;
   image: ImageRecord;
   updateImage: (data: Partial<ImageRecord>) => void;
 };
 
 export default function EditForm({
-  handleClose,
   image,
   updateImage,
 }: EditFormProps) {
+  const { closeDialog } = useDialogContext();
   const [title, setTitle] = useState(image.title ?? '');
   const [type, setType] = useState(image.type ?? '');
   const isMobile = useMediaQuery(theme.breakpoints.down('tablet'));
 
   const handleSubmit = () => {
     updateImage({ title, type });
-    handleClose();
+    closeDialog();
   };
 
   return (
@@ -112,7 +112,7 @@ export default function EditForm({
       <DialogActions
         sx={{ display: 'flex', justifyContent: 'center', gap: '1.25rem' }}
       >
-        <Button variant="contained" onClick={handleClose}>
+        <Button variant="contained" onClick={closeDialog}>
           CANCEL
         </Button>
         <Button variant="contained" onClick={handleSubmit}>

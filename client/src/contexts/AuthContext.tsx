@@ -6,12 +6,25 @@ import type { LoginCredentials } from '../services/auth';
 import { removeToken } from '../services/authStorage';
 import { useNotification } from './NotificationContext';
 
-type AuthContextValue = {
+type AuthState = {
   loggedIn: boolean;
   token: string | null;
-  handleLogin: (credentials: LoginCredentials) => Promise<void>;
-  handleLogout: () => void;
+};
+
+type AuthActions = {
+  login: (credentials: LoginCredentials) => Promise<void>;
+  logout: () => void;
   setCredentials: (token: string) => void;
+};
+
+type AuthMeta = {
+  isAuthenticated: boolean;
+};
+
+type AuthContextValue = {
+  state: AuthState;
+  actions: AuthActions;
+  meta: AuthMeta;
 };
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -19,7 +32,7 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loggedIn, setLoggedIn] = useState(false);
   const [token, setToken] = useState(null);
-  const { handleSuccess, handleError } = useNotification();
+  const { actions: notification } = useNotification();
 
   const handleLogin = async (credentials: LoginCredentials) => {
     try {
@@ -27,15 +40,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (userToken) {
         setLoggedIn(true);
         setToken(userToken);
-        handleSuccess('Successfully logged in');
+        notification.success('Successfully logged in');
       }
     } catch (error) {
-      handleError(error);
+      notification.error(error);
     }
   };
 
   const handleLogout = () => {
-    handleSuccess('Successfully logged out');
+    notification.success('Successfully logged out');
     setLoggedIn(false);
     setToken(null);
     removeToken();
@@ -49,11 +62,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   return (
     <AuthContext.Provider
       value={{
-        loggedIn,
-        token,
-        handleLogin,
-        handleLogout,
-        setCredentials,
+        state: { loggedIn, token },
+        actions: {
+          login: handleLogin,
+          logout: handleLogout,
+          setCredentials,
+        },
+        meta: { isAuthenticated: loggedIn && Boolean(token) },
       }}
     >
       {children}

@@ -4,17 +4,17 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { theme } from '../../styles/styles';
+import { useDialogContext } from '../Dialog';
 
 export default function DeleteDialog({
-  handleClose,
   removeImage,
 }: {
-  handleClose: () => void;
   removeImage: () => void;
 }) {
+  const { closeDialog } = useDialogContext();
   const handleAgree = () => {
     removeImage();
-    handleClose();
+    closeDialog();
   };
   return (
     <>
@@ -28,7 +28,7 @@ export default function DeleteDialog({
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleClose}>Disagree</Button>
+        <Button onClick={closeDialog}>Disagree</Button>
         <Button onClick={handleAgree} autoFocus>
           Agree
         </Button>

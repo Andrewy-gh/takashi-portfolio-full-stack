@@ -1,6 +1,11 @@
 import Grid from '@mui/material/Grid';
 import Menu from '../components/Menu';
-import Images from '../components/Images/index';
+import {
+  ImagesEmpty,
+  ImagesError,
+  ImagesGrid,
+  ImagesLoading,
+} from '../components/Images';
 import { useFilter } from '../hooks/useFilter';
 import FloatingButton from '../components/FloatingButton';
 import type { ImageRecord } from '../services/image';
@@ -25,6 +30,17 @@ export default function Home({
       : images.filter(
           (image) => (image.category ?? image.type ?? null) === filter
         );
+
+  let content;
+  if (isLoading) {
+    content = <ImagesLoading />;
+  } else if (error) {
+    content = <ImagesError message={error} />;
+  } else if (!filteredImages.length) {
+    content = <ImagesEmpty />;
+  } else {
+    content = <ImagesGrid cloudName={cloudName} images={filteredImages} />;
+  }
   return (
     <>
       <Grid
@@ -36,12 +52,7 @@ export default function Home({
           <Menu filter={filter} handleFilterChange={handleFilterChange} />
         </Grid>
         <Grid item mobile={12} tablet={9} sx={{ tablet: { padding: '.5em' } }}>
-          <Images
-            cloudName={cloudName}
-            images={filteredImages}
-            isLoading={isLoading}
-            error={error}
-          />
+          {content}
           <FloatingButton />
         </Grid>
       </Grid>

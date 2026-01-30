@@ -51,8 +51,9 @@ export default function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { loggedIn, token, handleLogin } = useAuth();
+  const { state, actions } = useAuth();
   const { adminStatus, createAdmin } = useAdmin();
+  const { loggedIn, token } = state;
 
   useEffect(() => {
     if (loggedIn && token) {
@@ -69,7 +70,7 @@ export default function Login() {
       setEmail('');
       setPassword('');
     } else {
-      await handleLogin({ email, password });
+      await actions.login({ email, password });
     }
   };
 

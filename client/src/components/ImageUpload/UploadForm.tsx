@@ -17,6 +17,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import CloseIcon from '@mui/icons-material/Close';
 import { types } from '../../data';
 import { theme } from '../../styles/styles';
+import { useDialogContext } from '../Dialog';
 
 const fieldSpacing = {
   display: 'flex',
@@ -55,15 +56,14 @@ type UploadFormData = {
 
 export default function UploadForm({
   clearImages,
-  handleClose,
   previewImages,
   submitImageData,
 }: {
   clearImages: () => void;
-  handleClose: () => void;
   previewImages: (images: { id: number; preview: string; data: File }[]) => void;
   submitImageData: (data: UploadFormData) => void;
 }) {
+  const { closeDialog } = useDialogContext();
   const {
     control,
     register,
@@ -81,9 +81,9 @@ export default function UploadForm({
   useEffect(() => {
     if (isSubmitSuccessful) {
       reset({ title: '', type: '', file: undefined });
-      handleClose();
+      closeDialog();
     }
-  }, [handleClose, isSubmitSuccessful, reset]);
+  }, [closeDialog, isSubmitSuccessful, reset]);
 
   const isMobile = useMediaQuery(theme.breakpoints.down('tablet'));
 
@@ -123,7 +123,7 @@ export default function UploadForm({
         <IconButton
           edge="start"
           color="inherit"
-          onClick={handleClose}
+          onClick={closeDialog}
           aria-label="close"
         >
           <CloseIcon />

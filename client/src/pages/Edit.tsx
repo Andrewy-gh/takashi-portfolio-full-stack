@@ -59,7 +59,7 @@ export default function Edit({
           </IconButton>
         </Link>
         <ImageUpload
-          style={{ placeSelf: 'start end' }}
+          triggerSx={{ placeSelf: 'start end' }}
           uploadNewImage={uploadNewImage}
         />
       </Box>

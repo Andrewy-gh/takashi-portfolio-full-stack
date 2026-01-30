@@ -8,7 +8,7 @@ export function useAdmin(): {
   createAdmin: (credentials: AdminCredentials) => Promise<void>;
 } {
   const [adminStatus, setAdminStatus] = useState('');
-  const { handleSuccess, handleError } = useNotification();
+  const { actions: notification } = useNotification();
 
   useEffect(() => {
     const checkAdmin = async () => {
@@ -22,11 +22,11 @@ export function useAdmin(): {
     try {
       const adminCreated = await configServices.createAdmin(credentials);
       if (adminCreated.success) {
-        handleSuccess(adminCreated.message);
+        notification.success(adminCreated.message);
         setAdminStatus('Admin setup complete');
       }
     } catch (error) {
-      handleError(error);
+      notification.error(error);
     }
   };
 

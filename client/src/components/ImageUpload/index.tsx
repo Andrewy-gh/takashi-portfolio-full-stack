@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import ButtonDialog from '../ButtonDialog';
+import { useEffect, useState } from 'react';
 import Preview from './Preview';
 import UploadForm from './UploadForm';
 import type { SxProps, Theme } from '@mui/material/styles';
+import { DialogContent, DialogRoot, DialogTrigger, useDialogContext } from '../Dialog';
 
 export type PreviewImage = {
   id: number;
@@ -18,29 +18,37 @@ type UploadFormData = {
 
 export default function ImageUpload({
   uploadNewImage,
-  buttonStyle,
-  style,
+  triggerSx,
 }: {
   uploadNewImage: (data: FormData) => void | Promise<void>;
-  buttonStyle?: SxProps<Theme>;
-  style?: SxProps<Theme>;
+  triggerSx?: SxProps<Theme>;
 }) {
-  const [open, setOpen] = useState(false);
+  return (
+    <DialogRoot>
+      <ImageUploadDialog uploadNewImage={uploadNewImage} triggerSx={triggerSx} />
+    </DialogRoot>
+  );
+}
+
+function ImageUploadDialog({
+  uploadNewImage,
+  triggerSx,
+}: {
+  uploadNewImage: (data: FormData) => void | Promise<void>;
+  triggerSx?: SxProps<Theme>;
+}) {
   const [images, setImages] = useState<PreviewImage[]>([]);
-  const resolvedButtonStyle = buttonStyle ?? style;
+  const { open } = useDialogContext();
 
   const clearImages = () => {
     setImages([]);
   };
 
-  const handleOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-    setImages([]);
-  };
+  useEffect(() => {
+    if (!open) {
+      setImages([]);
+    }
+  }, [open]);
 
   const submitImageData = (data: UploadFormData) => {
     const formData = new FormData();
@@ -61,22 +69,18 @@ export default function ImageUpload({
     setImages(images.filter((image) => image.id !== id));
 
   return (
-    <ButtonDialog
-      buttonText={'Image Upload'}
-      handleClose={handleClose}
-      handleOpen={handleOpen}
-      open={open}
-      buttonStyle={resolvedButtonStyle}
-    >
-      <UploadForm
-        clearImages={clearImages}
-        handleClose={handleClose}
-        previewImages={previewImages}
-        submitImageData={submitImageData}
-      />
-      {images.length > 0 && (
-        <Preview images={images} removeImage={removeImage} />
-      )}
-    </ButtonDialog>
+    <>
+      <DialogTrigger sx={triggerSx}>Image Upload</DialogTrigger>
+      <DialogContent maxWidth="desktop">
+        <UploadForm
+          clearImages={clearImages}
+          previewImages={previewImages}
+          submitImageData={submitImageData}
+        />
+        {images.length > 0 && (
+          <Preview images={images} removeImage={removeImage} />
+        )}
+      </DialogContent>
+    </>
   );
 }

@@ -1,6 +1,5 @@
-import ButtonDialog from '../ButtonDialog';
 import DeleteDialog from './DeleteDialog';
-import { useDialog } from '../../hooks/useDialog';
+import { DialogContent, DialogRoot, DialogTrigger } from '../Dialog';
 import type { ImageRecord } from '../../services/image';
 
 export default function DeleteButton({
@@ -10,8 +9,6 @@ export default function DeleteButton({
   image: ImageRecord;
   removeOneImage: (id: string) => void;
 }) {
-  const { open, handleClose, handleOpen } = useDialog();
-
   const removeImage = () => removeOneImage(image.id);
 
   const buttonStyle = {
@@ -20,15 +17,13 @@ export default function DeleteButton({
   };
 
   return (
-    <ButtonDialog
-      buttonStyle={buttonStyle}
-      buttonText={'DELETE'}
-      handleOpen={handleOpen}
-      handleClose={handleClose}
-      open={open}
-      variant={'text'}
-    >
-      <DeleteDialog handleClose={handleClose} removeImage={removeImage} />
-    </ButtonDialog>
+    <DialogRoot>
+      <DialogTrigger variant="text" sx={buttonStyle}>
+        DELETE
+      </DialogTrigger>
+      <DialogContent maxWidth="desktop">
+        <DeleteDialog removeImage={removeImage} />
+      </DialogContent>
+    </DialogRoot>
   );
 }

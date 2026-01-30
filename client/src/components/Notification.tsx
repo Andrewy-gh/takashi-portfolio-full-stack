@@ -12,13 +12,14 @@ const Alert = forwardRef<HTMLDivElement, AlertProps>(function Alert(
 });
 
 export default function Notification() {
-  const { open, message, severity, resetMessages } = useNotification();
+  const { state, actions } = useNotification();
+  const { open, message, severity } = state;
 
   const handleClose = (_: unknown, reason?: string) => {
     if (reason === 'clickaway') {
       return;
     }
-    resetMessages();
+    actions.reset();
   };
 
   return (

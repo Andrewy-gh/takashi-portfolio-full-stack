@@ -3,13 +3,26 @@ import type { ReactNode } from 'react';
 import { createContext, useContext, useState } from 'react';
 import type { AlertColor } from '@mui/material';
 
-type NotificationContextValue = {
+type NotificationState = {
   open: boolean;
   message: string;
   severity: AlertColor;
-  handleSuccess: (message: string) => void;
-  handleError: (error: unknown) => void;
-  resetMessages: () => void;
+};
+
+type NotificationActions = {
+  success: (message: string) => void;
+  error: (error: unknown) => void;
+  reset: () => void;
+};
+
+type NotificationMeta = {
+  hasMessage: boolean;
+};
+
+type NotificationContextValue = {
+  state: NotificationState;
+  actions: NotificationActions;
+  meta: NotificationMeta;
 };
 
 const NotificationContext = createContext<NotificationContextValue | undefined>(
@@ -20,10 +33,13 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState('');
   const [severity, setSeverity] = useState<AlertColor>('success');
+
   const handleSuccess = (message: string) => {
     setOpen(true);
     setMessage(message);
+    setSeverity('success');
   };
+
   const handleError = (error: unknown) => {
     const errorMessage =
       (error as { response?: { data?: { error?: string } } })?.response?.data
@@ -42,12 +58,13 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
   return (
     <NotificationContext.Provider
       value={{
-        open,
-        message,
-        severity,
-        handleSuccess,
-        handleError,
-        resetMessages,
+        state: { open, message, severity },
+        actions: {
+          success: handleSuccess,
+          error: handleError,
+          reset: resetMessages,
+        },
+        meta: { hasMessage: message.length > 0 },
       }}
     >
       {children}

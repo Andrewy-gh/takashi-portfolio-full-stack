@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import DrawerMenu from './DrawerMenu';
-import type { NavigationItem } from '../../data';
+import { useMenuContext } from './MenuContext';
 
 const flex = {
   display: 'flex',
@@ -19,15 +19,8 @@ const logoStyle = {
     'linear-gradient(90deg, rgba(104,94,80,1) 0%, rgba(149,129,111,1) 35%, rgba(179,153,132,1) 100%)',
 };
 
-export default function MenuMobile({
-  filter,
-  handleFilterChange,
-  navigation,
-}: {
-  filter: string | null;
-  handleFilterChange: (filter: string | null) => void;
-  navigation: NavigationItem[];
-}) {
+export default function MenuMobile() {
+  const { handleFilterChange } = useMenuContext();
   return (
     <div style={{ paddingInline: '.5rem' }}>
       <div style={flex}>
@@ -36,11 +29,7 @@ export default function MenuMobile({
             <h1 style={logoStyle}>TAKASHI MIYAZAKI</h1>
           </div>
         </Link>
-        <DrawerMenu
-          navigation={navigation}
-          filter={filter}
-          handleFilterChange={handleFilterChange}
-        />
+        <DrawerMenu />
       </div>
     </div>
   );

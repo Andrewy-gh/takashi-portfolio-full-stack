@@ -2,7 +2,8 @@ import type { CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
 import Default from '../../assets/default.webp';
 import { theme } from '../../styles/styles';
-import type { NavigationItem } from '../../data';
+import MenuItems, { type MenuItemRenderProps } from './MenuItems';
+import { useMenuContext } from './MenuContext';
 
 const activeStyle: CSSProperties = {
   color: theme.palette.custom.main,
@@ -32,15 +33,8 @@ const typographyStyle: CSSProperties = {
   cursor: 'pointer',
 };
 
-export default function MenuDesktop({
-  filter,
-  handleFilterChange,
-  navigation,
-}: {
-  filter: string | null;
-  handleFilterChange: (filter: string | null) => void;
-  navigation: NavigationItem[];
-}) {
+export default function MenuDesktop() {
+  const { handleFilterChange } = useMenuContext();
   return (
     <div style={sticky}>
       <div style={{ ...flexColumns, padding: theme.spacing(6) }}>
@@ -50,26 +44,35 @@ export default function MenuDesktop({
           </Link>
         </div>
         <ul style={flexColumns}>
-          {navigation.map((nav) =>
-            nav.type === 'filter' ? (
-              <li
-                key={nav.id}
-                style={{
-                  ...typographyStyle,
-                  ...(filter === nav.filter ? activeStyle : inActiveStyle),
-                }}
-                onClick={() => handleFilterChange(nav.filter ?? null)}
-              >
-                {nav.name}
-              </li>
-            ) : nav.path ? (
-              <li key={nav.id} style={typographyStyle}>
-                <Link to={nav.path}>{nav.name}</Link>
-              </li>
-            ) : null
-          )}
+          <MenuItems Item={MenuDesktopItem} />
         </ul>
       </div>
     </div>
   );
+}
+
+function MenuDesktopItem({ item, isActive, onSelect }: MenuItemRenderProps) {
+  if (item.type === 'filter') {
+    return (
+      <li
+        style={{
+          ...typographyStyle,
+          ...(isActive ? activeStyle : inActiveStyle),
+        }}
+        onClick={onSelect}
+      >
+        {item.name}
+      </li>
+    );
+  }
+
+  if (item.path) {
+    return (
+      <li style={typographyStyle}>
+        <Link to={item.path}>{item.name}</Link>
+      </li>
+    );
+  }
+
+  return null;
 }

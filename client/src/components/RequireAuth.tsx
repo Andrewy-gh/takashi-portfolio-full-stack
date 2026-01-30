@@ -3,10 +3,10 @@ import { useAuth } from '../contexts/AuthContext';
 
 export default function RequireAuth() {
   const location = useLocation();
-  const { loggedIn, token } = useAuth();
+  const { meta } = useAuth();
   return (
     <>
-      {token && loggedIn ? (
+      {meta.isAuthenticated ? (
         <Outlet />
       ) : (
         <Navigate to="/login" state={{ from: location }} replace />

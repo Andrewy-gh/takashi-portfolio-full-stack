@@ -6,7 +6,7 @@ import Drawer from '@mui/material/Drawer';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import { theme } from '../../styles/styles';
-import type { NavigationItem } from '../../data';
+import MenuItems, { type MenuItemRenderProps } from './MenuItems';
 
 const activeStyle = {
   color: theme.palette.custom.main,
@@ -29,43 +29,12 @@ const buttonStyle = {
     'linear-gradient(90deg, rgba(104,94,80,1) 0%, rgba(149,129,111,1) 35%, rgba(179,153,132,1) 100%)',
 };
 
-export default function DrawerMenu({
-  filter,
-  handleFilterChange,
-  navigation,
-}: {
-  filter: string | null;
-  handleFilterChange: (filter: string | null) => void;
-  navigation: NavigationItem[];
-}) {
+export default function DrawerMenu() {
   const [open, setOpen] = useState(false);
 
   const getList = () => (
     <Box sx={menuStyle} onClick={() => setOpen(false)}>
-      {navigation.map((nav) =>
-        nav.type === 'filter' ? (
-          <ListItem
-            key={nav.id}
-            sx={{ cursor: 'pointer' }}
-            onClick={() => handleFilterChange(nav.filter ?? null)}
-          >
-            <ListItemText
-              primary={nav.name}
-              primaryTypographyProps={{ variant: 'h4' }}
-              sx={filter === nav.filter ? activeStyle : inActiveStyle}
-            />
-          </ListItem>
-        ) : nav.path ? (
-          <ListItem key={nav.id}>
-            <Link to={nav.path}>
-              <ListItemText
-                primary={nav.name}
-                primaryTypographyProps={{ variant: 'h4' }}
-              />
-            </Link>
-          </ListItem>
-        ) : null
-      )}
+      <MenuItems Item={MenuDrawerItem} />
     </Box>
   );
   return (
@@ -78,4 +47,33 @@ export default function DrawerMenu({
       </Drawer>
     </>
   );
+}
+
+function MenuDrawerItem({ item, isActive, onSelect }: MenuItemRenderProps) {
+  if (item.type === 'filter') {
+    return (
+      <ListItem sx={{ cursor: 'pointer' }} onClick={onSelect}>
+        <ListItemText
+          primary={item.name}
+          primaryTypographyProps={{ variant: 'h4' }}
+          sx={isActive ? activeStyle : inActiveStyle}
+        />
+      </ListItem>
+    );
+  }
+
+  if (item.path) {
+    return (
+      <ListItem>
+        <Link to={item.path}>
+          <ListItemText
+            primary={item.name}
+            primaryTypographyProps={{ variant: 'h4' }}
+          />
+        </Link>
+      </ListItem>
+    );
+  }
+
+  return null;
 }
