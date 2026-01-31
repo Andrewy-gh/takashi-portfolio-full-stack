@@ -1,7 +1,9 @@
 import { Link, useCanGoBack, useRouter } from '@tanstack/react-router';
 import { useState } from 'react';
-import { ArrowLeft, ChevronDown, ChevronUp } from 'lucide-react';
+import { ArrowLeft, ChevronDown, ChevronUp, ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { EmptyState } from '@/components/empty-state';
 import { toast } from 'sonner';
 import type { GetCategoryByIdResponse } from '@/lib/categories.queries';
 import { useUpdateCategoryImagePositionsMutation } from '@/lib/categories.queries';
@@ -106,14 +108,23 @@ export function CategoryImageOrderForm({
 
   if (!images.length) {
     return (
-      <section className="container space-y-4 p-6">
+      <section className="container space-y-6 p-6">
         <h1 className="text-2xl font-semibold">Image ordering</h1>
-        <p className="text-muted-foreground">No images in this category.</p>
-        <Button asChild variant="outline">
-          <Link to="/categories/$categoryId" params={{ categoryId: category.id }}>
-            <ArrowLeft className="mr-2 h-4 w-4" /> Back
-          </Link>
-        </Button>
+        <EmptyState
+          title="No images to reorder"
+          description="Upload images first, then return here to set the custom order."
+          icon={ImageIcon}
+          action={
+            <Button asChild variant="outline">
+              <Link
+                to="/categories/$categoryId"
+                params={{ categoryId: category.id }}
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" /> Back
+              </Link>
+            </Button>
+          }
+        />
       </section>
     );
   }
@@ -126,6 +137,9 @@ export function CategoryImageOrderForm({
           <p className="text-sm text-muted-foreground">
             Drag with buttons or arrow keys. Saving sets sort mode to custom.
           </p>
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge variant="secondary">{images.length} images</Badge>
+          </div>
         </div>
         <div className="flex gap-2">
           <Button asChild variant="outline">

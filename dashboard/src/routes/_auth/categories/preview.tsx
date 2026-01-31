@@ -2,10 +2,13 @@ import { createFileRoute, Link } from '@tanstack/react-router';
 import { useEffect } from 'react';
 import { useSuspenseQuery } from '@tanstack/react-query';
 
-import { ImageOff } from 'lucide-react';
+import { ImageOff, LayoutGrid, ListOrdered } from 'lucide-react';
 
 import { categoriesPreviewQueryOptions } from '@/lib/categories.queries';
 import { useIntersectionObserver } from '@/hooks/use-intersection-observer';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { EmptyState } from '@/components/empty-state';
 
 export const Route = createFileRoute('/_auth/categories/preview')({
   component: RouteComponent,
@@ -28,22 +31,82 @@ function RouteComponent() {
     }
   }, [observeElements]);
 
+  const formatSortMode = (value?: string | null) => {
+    if (!value) return 'Custom order';
+    switch (value) {
+      case 'custom':
+        return 'Custom order';
+      case 'created_at':
+      case 'created_at_desc':
+        return 'Newest first';
+      case 'created_at_asc':
+        return 'Oldest first';
+      case 'title':
+      case 'title_asc':
+        return 'Title A-Z';
+      case 'title_desc':
+        return 'Title Z-A';
+      default:
+        return value.replaceAll('_', ' ');
+    }
+  };
+
   return (
     <section className="container space-y-12 p-6">
+      <header className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+        <div className="space-y-2">
+          <h1 className="scroll-m-20 pb-2 text-3xl font-bold leading-relaxed first:mt-0">
+            Category Preview
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            See how categories will read on the portfolio home page.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-3">
+          <Button asChild variant="secondary">
+            <Link to="/categories">
+              <LayoutGrid className="mr-2 h-4 w-4" /> Manage Categories
+            </Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link to="/categories/order">
+              <ListOrdered className="mr-2 h-4 w-4" /> Category Order
+            </Link>
+          </Button>
+        </div>
+      </header>
+      {categories.length === 0 ? (
+        <EmptyState
+          title="No categories to preview"
+          description="Create categories to populate the portfolio navigation."
+          icon={LayoutGrid}
+          action={
+            <Button asChild>
+              <Link to="/categories/new">Create Category</Link>
+            </Button>
+          }
+        />
+      ) : null}
       {categories.map((category) => (
         <section
           key={category.id}
           className="opacity-0 transition-opacity duration-700 ease-in fade-in"
         >
           {/* Title */}
-          <Link
-            to="/categories/$categoryId"
-            params={{ categoryId: category.id }}
-          >
-            <h2 className="scroll-m-20 pb-2 text-3xl font-bold leading-relaxed first:mt-0">
-              {category.name}
-            </h2>
-          </Link>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <Link
+              to="/categories/$categoryId"
+              params={{ categoryId: category.id }}
+            >
+              <h2 className="scroll-m-20 pb-2 text-2xl font-bold leading-relaxed first:mt-0">
+                {category.name}
+              </h2>
+            </Link>
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge variant="secondary">{formatSortMode(category.sortMode)}</Badge>
+              <Badge variant="outline">{category.images.length} images</Badge>
+            </div>
+          </div>
           {category.images.length > 0 ? (
             <>
               {/* Grid */}
@@ -91,7 +154,10 @@ function RouteComponent() {
               </div>
             </>
           ) : (
-            <p className="text-gray-400 text-lg">No images</p>
+            <div className="flex items-center gap-3 rounded-lg border border-dashed px-4 py-6 text-sm text-muted-foreground">
+              <ImageOff className="h-5 w-5" />
+              <span>No images in this category yet.</span>
+            </div>
           )}
         </section>
       ))}

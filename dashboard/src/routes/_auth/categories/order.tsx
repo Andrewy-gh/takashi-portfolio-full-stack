@@ -2,6 +2,7 @@ import { Fragment, useMemo, useState } from 'react';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import {
   createFileRoute,
+  Link,
   useCanGoBack,
   useRouter,
 } from '@tanstack/react-router';
@@ -25,6 +26,8 @@ import {
 } from '@dnd-kit/sortable';
 
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { EmptyState } from '@/components/empty-state';
 import { CirclePlus, Trash2 } from 'lucide-react';
 import {
   type ColumnDef,
@@ -151,6 +154,10 @@ function RouteComponent() {
     [categories]
   );
   const [data, setData] = useState(sortedCategories);
+  const visibleCount = data.filter(
+    (entry) => entry.sequence !== null && entry.sequence !== undefined
+  ).length;
+  const hiddenCount = data.length - visibleCount;
   const dataIds = useMemo<UniqueIdentifier[]>(
     () => data?.map(({ id }) => id.toString()),
     [data]
@@ -173,12 +180,12 @@ function RouteComponent() {
         const newData = arrayMove(data, oldIndex, newIndex).map((d, i) => ({
           ...d,
           // Only remap orders for items that have non null orders
-              sequence:
-                d.sequence !== null && d.sequence !== undefined ? i + 1 : null,
-            }));
-            return newData;
-          });
-        }
+          sequence:
+            d.sequence !== null && d.sequence !== undefined ? i + 1 : null,
+        }));
+        return newData;
+      });
+    }
   }
 
   function handleSequenceUpdate() {
@@ -189,7 +196,7 @@ function RouteComponent() {
     }));
     updateCategoriesTable.mutate(categoriesWithSequence, {
       onSuccess: () => {
-        toast.success('Category order updated. 🎉');
+        toast.success('Category order updated.');
         router.navigate({
           to: '/categories',
         });
@@ -208,81 +215,109 @@ function RouteComponent() {
 
   return (
     <section className="container space-y-12 p-6">
-      <h1 className="scroll-m-20 pb-2 text-3xl font-bold leading-relaxed first:mt-0">
-        Edit Category Order
-      </h1>
-      <DndContext
-        collisionDetection={closestCenter}
-        modifiers={[restrictToVerticalAxis]}
-        onDragEnd={handleDragEnd}
-        sensors={sensors}
-      >
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows.map((row) => (
-              <Fragment key={row.id}>
-                {row.original.sequence ? (
-                  <SortableContext
-                    items={dataIds}
-                    strategy={verticalListSortingStrategy}
-                  >
-                    <DraggableRow<CategoryRow> row={row} />
-                  </SortableContext>
-                ) : (
-                  <Row<CategoryRow> row={row} />
-                )}
-              </Fragment>
-            ))}
-          </TableBody>
-        </Table>
-      </DndContext>
-      <div className="flex gap-4">
-        <Button
-          disabled={isButtonDisabled}
-          onClick={() => handleSequenceUpdate()}
-        >
-          Save
-        </Button>
-        <Button
-          variant="secondary"
-          disabled={isButtonDisabled}
-          onClick={() => {
-            setData(sortedCategories);
-            toast('Category order reset.');
-          }}
-        >
-          Reset
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() =>
-            canGoBack
-              ? router.history.back()
-              : router.navigate({
-                  to: '/categories',
-                })
+      <header className="space-y-4">
+        <div className="space-y-2">
+          <h1 className="scroll-m-20 pb-2 text-3xl font-bold leading-relaxed first:mt-0">
+            Edit Category Order
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Categories with an order number appear in the sidebar and Home.
+            Drag to rearrange, or use the + button to add to navigation.
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge variant="secondary">{visibleCount} in navigation</Badge>
+          <Badge variant="outline">{hiddenCount} hidden</Badge>
+        </div>
+      </header>
+      {data.length === 0 ? (
+        <EmptyState
+          title="No categories to reorder"
+          description="Create categories first, then come back to organize the sidebar."
+          icon={CirclePlus}
+          action={
+            <Button asChild>
+              <Link to="/categories/new">Create Category</Link>
+            </Button>
           }
-        >
-          Cancel
-        </Button>
-      </div>
+        />
+      ) : null}
+      {data.length ? (
+        <>
+          <DndContext
+            collisionDetection={closestCenter}
+            modifiers={[restrictToVerticalAxis]}
+            onDragEnd={handleDragEnd}
+            sensors={sensors}
+          >
+            <Table>
+              <TableHeader>
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <TableRow key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => (
+                      <TableHead key={header.id}>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </TableHead>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableHeader>
+              <TableBody>
+                {table.getRowModel().rows.map((row) => (
+                  <Fragment key={row.id}>
+                    {row.original.sequence ? (
+                      <SortableContext
+                        items={dataIds}
+                        strategy={verticalListSortingStrategy}
+                      >
+                        <DraggableRow<CategoryRow> row={row} />
+                      </SortableContext>
+                    ) : (
+                      <Row<CategoryRow> row={row} />
+                    )}
+                  </Fragment>
+                ))}
+              </TableBody>
+            </Table>
+          </DndContext>
+          <div className="flex flex-wrap gap-3">
+            <Button
+              disabled={isButtonDisabled}
+              onClick={() => handleSequenceUpdate()}
+            >
+              Save
+            </Button>
+            <Button
+              variant="secondary"
+              disabled={isButtonDisabled}
+              onClick={() => {
+                setData(sortedCategories);
+                toast('Category order reset.');
+              }}
+            >
+              Reset
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() =>
+                canGoBack
+                  ? router.history.back()
+                  : router.navigate({
+                      to: '/categories',
+                    })
+              }
+            >
+              Cancel
+            </Button>
+          </div>
+        </>
+      ) : null}
     </section>
   );
 }

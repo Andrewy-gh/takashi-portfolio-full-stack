@@ -35,7 +35,7 @@ export function EditCategoryForm({
         },
         {
           onSuccess() {
-            toast.success('Category updated 🎉');
+            toast.success('Category updated.');
             router.navigate({
               to: '/categories',
             });
@@ -60,9 +60,14 @@ export function EditCategoryForm({
 
   return (
     <section className="container space-y-12 p-6">
-      <h1 className="scroll-m-20 pb-2 text-3xl font-bold leading-relaxed first:mt-0">
-        {category.name}
-      </h1>
+      <div className="space-y-2">
+        <h1 className="scroll-m-20 pb-2 text-3xl font-bold leading-relaxed first:mt-0">
+          {category.name}
+        </h1>
+        <p className="text-sm text-muted-foreground">
+          Update the category name or description.
+        </p>
+      </div>
       <Suspense fallback={<p>Loading...</p>}>
         <form
           onSubmit={(e) => {

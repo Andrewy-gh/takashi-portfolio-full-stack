@@ -36,13 +36,13 @@ function RouteComponent() {
         },
         {
           onSuccess() {
-            toast.success('Category created successfully 🎉');
+            toast.success('Category created successfully.');
             router.navigate({
               to: '/categories',
             });
           },
           onError() {
-            toast.error('Failed to created category');
+            toast.error('Failed to create category.');
           },
         }
       );
@@ -58,9 +58,14 @@ function RouteComponent() {
 
   return (
     <section className="container space-y-12 p-6">
-      <h1 className="scroll-m-20 pb-2 text-3xl font-bold leading-relaxed first:mt-0">
-        New Category
-      </h1>
+      <div className="space-y-2">
+        <h1 className="scroll-m-20 pb-2 text-3xl font-bold leading-relaxed first:mt-0">
+          New Category
+        </h1>
+        <p className="text-sm text-muted-foreground">
+          Categories drive the sidebar order and group portfolio images.
+        </p>
+      </div>
       <Suspense fallback={<p>Loading...</p>}>
         <form
           onSubmit={(e) => {
