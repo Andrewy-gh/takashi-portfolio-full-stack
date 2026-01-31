@@ -3,6 +3,10 @@
   "private": true,
   "version": "0.0.0",
   "scripts": {
+    "dev": "pnpm -r --parallel --stream --if-present dev",
+    "build": "pnpm -r --stream --if-present build",
+    "lint": "pnpm -r --stream --if-present lint",
+    "typecheck": "pnpm -r --stream --if-present typecheck",
     "db:up": "docker compose up -d db",
     "db:down": "docker compose down"
   }
