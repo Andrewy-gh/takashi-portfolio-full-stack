@@ -10,7 +10,6 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          'react-beautiful-dnd': ['react-beautiful-dnd'],
           'mui-icons-material': ['@mui/icons-material'],
         },
       },
