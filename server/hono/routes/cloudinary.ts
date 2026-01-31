@@ -137,6 +137,11 @@ const cloudinaryRoutes = new Hono()
   });
 
   if (!verification.ok) {
+    console.warn("Cloudinary webhook verification failed", {
+      reason: verification.reason,
+      hasSignature: Boolean(signature),
+      hasTimestamp: Boolean(timestamp),
+    });
     return c.json({ ok: false, reason: verification.reason }, 401);
   }
 

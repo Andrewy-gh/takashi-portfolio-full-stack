@@ -34,7 +34,9 @@ async function waitForImageByPublicId(
     }
     await delay(delayMs);
   }
-  throw new Error('Timed out waiting for Cloudinary webhook');
+  throw new Error(
+    'Timed out waiting for Cloudinary webhook. Check CLOUDINARY_NOTIFICATION_URL on the API or a Cloudinary upload preset notification_url.'
+  );
 }
 
 // MARK: GET

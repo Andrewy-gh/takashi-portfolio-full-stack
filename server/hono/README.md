@@ -33,6 +33,10 @@ Routes (when Hono is wired):
 - `POST /api/cloudinary/signature` -> `{ signature, timestamp, apiKey, cloudName, params }`
 - `POST /api/cloudinary/webhook` -> verifies Cloudinary notification signature and upserts `images`
 
+Local dev tips:
+- Use a public tunnel (ngrok) and set `CLOUDINARY_NOTIFICATION_URL` to `https://<tunnel>/api/cloudinary/webhook`.
+- Or set a Cloudinary upload preset with a `notification_url` pointing to your webhook.
+
 ## Auth (simple admin login)
 
 Env (pick one password option):
@@ -60,3 +64,10 @@ Options:
 - `--no-db` (skip Postgres writes)
 
 Report output: `server/hono/scripts/cloudinary-import-report.json`
+
+## Smoke Test (Local)
+
+With `API_SECRET` set (and optional `API_BASE_URL`), run:
+- `pnpm -C server smoke:api`
+
+Expected output includes: `Smoke ok: webhook stored image`.

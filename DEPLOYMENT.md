@@ -17,7 +17,7 @@ Required (runtime):
 - `AUTH_PASSWORD_HASH` (prefer) or `AUTH_PASSWORD` (dev only)
 
 Optional:
-- `CLOUDINARY_NOTIFICATION_URL`
+- `CLOUDINARY_NOTIFICATION_URL` (recommended; public URL to `.../api/cloudinary/webhook`)
 
 One-shot scripts only (local):
 - `IMAGE_IMPORT_DIR` (batch upload helper only)
@@ -34,6 +34,7 @@ One-shot scripts only (local):
 Notes:
 - Only `VITE_*` values are exposed to frontend bundles.
 - Keep API secrets in Fly secrets (not in Vite env files).
+- If the dashboard waits on uploads, confirm `CLOUDINARY_NOTIFICATION_URL` is set in the API env and points to a publicly reachable webhook URL.
 
 ## Smoke Test (Local)
 
