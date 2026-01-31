@@ -34,11 +34,13 @@ const imagesRoutes = new Hono()
     );
     const search = query.search?.trim();
     const publicId = query.publicId?.trim();
+    const cloudinaryId = query.cloudinaryId?.trim();
     const sortColumn = getSortColumn(query.sort);
     const direction = query.direction === "asc" ? asc : desc;
 
-    const whereClause = publicId
-      ? eq(images.publicId, publicId)
+    const idFilter = cloudinaryId ?? publicId;
+    const whereClause = idFilter
+      ? eq(images.cloudinaryId, idFilter)
       : search
         ? ilike(images.title, `%${search}%`)
         : undefined;
@@ -60,7 +62,7 @@ const imagesRoutes = new Hono()
 
     const payload = rows.map((image) => ({
       ...image,
-      cloudinaryId: image.publicId,
+      publicId: image.cloudinaryId,
     }));
 
     return c.json({
@@ -99,7 +101,7 @@ const imagesRoutes = new Hono()
     const image = rows[0];
     return c.json({
       ...image,
-      cloudinaryId: image.publicId,
+      publicId: image.cloudinaryId,
     });
   })
   .put("/:id", async (c) => {
@@ -134,7 +136,7 @@ const imagesRoutes = new Hono()
     const image = updated[0];
     return c.json({
       ...image,
-      cloudinaryId: image.publicId,
+      publicId: image.cloudinaryId,
     });
   })
   .delete("/:id", async (c) => {
@@ -149,7 +151,7 @@ const imagesRoutes = new Hono()
     const image = deleted[0];
     return c.json({
       ...image,
-      cloudinaryId: image.publicId,
+      publicId: image.cloudinaryId,
     });
   });
 

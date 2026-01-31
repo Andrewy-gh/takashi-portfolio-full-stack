@@ -163,7 +163,7 @@ const cloudinaryRoutes = new Hono()
   const existing = await db
     .select()
     .from(images)
-    .where(eq(images.publicId, payload.public_id))
+    .where(eq(images.cloudinaryId, payload.public_id))
     .limit(1);
 
   const title = buildTitle(payload);
@@ -179,7 +179,7 @@ const cloudinaryRoutes = new Hono()
     const inserted = await db
       .insert(images)
       .values({
-        publicId: payload.public_id,
+        cloudinaryId: payload.public_id,
         url: payload.secure_url,
         title,
         width,
@@ -218,7 +218,7 @@ const cloudinaryRoutes = new Hono()
       await db
         .update(images)
         .set(updates)
-        .where(eq(images.publicId, payload.public_id));
+        .where(eq(images.cloudinaryId, payload.public_id));
     }
   }
 

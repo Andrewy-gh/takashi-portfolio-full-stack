@@ -15,6 +15,13 @@
       "when": 1769707810850,
       "tag": "0001_categories",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1769881894870,
+      "tag": "0002_images_cloudinary_users",
+      "breakpoints": true
     }
   ]
 }

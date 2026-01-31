@@ -17,8 +17,11 @@ const resolveCategorySort = (sortMode: string | null | undefined) => {
         asc(imageCategories.position),
         desc(images.createdAt),
       ];
+    case "created_at":
+      return [desc(images.createdAt)];
     case "created_at_asc":
       return [asc(images.createdAt)];
+    case "title":
     case "title_asc":
       return [asc(images.title)];
     case "title_desc":
@@ -203,7 +206,7 @@ const categoriesRoutes = new Hono()
       rows.map(async (row) => {
         const images = await fetchCategoryImages(
           row.id,
-          row.sortMode ?? "created_at_desc"
+          row.sortMode ?? "custom"
         );
         return {
           ...row,
@@ -323,7 +326,7 @@ const categoriesRoutes = new Hono()
     const category = rows[0];
     const images = await fetchCategoryImages(
       category.id,
-      category.sortMode ?? "created_at_desc"
+      category.sortMode ?? "custom"
     );
 
     return c.json({
