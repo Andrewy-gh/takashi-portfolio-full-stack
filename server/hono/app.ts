@@ -8,18 +8,30 @@ import dashboardRoutes from "./routes/dashboard";
 
 const app = new Hono();
 
-const allowedOrigins = [
+const defaultAllowedOrigins = [
   "https://takashi-photos.fly.dev",
   "http://localhost:3000",
-  "http://localhost:5173",
+  "http://localhost:5175",
+  "http://localhost:5174",
 ];
+
+const parseCorsOrigins = () => {
+  const raw = process.env.CORS_ORIGINS ?? "";
+  const parsed = raw
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+  return parsed.length > 0 ? parsed : defaultAllowedOrigins;
+};
+
+const allowedOrigins = parseCorsOrigins();
 
 app.use(
   "*",
   cors({
     origin: allowedOrigins,
     credentials: true,
-  })
+  }),
 );
 
 const routes = app

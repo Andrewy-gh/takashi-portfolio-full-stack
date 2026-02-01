@@ -6,13 +6,17 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: takashi_photos
+      POSTGRES_DB: ${DB_NAME:-takashi_photos}
     ports:
-      - "5432:5432"
+      - "${DB_PORT:-5432}:5432"
     volumes:
       - takashi_db:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d takashi_photos"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U postgres -d ${DB_NAME:-takashi_photos}",
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
