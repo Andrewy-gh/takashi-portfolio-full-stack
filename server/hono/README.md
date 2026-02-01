@@ -35,6 +35,7 @@ Routes (when Hono is wired):
 
 Local dev tips:
 - Use a public tunnel (ngrok) and set `CLOUDINARY_NOTIFICATION_URL` to `https://<tunnel>/api/cloudinary/webhook`.
+- Or run `pnpm tunnel` from the repo root and copy the `CLOUDINARY_NOTIFICATION_URL=...` line it prints.
 - Or set a Cloudinary upload preset with a `notification_url` pointing to your webhook.
 
 ## Auth (simple admin login)

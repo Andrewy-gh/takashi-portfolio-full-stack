@@ -10,7 +10,9 @@
     "lint": "pnpm -r --stream --if-present lint",
     "typecheck": "pnpm -r --stream --if-present typecheck",
     "db:up": "docker compose up -d db",
-    "db:down": "docker compose down"
+    "db:down": "docker compose down",
+    "tunnel": "node scripts/cloudinary-tunnel.mjs",
+    "tunnel:raw": "cloudflared tunnel --url http://localhost:3000"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
