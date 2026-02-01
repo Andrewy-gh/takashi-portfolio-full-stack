@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "scripts": {
     "dev": "concurrently -k -n server,client,dashboard \"pnpm -C server dev\" \"pnpm -C client dev\" \"pnpm -C dashboard dev\"",
-    "dev:stop": "powershell -NoProfile -Command \"Get-CimInstance Win32_Process | Where-Object { $_.Name -eq 'node.exe' -and $_.CommandLine -match 'takashi-portfolio-full-stack' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }\"",
+    "dev:stop": "node scripts/dev-stop.mjs",
     "dev:stop:bash": "bash scripts/dev-stop.sh",
     "build": "pnpm -r --stream --if-present build",
     "lint": "pnpm -r --stream --if-present lint",
