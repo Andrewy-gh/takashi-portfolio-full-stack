@@ -19,10 +19,13 @@ const getPassword = () =>
   process.env.AUTH_PASSWORD ?? process.env.DASHBOARD_PASSWORD ?? "";
 
 const loadBcryptCompare = async () => {
-  const bcryptModule = await import("bcrypt");
-  const bcrypt =
-    "default" in bcryptModule ? bcryptModule.default : bcryptModule;
-  return bcrypt.compare as (password: string, hash: string) => Promise<boolean>;
+  const bcryptjsModule = await import("bcryptjs");
+  const bcryptjs =
+    "default" in bcryptjsModule ? bcryptjsModule.default : bcryptjsModule;
+  return bcryptjs.compare as (
+    password: string,
+    hash: string
+  ) => Promise<boolean>;
 };
 
 const getBearerToken = (headerValue: string | undefined) => {
@@ -39,7 +42,7 @@ const verifyPassword = async (password: string) => {
       const compare = await loadBcryptCompare();
       return compare(password, passwordHash);
     } catch (error) {
-      console.warn("bcrypt unavailable; cannot verify password hash", error);
+      console.warn("bcryptjs unavailable; cannot verify password hash", error);
       return false;
     }
   }
