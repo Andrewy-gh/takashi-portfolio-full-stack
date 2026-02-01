@@ -1,7 +1,6 @@
 import { Hono } from "hono";
 import { z } from "zod";
 import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
 
 const authRoutes = new Hono();
 
@@ -19,6 +18,13 @@ const getPasswordHash = () =>
 const getPassword = () =>
   process.env.AUTH_PASSWORD ?? process.env.DASHBOARD_PASSWORD ?? "";
 
+const loadBcryptCompare = async () => {
+  const bcryptModule = await import("bcrypt");
+  const bcrypt =
+    "default" in bcryptModule ? bcryptModule.default : bcryptModule;
+  return bcrypt.compare as (password: string, hash: string) => Promise<boolean>;
+};
+
 const getBearerToken = (headerValue: string | undefined) => {
   if (!headerValue) return null;
   const [type, token] = headerValue.split(" ");
@@ -29,7 +35,13 @@ const getBearerToken = (headerValue: string | undefined) => {
 const verifyPassword = async (password: string) => {
   const passwordHash = getPasswordHash();
   if (passwordHash) {
-    return bcrypt.compare(password, passwordHash);
+    try {
+      const compare = await loadBcryptCompare();
+      return compare(password, passwordHash);
+    } catch (error) {
+      console.warn("bcrypt unavailable; cannot verify password hash", error);
+      return false;
+    }
   }
   const plainPassword = getPassword();
   if (!plainPassword) return false;
