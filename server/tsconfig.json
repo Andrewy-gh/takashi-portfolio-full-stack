@@ -1,12 +1,13 @@
 {
   "extends": "../tsconfig.base.json",
   "compilerOptions": {
-    "lib": ["ES2020"],
+    "lib": ["ES2020", "DOM"],
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "allowJs": true,
     "checkJs": false,
-    "types": ["node"]
+    "types": ["node"],
+    "skipLibCheck": true
   },
-  "include": ["**/*.js"]
+  "include": ["**/*.ts", "**/*.tsx"]
 }

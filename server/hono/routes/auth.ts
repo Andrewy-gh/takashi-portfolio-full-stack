@@ -24,7 +24,7 @@ const loadBcryptCompare = async () => {
     "default" in bcryptjsModule ? bcryptjsModule.default : bcryptjsModule;
   return bcryptjs.compare as (
     password: string,
-    hash: string
+    hash: string,
   ) => Promise<boolean>;
 };
 
@@ -74,14 +74,10 @@ authRoutes.post("/login", async (c) => {
     return c.json({ error: "Invalid credentials" }, 401);
   }
 
-  const token = jwt.sign(
-    { sub: adminEmail, role: "admin" },
-    jwtSecret,
-    {
-      expiresIn: "7d",
-      issuer: "takashi-dashboard",
-    }
-  );
+  const token = jwt.sign({ sub: adminEmail, role: "admin" }, jwtSecret, {
+    expiresIn: "7d",
+    issuer: "takashi-dashboard",
+  });
 
   return c.json({ token });
 });
