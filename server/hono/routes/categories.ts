@@ -2,6 +2,8 @@ import { Hono } from "hono";
 import { and, asc, desc, eq, ilike, inArray, sql } from "drizzle-orm";
 import { db } from "../db";
 import { categories, imageCategories, images } from "../schema";
+import { requireAdmin } from "../auth-utils";
+import { ensureHomeCategory } from "../home-category";
 
 const slugify = (value: string) =>
   value
@@ -92,6 +94,11 @@ const categoriesRoutes = new Hono()
     return c.json(payload);
   })
   .post("/", async (c) => {
+    const auth = requireAdmin(c.req.header("Authorization"));
+    if (!auth.ok) {
+      return c.json({ error: auth.error }, auth.status);
+    }
+
     const body = await c.req.json().catch(() => ({}));
     const name = typeof body.name === "string" ? body.name.trim() : "";
     const description =
@@ -103,6 +110,15 @@ const categoriesRoutes = new Hono()
 
     if (!name) {
       return c.json({ error: "Name is required" }, 400);
+    }
+    if (name.length > 80) {
+      return c.json({ error: "Name must be 80 characters or less" }, 400);
+    }
+    if (description && description.length > 256) {
+      return c.json(
+        { error: "Description must be 256 characters or less" },
+        400
+      );
     }
 
     const slug = slugify(name);
@@ -166,6 +182,11 @@ const categoriesRoutes = new Hono()
     return c.json(payload);
   })
   .put("/table", async (c) => {
+    const auth = requireAdmin(c.req.header("Authorization"));
+    if (!auth.ok) {
+      return c.json({ error: auth.error }, auth.status);
+    }
+
     const body = await c.req.json().catch(() => null);
     if (!Array.isArray(body)) {
       return c.json({ error: "Invalid payload" }, 400);
@@ -218,6 +239,11 @@ const categoriesRoutes = new Hono()
     return c.json(payload);
   })
   .put("/:id/images/positions", async (c) => {
+    const auth = requireAdmin(c.req.header("Authorization"));
+    if (!auth.ok) {
+      return c.json({ error: auth.error }, auth.status);
+    }
+
     const categoryId = c.req.param("id");
     const body = await c.req.json().catch(() => null);
     if (!Array.isArray(body)) {
@@ -311,6 +337,63 @@ const categoriesRoutes = new Hono()
     const images = await fetchCategoryImages(categoryId, "custom");
     return c.json({ ok: true, images });
   })
+  .post("/:id/images", async (c) => {
+    const auth = requireAdmin(c.req.header("Authorization"));
+    if (!auth.ok) {
+      return c.json({ error: auth.error }, auth.status);
+    }
+
+    const categoryId = c.req.param("id");
+    const body = await c.req.json().catch(() => null);
+    const imageIds = Array.isArray(body?.imageIds)
+      ? body.imageIds.filter((id) => typeof id === "string")
+      : [];
+
+    if (!categoryId) {
+      return c.json({ error: "Invalid category id" }, 400);
+    }
+
+    if (imageIds.length === 0) {
+      return c.json({ error: "No imageIds provided" }, 400);
+    }
+
+    const existingCategory = await db
+      .select({ id: categories.id })
+      .from(categories)
+      .where(eq(categories.id, categoryId))
+      .limit(1);
+    if (existingCategory.length === 0) {
+      return c.json({ error: "Not found" }, 404);
+    }
+
+    const existingImages = await db
+      .select({ id: images.id })
+      .from(images)
+      .where(inArray(images.id, imageIds));
+    const existingImageSet = new Set(existingImages.map((row) => row.id));
+    const missingImageIds = imageIds.filter((id) => !existingImageSet.has(id));
+    if (missingImageIds.length > 0) {
+      return c.json(
+        { error: "Some images not found", missingImageIds },
+        400
+      );
+    }
+
+    await db.transaction(async (tx) => {
+      for (const imageId of imageIds) {
+        await tx
+          .insert(imageCategories)
+          .values({ imageId, categoryId })
+          .onConflictDoNothing();
+      }
+      await tx
+        .update(categories)
+        .set({ updatedAt: new Date() })
+        .where(eq(categories.id, categoryId));
+    });
+
+    return c.json({ ok: true });
+  })
   .get("/:id", async (c) => {
     const id = c.req.param("id");
     const rows = await db
@@ -335,33 +418,48 @@ const categoriesRoutes = new Hono()
     });
   })
   .put("/:id", async (c) => {
+    const auth = requireAdmin(c.req.header("Authorization"));
+    if (!auth.ok) {
+      return c.json({ error: auth.error }, auth.status);
+    }
+
     const id = c.req.param("id");
     const body = await c.req.json().catch(() => ({}));
-    const name = typeof body.name === "string" ? body.name.trim() : null;
+    const name = typeof body.name === "string" ? body.name.trim() : undefined;
     const description =
-      typeof body.description === "string" ? body.description.trim() : null;
+      typeof body.description === "string" ? body.description.trim() : undefined;
     const sortMode =
-      typeof body.sortMode === "string" && body.sortMode
-        ? body.sortMode
-        : null;
+      typeof body.sortMode === "string" ? body.sortMode.trim() : undefined;
 
     const updates: {
       name?: string;
       slug?: string;
       description?: string | null;
-      sortMode?: string;
+      sortMode?: string | null;
       updatedAt?: Date;
     } = {};
 
-    if (name) {
+    if (name !== undefined) {
+      if (!name) {
+        return c.json({ error: "Name is required" }, 400);
+      }
+      if (name.length > 80) {
+        return c.json({ error: "Name must be 80 characters or less" }, 400);
+      }
       updates.name = name;
       updates.slug = slugify(name);
     }
-    if (description !== null) {
+    if (description !== undefined) {
+      if (description.length > 256) {
+        return c.json(
+          { error: "Description must be 256 characters or less" },
+          400
+        );
+      }
       updates.description = description || null;
     }
-    if (sortMode) {
-      updates.sortMode = sortMode;
+    if (sortMode !== undefined) {
+      updates.sortMode = sortMode || "custom";
     }
 
     if (Object.keys(updates).length === 0) {
@@ -383,11 +481,35 @@ const categoriesRoutes = new Hono()
     return c.json(updated[0]);
   })
   .delete("/:id", async (c) => {
+    const auth = requireAdmin(c.req.header("Authorization"));
+    if (!auth.ok) {
+      return c.json({ error: auth.error }, auth.status);
+    }
+
     const id = c.req.param("id");
-    const deleted = await db
-      .delete(categories)
-      .where(eq(categories.id, id))
-      .returning();
+    const homeCategoryId = await ensureHomeCategory();
+    const deleted = await db.transaction(async (tx) => {
+      if (homeCategoryId) {
+        const rows = await tx
+          .select({ imageId: imageCategories.imageId })
+          .from(imageCategories)
+          .where(eq(imageCategories.categoryId, id));
+
+        const values = rows.map((row) => ({
+          imageId: row.imageId,
+          categoryId: homeCategoryId,
+        }));
+
+        if (values.length > 0) {
+          await tx.insert(imageCategories).values(values).onConflictDoNothing();
+        }
+      }
+
+      return await tx
+        .delete(categories)
+        .where(eq(categories.id, id))
+        .returning();
+    });
     if (deleted.length === 0) {
       return c.json({ error: "Not found" }, 404);
     }

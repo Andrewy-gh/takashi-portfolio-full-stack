@@ -2,9 +2,13 @@ import { clientImageFileSchema } from '@server/lib/shared-types';
 import { z } from 'zod';
 
 const textSchema = z.string().max(256, { message: 'Please enter a maximum of 256 characters' });
+const nameSchema = z
+  .string()
+  .min(1, { message: 'Name is required' })
+  .max(80, { message: 'Please enter a maximum of 80 characters' });
 
 export const nameDescriptionSchema = z.object({
-  name: z.string().min(1, { message: 'Name is required' }),
+  name: nameSchema,
   description: textSchema,
 });
 
@@ -25,4 +29,6 @@ export const projectSchemaWithFiles = projectSchema.extend({
 // Image Schemas
 export const editImageSchema = nameDescriptionSchema;
 
-export const uploadImageSchema = requiredFilesSchema;
+export const uploadImageSchema = requiredFilesSchema.extend({
+  categoryId: z.string().optional(),
+});

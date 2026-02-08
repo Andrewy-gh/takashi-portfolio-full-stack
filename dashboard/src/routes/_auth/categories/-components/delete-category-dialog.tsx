@@ -52,7 +52,7 @@ export function DeleteCategoryDialog({
           <>
             This action cannot be undone. This category will be permanently
             deleted. The images will <b>not be deleted</b> but will have{' '}
-            <b>no associated category</b>.
+            <b>remain in Home</b>.
           </>
         }
         confirmLabel="Delete"
