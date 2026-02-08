@@ -11,14 +11,17 @@ const child = spawn('cloudflared', ['tunnel', '--url', localUrl], {
 const extractPublicUrl = (line) => {
   const matches = line.match(/https?:\/\/[^\s]+/g);
   if (!matches) return null;
-  return (
-    matches.find(
-      (candidate) =>
-        candidate.startsWith('https://') &&
-        !candidate.includes('localhost') &&
-        !candidate.includes('127.0.0.1')
-    ) ?? null
+  const httpsUrls = matches.filter(
+    (candidate) =>
+      candidate.startsWith('https://') &&
+      !candidate.includes('localhost') &&
+      !candidate.includes('127.0.0.1')
   );
+  if (!httpsUrls.length) return null;
+  const tryCloudflareUrl = httpsUrls.find((candidate) =>
+    candidate.includes('trycloudflare.com')
+  );
+  return tryCloudflareUrl ?? null;
 };
 
 const normalizeUrl = (url) => url.replace(/[),.]+$/, '').replace(/\/$/, '');

@@ -79,6 +79,7 @@ const limit = args.limit ? Number(args.limit) : null;
 const overwrite = args.overwrite === true;
 const dryRun = args["dry-run"] === true;
 const useDb = args["no-db"] !== true;
+const dbImportPath = args["db-import"] || process.env.IMAGE_DB_IMPORT;
 const reportPath =
   args.report ||
   path.resolve(__dirname, "cloudinary-import-report.json");
@@ -92,8 +93,74 @@ const slugify = (value) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
 
+const sanitizePublicIdSegment = (value) =>
+  String(value ?? "")
+    .trim()
+    // Keep Unsplash-style ids stable: allow letters, digits, "_" and "-".
+    .replace(/[^a-zA-Z0-9_-]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
 const titleFromFilename = (filename) =>
   filename.replace(/[_-]+/g, " ").trim();
+
+const truncate = (value, max) => {
+  if (!value) return value;
+  const str = String(value);
+  if (str.length <= max) return str;
+  return `${str.slice(0, Math.max(0, max - 3)).trim()}...`;
+};
+
+const loadDbImport = (value) => {
+  if (!value) return null;
+  const resolved = path.resolve(value);
+  if (!fs.existsSync(resolved)) {
+    throw new Error(`DB import JSON not found: ${resolved}`);
+  }
+  const raw = fs.readFileSync(resolved, "utf8");
+  const parsed = JSON.parse(raw);
+
+  const photos = Array.isArray(parsed.photos) ? parsed.photos : [];
+  const categories = Array.isArray(parsed.categories) ? parsed.categories : [];
+  const photoCategories = Array.isArray(parsed.photo_categories)
+    ? parsed.photo_categories
+    : [];
+
+  const photoMetaById = new Map();
+  for (const photo of photos) {
+    if (photo && typeof photo.id === "string") {
+      photoMetaById.set(photo.id, photo);
+    }
+  }
+
+  const categoryLabelById = new Map();
+  for (const category of categories) {
+    if (category && typeof category.id === "string") {
+      categoryLabelById.set(category.id, category.label || category.id);
+    }
+  }
+
+  const categoryIdsByPhotoId = new Map();
+  for (const entry of photoCategories) {
+    const photoId = entry?.photo_id;
+    const categoryId = entry?.category_id;
+    if (typeof photoId !== "string" || typeof categoryId !== "string") {
+      continue;
+    }
+    if (!categoryIdsByPhotoId.has(photoId)) {
+      categoryIdsByPhotoId.set(photoId, new Set());
+    }
+    categoryIdsByPhotoId.get(photoId).add(categoryId);
+  }
+
+  return {
+    path: resolved,
+    photoMetaById,
+    categoryLabelById,
+    categoryIdsByPhotoId,
+  };
+};
+
+const dbImport = loadDbImport(dbImportPath);
 
 const getCategory = (filePath) => {
   const relativeDir = path.relative(resolvedRoot, path.dirname(filePath));
@@ -114,9 +181,12 @@ const buildPublicId = (filePath) => {
   const ext = path.extname(filePath);
   const relative = path.relative(resolvedRoot, filePath);
   const withoutExt = relative.slice(0, -ext.length);
-  const segments = withoutExt
-    .split(path.sep)
-    .map((segment) => slugify(segment))
+  const rawSegments = withoutExt.split(path.sep).filter(Boolean);
+  const segments = rawSegments
+    .map((segment, idx) => {
+      const isLeaf = idx === rawSegments.length - 1;
+      return isLeaf ? sanitizePublicIdSegment(segment) : slugify(segment);
+    })
     .filter(Boolean);
   if (cloudFolderBase) {
     segments.unshift(slugify(cloudFolderBase));
@@ -163,6 +233,22 @@ const columnExists = async (pool, tableName, columnName) => {
   return res.rowCount > 0;
 };
 
+const resolveImagesIdColumn = async (pool) => {
+  const supportsCloudinaryId = await columnExists(
+    pool,
+    "images",
+    "cloudinary_id"
+  );
+  if (supportsCloudinaryId) return "cloudinary_id";
+
+  const supportsPublicId = await columnExists(pool, "images", "public_id");
+  if (supportsPublicId) return "public_id";
+
+  throw new Error(
+    "Unable to resolve image id column. Expected images.cloudinary_id or images.public_id."
+  );
+};
+
 const ensureCategory = async (
   pool,
   categoryName,
@@ -195,19 +281,20 @@ const ensureCategory = async (
 const insertImage = async (
   pool,
   imageData,
+  imageIdColumn,
   supportsCategoryColumn,
   supportsWidth,
   supportsHeight
 ) => {
   const existing = await pool.query(
-    "SELECT id FROM images WHERE public_id = $1",
+    `SELECT id FROM images WHERE ${imageIdColumn} = $1`,
     [imageData.publicId]
   );
   if (existing.rows.length > 0) {
     return existing.rows[0].id;
   }
 
-  const columns = ["public_id", "url", "title", "created_at"];
+  const columns = [imageIdColumn, "url", "title", "created_at"];
   const values = [
     imageData.publicId,
     imageData.url,
@@ -253,9 +340,9 @@ const insertImageCategory = async (pool, imageId, categoryId) => {
   }
 };
 
-const getExistingPublicIds = async (pool) => {
-  const res = await pool.query("SELECT public_id FROM images");
-  return new Set(res.rows.map((row) => row.public_id));
+const getExistingPublicIds = async (pool, imageIdColumn) => {
+  const res = await pool.query(`SELECT ${imageIdColumn} AS image_id FROM images`);
+  return new Set(res.rows.map((row) => row.image_id));
 };
 
 const main = async () => {
@@ -275,10 +362,12 @@ const main = async () => {
   let supportsCategoriesTable = false;
   let supportsImageCategories = false;
   let supportsCategorySlug = false;
+  let imageIdColumn = "public_id";
   let existingPublicIds = new Set();
   let homeCategoryId = null;
 
   if (pool) {
+    imageIdColumn = await resolveImagesIdColumn(pool);
     supportsCategoryColumn = await columnExists(pool, "images", "category");
     supportsWidth = await columnExists(pool, "images", "width");
     supportsHeight = await columnExists(pool, "images", "height");
@@ -287,7 +376,7 @@ const main = async () => {
     supportsCategorySlug = supportsCategoriesTable
       ? await columnExists(pool, "categories", "slug")
       : false;
-    existingPublicIds = await getExistingPublicIds(pool);
+    existingPublicIds = await getExistingPublicIds(pool, imageIdColumn);
 
     if (supportsCategoriesTable && supportsImageCategories) {
       homeCategoryId = await ensureCategory(
@@ -324,9 +413,30 @@ const main = async () => {
 
       const ext = path.extname(file);
       const baseName = path.basename(file, ext);
-      const category = getCategory(file);
+
+      const photoId = baseName;
+      const dbMeta = dbImport?.photoMetaById?.get(photoId) ?? null;
+      const dbCategoryIds = dbImport?.categoryIdsByPhotoId?.get(photoId) ?? null;
+
+      const mappedCategories = dbCategoryIds
+        ? Array.from(dbCategoryIds)
+            .map((id) => ({
+              id,
+              name: dbImport?.categoryLabelById?.get(id) ?? id,
+              slug: slugify(dbImport?.categoryLabelById?.get(id) ?? id),
+            }))
+            .filter((entry) => Boolean(entry.slug))
+        : [];
+
+      const category =
+        mappedCategories.length > 0 ? mappedCategories[0].name : getCategory(file);
       const categorySlug = slugify(category);
-      const title = titleFromFilename(baseName);
+
+      const title = truncate(
+        (typeof dbMeta?.alt === "string" ? dbMeta.alt.trim() : "") ||
+          titleFromFilename(baseName),
+        120
+      );
       const publicId = buildPublicId(file);
 
       const entry = {
@@ -343,15 +453,23 @@ const main = async () => {
           skipped += 1;
         } else if (dryRun) {
           entry.status = "dry-run";
-        } else {
+          } else {
           let uploadResult;
           try {
             uploadResult = await cloudinary.uploader.upload(file, {
               resource_type: "image",
               public_id: publicId,
               overwrite,
-              context: { title, category },
-              tags: categorySlug ? [categorySlug] : undefined,
+              context: {
+                title,
+                category,
+              },
+              tags:
+                mappedCategories.length > 0
+                  ? mappedCategories.map((entry) => entry.slug)
+                  : categorySlug
+                    ? [categorySlug]
+                    : undefined,
             });
           } catch (error) {
             const message =
@@ -382,6 +500,7 @@ const main = async () => {
             const imageId = await insertImage(
               pool,
               data,
+              imageIdColumn,
               supportsCategoryColumn,
               supportsWidth,
               supportsHeight
@@ -389,13 +508,25 @@ const main = async () => {
             existingPublicIds.add(publicId);
 
             if (supportsCategoriesTable && supportsImageCategories) {
-              const categoryId = await ensureCategory(
-                pool,
-                category,
-                categorySlug,
-                supportsCategorySlug
-              );
-              await insertImageCategory(pool, imageId, categoryId);
+              if (mappedCategories.length > 0) {
+                for (const mappedCategory of mappedCategories) {
+                  const categoryId = await ensureCategory(
+                    pool,
+                    mappedCategory.name,
+                    mappedCategory.slug,
+                    supportsCategorySlug
+                  );
+                  await insertImageCategory(pool, imageId, categoryId);
+                }
+              } else {
+                const categoryId = await ensureCategory(
+                  pool,
+                  category,
+                  categorySlug,
+                  supportsCategorySlug
+                );
+                await insertImageCategory(pool, imageId, categoryId);
+              }
               if (homeCategoryId) {
                 await insertImageCategory(pool, imageId, homeCategoryId);
               }
