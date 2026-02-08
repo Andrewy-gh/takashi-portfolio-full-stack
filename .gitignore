@@ -1,3 +1,10 @@
 node_modules/
 .env
 .env.local
+
+# Playwright
+dashboard/test-results/
+dashboard/playwright-report/
+
+# Local Cloudinary import artifacts
+server/hono/scripts/cloudinary-import-report*.json
