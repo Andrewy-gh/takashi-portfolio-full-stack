@@ -23,13 +23,30 @@ const signIn = async (page: Page) => {
   await page.getByRole('button', { name: 'Sign in' }).click();
 };
 
+const getAdminToken = async (request: APIRequestContext) => {
+  const res = await request.post(`${apiBaseUrl}/api/auth/login`, {
+    data: { email: adminEmail, password: adminPassword },
+    headers: { 'content-type': 'application/json' },
+  });
+  expect(res.ok()).toBeTruthy();
+  const payload = (await res.json()) as { token?: string };
+  if (!payload.token) {
+    throw new Error('Missing token in /api/auth/login response');
+  }
+  return payload.token;
+};
+
 const createCategory = async (
   request: APIRequestContext,
+  token: string,
   name: string
 ) => {
   const res = await request.post(`${apiBaseUrl}/api/categories`, {
     data: { name, description: `E2E seed for ${name}` },
-    headers: { 'content-type': 'application/json' },
+    headers: {
+      'content-type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
   });
   expect(res.ok()).toBeTruthy();
   return await res.json();
@@ -117,12 +134,15 @@ test.describe('Category ordering', () => {
 
   test('can reorder categories and save', async ({ page, request }) => {
     const now = Date.now();
+    const token = await getAdminToken(request);
     const categoryA = await createCategory(
       request,
+      token,
       `E2E Order ${now} A`
     );
     const categoryB = await createCategory(
       request,
+      token,
       `E2E Order ${now} B`
     );
 
