@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/auth';
 
@@ -8,6 +8,12 @@ export const Route = createFileRoute('/unauthorized')({
 
 function RouteComponent() {
   const { meta, actions } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = () => {
+    actions.signOut();
+    navigate({ to: '/sign-in' });
+  };
   return (
     <div className="mt-24">
       <section className="flex items-center justify-center">
@@ -24,7 +30,7 @@ function RouteComponent() {
           </p>
           <div className="flex items-center">
             {meta.isSignedIn ? (
-              <Button variant="outline" onClick={actions.signOut}>
+              <Button variant="outline" onClick={handleSignOut}>
                 Sign out
               </Button>
             ) : (

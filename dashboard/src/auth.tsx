@@ -2,7 +2,7 @@
 import type { ReactNode } from 'react';
 import { createContext, useCallback, useContext, useMemo, useState } from 'react';
 
-const TOKEN_STORAGE_KEY = 'takashi.dashboard.token';
+export const TOKEN_STORAGE_KEY = 'takashi.dashboard.token';
 
 export type AuthContextValue = {
   state: {

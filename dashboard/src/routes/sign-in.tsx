@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/auth';
+import { readErrorMessage } from '@/lib/http';
+import { toast } from 'sonner';
 
 export const Route = createFileRoute('/sign-in')({
   component: RouteComponent,
@@ -35,7 +37,7 @@ function RouteComponent() {
         body: JSON.stringify({ email, password }),
       });
       if (!res.ok) {
-        throw new Error(await res.text());
+        throw new Error(await readErrorMessage(res));
       }
       const payload = (await res.json()) as { token?: string };
       if (!payload.token) {
@@ -44,9 +46,14 @@ function RouteComponent() {
       actions.setToken(payload.token);
       navigate({ to: '/' });
     } catch (err) {
-      const message =
+      const rawMessage =
         err instanceof Error ? err.message : 'Unable to sign in';
+      const message =
+        rawMessage === 'Invalid credentials'
+          ? 'Incorrect email or password.'
+          : rawMessage;
       setError(message);
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }

@@ -19,7 +19,7 @@ import {
   SidebarRail,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
-import { Link } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 import { useAuth } from '@/auth';
 
 // This is sample data.
@@ -103,12 +103,18 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { meta, actions } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = () => {
+    actions.signOut();
+    navigate({ to: '/sign-in' });
+  };
   return (
     <Sidebar {...props}>
       <SidebarHeader>
         {/* <TeamSwitcher teams={data.teams} /> */}
         {meta.isSignedIn ? (
-          <Button variant="outline" onClick={actions.signOut}>
+          <Button variant="outline" onClick={handleSignOut}>
             Sign out
           </Button>
         ) : (

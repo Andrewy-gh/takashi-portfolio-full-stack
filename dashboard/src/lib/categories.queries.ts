@@ -1,6 +1,7 @@
 import { client, queryClient } from './api';
 import { queryOptions, useMutation } from '@tanstack/react-query';
 import type { InferResponseType } from 'hono/client';
+import { assertOk } from './http';
 
 // MARK: GET
 export type GetCategoriesResponse = InferResponseType<
@@ -10,7 +11,7 @@ export type GetCategoriesResponse = InferResponseType<
 
 async function getCategories() {
   const res = await client.api.categories.$get();
-  if (!res.ok) throw new Error(await res.text());
+  await assertOk(res);
   return await res.json();
 }
 
@@ -31,7 +32,7 @@ async function createCategory({
   const res = await client.api.categories.$post({
     json: { name, description },
   });
-  if (!res.ok) throw new Error(await res.text());
+  await assertOk(res);
   return await res.json();
 }
 
@@ -75,7 +76,7 @@ async function getCategoryById(categoryId: string) {
       id: categoryId,
     },
   });
-  if (!res.ok) throw new Error(await res.text());
+  await assertOk(res);
   return await res.json();
 }
 
@@ -102,7 +103,7 @@ async function updateCategoryById(
     },
     json: { name, description },
   });
-  if (!res.ok) throw new Error(await res.text());
+  await assertOk(res);
   return await res.json();
 }
 
@@ -130,7 +131,7 @@ async function deleteCategoryById(categoryId: string) {
       id: categoryId,
     },
   });
-  if (!res.ok) throw new Error(await res.text());
+  await assertOk(res);
   return await res.json();
 }
 
@@ -161,7 +162,7 @@ export type GetCategoriesSelectResponse = InferResponseType<
 
 async function getCategoriesSelect() {
   const res = await client.api.categories.select.$get();
-  if (!res.ok) throw new Error(await res.text());
+  await assertOk(res);
   return await res.json();
 }
 
@@ -181,7 +182,7 @@ export type CategoryRow = GetCategoriesTableResponse[number];
 
 export async function getCategoriesTable() {
   const res = await client.api.categories.table.$get();
-  if (!res.ok) throw new Error(await res.text());
+  await assertOk(res);
   return await res.json();
 }
 
@@ -198,7 +199,7 @@ export async function updateCategoriesTable(
   const res = await client.api.categories.table.$put({
     json: categories,
   });
-  if (!res.ok) throw new Error(await res.text());
+  await assertOk(res);
   return await res.json();
 }
 
@@ -217,7 +218,7 @@ export const useUpdateCategoriesTableMutation = () => {
 // MARK: GET /preview
 export async function getCategoriesPreview() {
   const res = await client.api.categories.preview.$get();
-  if (!res.ok) throw new Error(await res.text());
+  await assertOk(res);
   return await res.json();
 }
 
@@ -238,7 +239,7 @@ export async function updateCategoryImagePositions(
     },
     json: images,
   });
-  if (!res.ok) throw new Error(await res.text());
+  await assertOk(res);
   return await res.json();
 }
 

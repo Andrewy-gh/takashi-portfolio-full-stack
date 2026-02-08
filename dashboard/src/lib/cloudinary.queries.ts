@@ -1,5 +1,6 @@
 import type { InferResponseType } from 'hono/client';
 import { client } from './api';
+import { assertOk, readErrorMessage } from './http';
 
 const signatureRequest = client.api.cloudinary.signature.$post;
 const configRequest = client.api.cloudinary.config.$get;
@@ -24,7 +25,7 @@ export type CloudinarySignaturePayload = {
 
 export async function getCloudinaryConfig() {
   const res = await configRequest();
-  if (!res.ok) throw new Error(await res.text());
+  await assertOk(res);
   return await res.json();
 }
 
@@ -32,7 +33,7 @@ export async function getUploadSignature(payload?: CloudinarySignaturePayload) {
   const res = await signatureRequest({
     json: payload ?? {},
   });
-  if (!res.ok) throw new Error(await res.text());
+  await assertOk(res);
   return await res.json();
 }
 
@@ -61,8 +62,7 @@ export async function uploadToCloudinary(
   });
 
   if (!res.ok) {
-    const text = await res.text();
-    throw new Error(text || 'Cloudinary upload failed');
+    throw new Error(await readErrorMessage(res));
   }
 
   return await res.json();

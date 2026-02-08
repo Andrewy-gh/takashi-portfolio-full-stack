@@ -7,6 +7,7 @@ import {
   cloudinaryConfig,
   verifyNotificationSignature,
 } from "../cloudinary";
+import { requireAdmin } from "../auth-utils";
 
 type CloudinaryNotification = {
   public_id?: string;
@@ -101,6 +102,11 @@ const cloudinaryRoutes = new Hono()
     })
   )
   .post("/signature", async (c) => {
+  const auth = requireAdmin(c.req.header("Authorization"));
+  if (!auth.ok) {
+    return c.json({ error: auth.error }, auth.status);
+  }
+
   const body = await c.req.json().catch(() => ({}));
   const notificationUrl = process.env.CLOUDINARY_NOTIFICATION_URL;
 
