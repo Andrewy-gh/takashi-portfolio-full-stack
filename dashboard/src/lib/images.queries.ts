@@ -4,6 +4,7 @@ import { queryOptions, useMutation } from '@tanstack/react-query';
 import type { SearchType } from './types';
 import type { InferResponseType } from 'hono/client';
 import { uploadToCloudinary } from './cloudinary.queries';
+import { assertOk } from './http';
 
 const delay = (ms: number) =>
   new Promise((resolve) => {
@@ -25,9 +26,7 @@ async function waitForImageByPublicId(
         publicId,
       },
     });
-    if (!res.ok) {
-      throw new Error(await res.text());
-    }
+    await assertOk(res);
     const data = await res.json();
     if (Array.isArray(data.images) && data.images.length > 0) {
       return data.images[0];
@@ -56,7 +55,7 @@ async function getImages({
       direction,
     },
   });
-  if (!res.ok) throw new Error(await res.text());
+  await assertOk(res);
   return await res.json();
 }
 
@@ -73,7 +72,13 @@ export const imagesQueryOptions = ({
   });
 
 // MARK: POST
-async function uploadImage({ files }: { files: File[] }) {
+async function uploadImage({
+  files,
+  categoryId,
+}: {
+  files: File[];
+  categoryId?: string;
+}) {
   const uploaded = [];
   for (const file of files) {
     const title = stripExtension(file.name);
@@ -87,7 +92,37 @@ async function uploadImage({ files }: { files: File[] }) {
     if (!publicId) {
       throw new Error('Cloudinary response missing public_id');
     }
-    const storedImage = await waitForImageByPublicId(publicId);
+
+    const secureUrl =
+      typeof uploadResult?.secure_url === 'string'
+        ? uploadResult.secure_url
+        : null;
+
+    // Preferred path: insert immediately via an authenticated API call,
+    // so local dev doesn't depend on a public Cloudinary webhook URL.
+    let storedImage: unknown = null;
+    if (secureUrl) {
+      const categoryIds = categoryId ? [categoryId] : undefined;
+      const upsertRes = await client.api.images['from-cloudinary'].$post({
+        json: {
+          cloudinaryId: publicId,
+          url: secureUrl,
+          title: title || undefined,
+          width:
+            typeof uploadResult?.width === 'number' ? uploadResult.width : undefined,
+          height:
+            typeof uploadResult?.height === 'number' ? uploadResult.height : undefined,
+          categoryIds,
+        },
+      });
+      if (upsertRes.ok) {
+        storedImage = await upsertRes.json();
+      }
+    }
+
+    if (!storedImage) {
+      storedImage = await waitForImageByPublicId(publicId);
+    }
     uploaded.push(storedImage);
   }
   return uploaded;
@@ -124,7 +159,7 @@ async function updateImageSequence({
   const res = await client.api.images.$put({
     json: { images },
   });
-  if (!res.ok) throw new Error(await res.text());
+  await assertOk(res);
   return await res.json();
 }
 
@@ -147,7 +182,7 @@ async function getImageById(imageId: string) {
       id: imageId,
     },
   });
-  if (!res.ok) throw new Error(await res.text());
+  await assertOk(res);
   return await res.json();
 }
 
@@ -182,7 +217,7 @@ async function updateImageById(
     },
     json: { name, description },
   });
-  if (!res.ok) throw new Error(await res.text());
+  await assertOk(res);
   return await res.json();
 }
 
@@ -212,7 +247,7 @@ async function deleteImageById(imageId: string) {
       id: imageId,
     },
   });
-  if (!res.ok) throw new Error(await res.text());
+  await assertOk(res);
   return await res.json();
 }
 

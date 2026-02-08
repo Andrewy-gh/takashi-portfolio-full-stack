@@ -6,14 +6,17 @@ import { Button } from '@/components/ui/button';
 import { CancelButton } from '@/components/form/cancel-button';
 import { toast } from 'sonner';
 import { X } from 'lucide-react';
+import { useSuspenseQuery } from '@tanstack/react-query';
 
 import type { ImageFile } from '@/lib/types';
 import { uploadImageSchema } from '@/lib/schema';
 import { useUploadImageMutation } from '@/lib/images.queries';
+import { categoriesSelectQueryOptions } from '@/lib/categories.queries';
 
 const formOpts = formOptions({
   defaultValues: {
     files: [] as ImageFile[],
+    categoryId: '',
   },
   validators: {
     onChangeAsync: uploadImageSchema,
@@ -71,6 +74,9 @@ const FilesField = withForm({
 export function UploadImageForm() {
   const router = useRouter();
   const canGoBack = useCanGoBack();
+  const { data: categories } = useSuspenseQuery(
+    categoriesSelectQueryOptions()
+  );
 
   const uploadImage = useUploadImageMutation();
 
@@ -80,7 +86,7 @@ export function UploadImageForm() {
       toast.loading('Uploading images...');
       const files = value.files.map((file) => file.file);
       await uploadImage.mutateAsync(
-        { files },
+        { files, categoryId: value.categoryId || undefined },
         {
           onSuccess() {
             toast.dismiss();
@@ -114,6 +120,12 @@ export function UploadImageForm() {
       }}
       className="space-y-8"
     >
+      <form.AppField
+        name="categoryId"
+        children={(field) => (
+          <field.CategorySelect categories={categories} />
+        )}
+      />
       <FilesField form={form} />
       {/* MARK: Submit */}
       <div className="flex gap-4">

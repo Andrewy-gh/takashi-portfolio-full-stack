@@ -1,7 +1,19 @@
 import { Hono } from "hono";
-import { asc, desc, eq, ilike, sql } from "drizzle-orm";
+import { and, asc, desc, eq, ilike, inArray, sql } from "drizzle-orm";
 import { db } from "../db";
-import { images } from "../schema";
+import { categories, imageCategories, images } from "../schema";
+import { requireAdmin } from "../auth-utils";
+import { z } from "zod";
+import { ensureHomeCategory } from "../home-category";
+
+const cloudinaryUpsertSchema = z.object({
+  cloudinaryId: z.string().min(1),
+  url: z.string().url(),
+  title: z.string().optional().nullable(),
+  width: z.number().int().positive().optional().nullable(),
+  height: z.number().int().positive().optional().nullable(),
+  categoryIds: z.array(z.string().uuid()).optional(),
+});
 
 const parseNumber = (value: string | undefined, fallback: number) => {
   if (!value) return fallback;
@@ -72,13 +84,114 @@ const imagesRoutes = new Hono()
       images: payload,
     });
   })
+  .post("/from-cloudinary", async (c) => {
+    const auth = requireAdmin(c.req.header("Authorization"));
+    if (!auth.ok) {
+      return c.json({ error: auth.error }, auth.status);
+    }
+
+    const body = await c.req.json().catch(() => null);
+    const parsed = cloudinaryUpsertSchema.safeParse(body);
+    if (!parsed.success) {
+      return c.json({ error: "Invalid payload" }, 400);
+    }
+
+    const { cloudinaryId, url, title, width, height, categoryIds } =
+      parsed.data;
+
+    const existing = await db
+      .select()
+      .from(images)
+      .where(eq(images.cloudinaryId, cloudinaryId))
+      .limit(1);
+
+    let imageRow = existing[0] ?? null;
+
+    if (!imageRow) {
+      const inserted = await db
+        .insert(images)
+        .values({
+          cloudinaryId,
+          url,
+          title: title?.trim() ? title.trim() : null,
+          width: typeof width === "number" ? width : undefined,
+          height: typeof height === "number" ? height : undefined,
+        })
+        .returning();
+      imageRow = inserted[0] ?? null;
+    } else {
+      const updates: {
+        url?: string;
+        title?: string | null;
+        width?: number | null;
+        height?: number | null;
+        updatedAt?: Date;
+      } = {};
+
+      if (url && url !== imageRow.url) updates.url = url;
+      if (title !== undefined) {
+        const nextTitle = title?.trim() ? title.trim() : null;
+        if (nextTitle !== imageRow.title) updates.title = nextTitle;
+      }
+      if (width !== undefined && width !== imageRow.width) {
+        updates.width = width ?? null;
+      }
+      if (height !== undefined && height !== imageRow.height) {
+        updates.height = height ?? null;
+      }
+
+      if (Object.keys(updates).length > 0) {
+        updates.updatedAt = new Date();
+        const updated = await db
+          .update(images)
+          .set(updates)
+          .where(eq(images.id, imageRow.id))
+          .returning();
+        imageRow = updated[0] ?? imageRow;
+      }
+    }
+
+    if (!imageRow) {
+      return c.json({ error: "Failed to upsert image" }, 500);
+    }
+
+    const homeCategoryId = await ensureHomeCategory();
+    if (homeCategoryId) {
+      await db
+        .insert(imageCategories)
+        .values({ imageId: imageRow.id, categoryId: homeCategoryId })
+        .onConflictDoNothing();
+    }
+
+    if (Array.isArray(categoryIds) && categoryIds.length > 0) {
+      const found = await db
+        .select({ id: categories.id })
+        .from(categories)
+        .where(inArray(categories.id, categoryIds));
+      const foundSet = new Set(found.map((row) => row.id));
+      const missing = categoryIds.filter((id) => !foundSet.has(id));
+      if (missing.length > 0) {
+        return c.json(
+          { error: "Some categories not found", missingCategoryIds: missing },
+          400
+        );
+      }
+
+      for (const categoryId of categoryIds) {
+        await db
+          .insert(imageCategories)
+          .values({ imageId: imageRow.id, categoryId })
+          .onConflictDoNothing();
+      }
+    }
+
+    return c.json({
+      ...imageRow,
+      publicId: imageRow.cloudinaryId,
+    });
+  })
   .post("/", async (c) => {
-    return c.json(
-      {
-        error: "Image upload is not wired yet. Use Cloudinary flow instead.",
-      },
-      501
-    );
+    return c.json({ error: "Use /api/images/from-cloudinary" }, 410);
   })
   .put("/", async (c) => {
     return c.json(
@@ -105,6 +218,11 @@ const imagesRoutes = new Hono()
     });
   })
   .put("/:id", async (c) => {
+    const auth = requireAdmin(c.req.header("Authorization"));
+    if (!auth.ok) {
+      return c.json({ error: auth.error }, auth.status);
+    }
+
     const id = c.req.param("id");
     const body = await c.req.json().catch(() => ({}));
     const title =
@@ -140,6 +258,11 @@ const imagesRoutes = new Hono()
     });
   })
   .delete("/:id", async (c) => {
+    const auth = requireAdmin(c.req.header("Authorization"));
+    if (!auth.ok) {
+      return c.json({ error: auth.error }, auth.status);
+    }
+
     const id = c.req.param("id");
     const deleted = await db
       .delete(images)
