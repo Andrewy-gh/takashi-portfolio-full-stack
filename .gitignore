@@ -8,7 +8,3 @@ dashboard/playwright-report/
 
 # Local Cloudinary import artifacts
 server/hono/scripts/cloudinary-import-report*.json
-
-# Local screenshots (manual QA)
-image-order.png
-overflow.png
