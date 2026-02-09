@@ -130,7 +130,7 @@ export function CategoryImageOrderForm({
   }
 
   return (
-    <section className="container space-y-6 p-6">
+    <section className="container space-y-6 p-6 overflow-x-hidden">
       <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
           <h1 className="text-2xl font-semibold">Image ordering</h1>
@@ -141,7 +141,7 @@ export function CategoryImageOrderForm({
             <Badge variant="secondary">{images.length} images</Badge>
           </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button asChild variant="outline">
             <Link
               to="/categories/$categoryId"
@@ -158,7 +158,7 @@ export function CategoryImageOrderForm({
         {images.map((image, index) => (
           <div
             key={image.id}
-            className={`flex items-center gap-3 rounded-lg border p-3 transition-colors ${
+            className={`flex w-full min-w-0 items-center gap-3 overflow-hidden rounded-lg border p-3 transition-colors ${
               focusedIndex === index
                 ? 'bg-blue-50 border-blue-200'
                 : 'bg-white'
@@ -172,25 +172,31 @@ export function CategoryImageOrderForm({
             onBlur={() => setFocusedIndex(null)}
             onKeyDown={(event) => handleKeyDown(event, index)}
           >
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white">
               {index + 1}
             </div>
-            <div className="h-16 w-24 overflow-hidden rounded border bg-slate-100">
-              <img
-                src={image.url}
-                alt={image.title ?? 'Image'}
-                className="h-full w-full object-cover"
-              />
+            <div className="h-16 w-24 shrink-0 overflow-hidden rounded border bg-slate-100">
+              {image.url ? (
+                <img
+                  src={image.url}
+                  alt={image.title ?? 'Image'}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center text-slate-400">
+                  <ImageIcon className="h-5 w-5" />
+                </div>
+              )}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium">
+              <p className="line-clamp-2 break-words text-sm font-medium leading-snug">
                 {image.title ?? 'Untitled'}
               </p>
               <p className="text-xs text-muted-foreground">
                 Position {index + 1} of {images.length}
               </p>
             </div>
-            <div className="flex flex-col gap-1">
+            <div className="flex shrink-0 flex-col gap-1">
               <button
                 onClick={() => moveUp(index)}
                 disabled={index === 0}
@@ -220,7 +226,7 @@ export function CategoryImageOrderForm({
         ))}
       </div>
 
-      <div className="flex gap-3">
+      <div className="flex flex-wrap gap-3">
         <Button onClick={handleSave}>Save</Button>
         <Button variant="secondary" onClick={handleReset}>
           Reset
