@@ -54,6 +54,7 @@ Next:
 2. Manual test upload end-to-end:
    - Upload -> confirm appears in `/images` without webhook.
    - Upload with Category selected -> confirm appears under that category and still in Home.
+   - IMPORTANT (2026-02-09): Do not push until Andy confirms manual testing is complete; pushing now will break current production and requires redeploying the client to a different service.
 3. Decide product behavior:
    - Category name validation rules (case-insensitive dupes? max length OK?).
 4. Remaining feature requests from testing:
