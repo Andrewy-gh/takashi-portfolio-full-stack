@@ -7,6 +7,7 @@
     "dev:stop": "node scripts/dev-stop.mjs",
     "dev:stop:bash": "bash scripts/dev-stop.sh",
     "seed:dashboard:dev": "node scripts/seed-dashboard-dev.mjs",
+    "seed:db:dev": "node scripts/seed-db-dev.mjs",
     "build": "pnpm -r --stream --if-present build",
     "lint": "pnpm -r --stream --if-present lint",
     "typecheck": "pnpm -r --stream --if-present typecheck",
