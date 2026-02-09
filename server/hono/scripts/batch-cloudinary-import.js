@@ -286,12 +286,71 @@ const insertImage = async (
   supportsWidth,
   supportsHeight
 ) => {
+  const existingColumns = ["id", "url", "title"];
+  if (supportsCategoryColumn) existingColumns.push("category");
+  if (supportsWidth) existingColumns.push("width");
+  if (supportsHeight) existingColumns.push("height");
+
   const existing = await pool.query(
-    `SELECT id FROM images WHERE ${imageIdColumn} = $1`,
+    `SELECT ${existingColumns.join(", ")} FROM images WHERE ${imageIdColumn} = $1`,
     [imageData.publicId]
   );
+
   if (existing.rows.length > 0) {
-    return existing.rows[0].id;
+    const row = existing.rows[0];
+    const updates = [];
+    const values = [];
+    let idx = 1;
+
+    if (row.url !== imageData.url) {
+      updates.push(`url = $${idx++}`);
+      values.push(imageData.url);
+    }
+
+    const nextTitle = imageData.title ?? null;
+    const currentTitle = row.title ?? null;
+    if (currentTitle !== nextTitle) {
+      updates.push(`title = $${idx++}`);
+      values.push(nextTitle);
+    }
+
+    if (supportsCategoryColumn) {
+      const nextCategory = imageData.category ?? null;
+      const currentCategory = row.category ?? null;
+      if (currentCategory !== nextCategory) {
+        updates.push(`category = $${idx++}`);
+        values.push(nextCategory);
+      }
+    }
+
+    if (supportsWidth) {
+      const nextWidth = imageData.width ?? null;
+      const currentWidth = row.width ?? null;
+      if (currentWidth !== nextWidth) {
+        updates.push(`width = $${idx++}`);
+        values.push(nextWidth);
+      }
+    }
+
+    if (supportsHeight) {
+      const nextHeight = imageData.height ?? null;
+      const currentHeight = row.height ?? null;
+      if (currentHeight !== nextHeight) {
+        updates.push(`height = $${idx++}`);
+        values.push(nextHeight);
+      }
+    }
+
+    if (updates.length > 0) {
+      updates.push("updated_at = NOW()");
+      values.push(row.id);
+      await pool.query(
+        `UPDATE images SET ${updates.join(", ")} WHERE id = $${idx}`,
+        values
+      );
+    }
+
+    return row.id;
   }
 
   const columns = [imageIdColumn, "url", "title", "created_at"];
@@ -448,12 +507,9 @@ const main = async () => {
       };
 
       try {
-        if (useDb && existingPublicIds.has(publicId)) {
-          entry.status = "skipped";
-          skipped += 1;
-        } else if (dryRun) {
+        if (dryRun) {
           entry.status = "dry-run";
-          } else {
+        } else {
           let uploadResult;
           try {
             uploadResult = await cloudinary.uploader.upload(file, {
