@@ -4,7 +4,8 @@ const baseUrl =
   import.meta.env.VITE_API_BASE_URL ??
   (import.meta.env.PROD
     ? 'https://takashi-photos.fly.dev'
-    : 'http://localhost:3000');
+    // In dev, prefer same-origin + Vite proxy (see `client/vite.config.js`).
+    : '');
 
 const api = axios.create({
   baseURL: baseUrl,
