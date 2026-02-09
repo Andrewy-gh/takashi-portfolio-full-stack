@@ -79,7 +79,19 @@ const limit = args.limit ? Number(args.limit) : null;
 const overwrite = args.overwrite === true;
 const dryRun = args["dry-run"] === true;
 const useDb = args["no-db"] !== true;
-const dbImportPath = args["db-import"] || process.env.IMAGE_DB_IMPORT;
+const dbImportPath =
+  args["db-import"] ||
+  process.env.IMAGE_DB_IMPORT ||
+  (() => {
+    // Default for the common local layout:
+    // C:\E\projects\takashi-portfolio-full-stack (this repo)
+    // C:\E\projects\unsplash-downloader (sibling repo)
+    const candidates = [
+      path.resolve(__dirname, "../../../../unsplash-downloader/db-import.json"),
+      path.resolve(__dirname, "../../../../unsplash-downloder/db-import.json"),
+    ];
+    return candidates.find((candidate) => fs.existsSync(candidate)) || null;
+  })();
 const reportPath =
   args.report ||
   path.resolve(__dirname, "cloudinary-import-report.json");
@@ -114,7 +126,7 @@ const loadDbImport = (value) => {
   if (!value) return null;
   const resolved = path.resolve(value);
   if (!fs.existsSync(resolved)) {
-    throw new Error(`DB import JSON not found: ${resolved}`);
+    return null;
   }
   const raw = fs.readFileSync(resolved, "utf8");
   const parsed = JSON.parse(raw);
