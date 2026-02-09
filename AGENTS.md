@@ -23,6 +23,10 @@ Cloudinary free-tier + seed prep check (2026-02-08):
 - `photos`: `241` JPG (+`3` JSON state files), total `~782MB`, max file `8.5MB`, max `~25MP`, `0` files over `25MP`.
 - `photos_small`: `241` JPG (+`1` JSON), total `~23.4MB`, max file `0.28MB`, max `~0.84MP`.
 - Seed recommendation: upload `photos` originals (skip `*.json`) and use Cloudinary transformations for thumbs; fallback low-risk: seed from `photos_small` first to minimize storage/bandwidth while wiring DB + URLs.
+- Cloudinary transformations note (2026-02-09):
+  - Public client currently uses `@cloudinary/react` `AdvancedImage` with `responsive()` + `placeholder()` (`client/src/components/Images/CldImage.tsx`). This can generate derived assets (transformations) on first view per variant.
+  - `CldThumb` uses named transformation `media_lib_thumb` but is not currently used (`client/src/components/Images/CldThumb.tsx`).
+  - If credits are tight: prefer rendering stored `image.url` directly in client, or reduce/standardize transformation usage (avoid per-viewport variants + placeholders).
 
 ## Handoff (2026-02-09)
 
@@ -60,3 +64,10 @@ Next:
 4. Remaining feature requests from testing:
    - UI: choose an image as Category thumbnail.
    - Client/public site `/categories` sorting (if this request was for client, not dashboard).
+
+## Note (2026-02-09): Cloudinary vs DB File Sync
+
+- No single Cloudinary "out-of-sync with DB" endpoint; build diff.
+- Prefer DB key: `asset_id` (stable across folder moves/renames); fallback `public_id`.
+- Scope Cloudinary scan via `prefix=home/samples/` (covers subfolders); set-diff vs DB.
+- Flattening folders into `home/` not needed for sync; higher migration risk if `public_id` changes.

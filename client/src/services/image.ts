@@ -6,6 +6,8 @@ export type ImageRecord = {
   url?: string | null;
   publicId?: string | null;
   cloudinaryId?: string | null;
+  width?: number | null;
+  height?: number | null;
   category?: string | null;
   type?: string | null;
 };
