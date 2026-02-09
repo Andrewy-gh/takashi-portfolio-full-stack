@@ -12,14 +12,12 @@ import type { NavigationItem } from '../data';
 import type { CategoryPreview } from '../services/categories';
 
 type HomeProps = {
-  cloudName: string;
   categories: CategoryPreview[];
   isLoading: boolean;
   error: string | null;
 };
 
 export default function Home({
-  cloudName,
   categories,
   isLoading,
   error,
@@ -53,7 +51,7 @@ export default function Home({
   } else if (!filteredImages.length) {
     content = <ImagesEmpty />;
   } else {
-    content = <ImagesGrid cloudName={cloudName} images={filteredImages} />;
+    content = <ImagesGrid images={filteredImages} />;
   }
   return (
     <>

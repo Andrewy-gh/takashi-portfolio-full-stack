@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react';
 import Masonry from '@mui/lab/Masonry';
-import CldImage from './CldImage';
 import ImageWithSkeleton from './ImageWithSkeleton';
 
 type GalleryImage = {
@@ -53,10 +52,8 @@ export function ImagesEmpty({
 }
 
 export function ImagesGrid({
-  cloudName,
   images,
 }: {
-  cloudName: string;
   images: GalleryImage[];
 }) {
   return (
@@ -69,8 +66,8 @@ export function ImagesGrid({
       }}
     >
       {images.map((image, index) => {
-        const cloudId = image.publicId ?? image.cloudinaryId ?? null;
-        const key = image.id ?? cloudId ?? image.url ?? `image-${index}`;
+        const key =
+          image.id ?? image.publicId ?? image.cloudinaryId ?? image.url ?? `image-${index}`;
         return (
           <div key={key}>
             {image.url ? (
@@ -80,8 +77,6 @@ export function ImagesGrid({
                 width={image.width}
                 height={image.height}
               />
-            ) : cloudName && cloudId ? (
-              <CldImage cloudName={cloudName} publicId={cloudId} />
             ) : null}
           </div>
         );
