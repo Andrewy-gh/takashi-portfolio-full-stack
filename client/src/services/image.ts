@@ -12,7 +12,18 @@ export type ImageRecord = {
 
 const getAllImages = async (): Promise<ImageRecord[]> => {
   const response = await api.get('/api/images');
-  return response.data;
+  const data = response.data as unknown;
+
+  // Legacy API: `ImageRecord[]`
+  if (Array.isArray(data)) return data as ImageRecord[];
+
+  // Current API: `{ images: ImageRecord[]; ...pagination }`
+  if (data && typeof data === 'object' && 'images' in data) {
+    const images = (data as { images?: unknown }).images;
+    return Array.isArray(images) ? (images as ImageRecord[]) : [];
+  }
+
+  return [];
 };
 
 export default {

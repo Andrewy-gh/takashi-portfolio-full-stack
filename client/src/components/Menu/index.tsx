@@ -2,15 +2,16 @@ import { useMediaQuery } from '@mui/material/';
 import MenuDesktop from './MenuDesktop';
 import MenuMobile from './MenuMobile';
 import { theme } from '../../styles/styles';
-import { navigation } from '../../data';
+import type { NavigationItem } from '../../data';
 import { MenuProvider } from './MenuContext';
 
 type MenuProps = {
   filter: string | null;
   handleFilterChange: (filter: string | null) => void;
+  navigation: NavigationItem[];
 };
 
-export default function Menu({ filter, handleFilterChange }: MenuProps) {
+export default function Menu({ filter, handleFilterChange, navigation }: MenuProps) {
   const isMobile = useMediaQuery(theme.breakpoints.down('tablet'));
 
   return (

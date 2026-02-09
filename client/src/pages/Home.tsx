@@ -8,32 +8,46 @@ import {
 } from '../components/Images';
 import { useFilter } from '../hooks/useFilter';
 import FloatingButton from '../components/FloatingButton';
-import type { ImageRecord } from '../services/image';
+import type { NavigationItem } from '../data';
+import type { CategoryPreview } from '../services/categories';
 
 type HomeProps = {
   cloudName: string;
-  images: ImageRecord[];
+  categories: CategoryPreview[];
   isLoading: boolean;
   error: string | null;
 };
 
 export default function Home({
   cloudName,
-  images,
+  categories,
   isLoading,
   error,
 }: HomeProps) {
   const { filter, handleFilterChange } = useFilter();
-  const filteredImages =
+
+  const homeCategory =
+    categories.find((category) => category.slug === 'home') ?? categories[0] ?? null;
+  const selectedCategory =
     filter === null
-      ? images
-      : images.filter(
-          (image) => (image.category ?? image.type ?? null) === filter
-        );
+      ? homeCategory
+      : categories.find((category) => category.id === filter) ?? homeCategory;
+
+  const filteredImages = selectedCategory?.images ?? [];
+
+  const navigation: NavigationItem[] = [
+    ...categories.map((category) => ({
+      id: category.id,
+      name: category.name,
+      type: 'filter' as const,
+      filter: category.id,
+    })),
+    { id: 'profile', name: 'Profile', type: 'link', path: '/profile' },
+  ];
 
   let content;
   if (isLoading) {
-    content = <ImagesLoading />;
+    content = <ImagesLoading message="Loading categories..." />;
   } else if (error) {
     content = <ImagesError message={error} />;
   } else if (!filteredImages.length) {
@@ -49,7 +63,11 @@ export default function Home({
         sx={{ gap: { mobile: '1.25rem', tablet: '0' } }}
       >
         <Grid item mobile={12} tablet={3}>
-          <Menu filter={filter} handleFilterChange={handleFilterChange} />
+          <Menu
+            filter={filter}
+            handleFilterChange={handleFilterChange}
+            navigation={navigation}
+          />
         </Grid>
         <Grid item mobile={12} tablet={9} sx={{ tablet: { padding: '.5em' } }}>
           {content}

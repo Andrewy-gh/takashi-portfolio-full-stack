@@ -1,7 +1,14 @@
 import type { ReactNode } from 'react';
 import Masonry from '@mui/lab/Masonry';
 import CldImage from './CldImage';
-import type { ImageRecord } from '../../services/image';
+
+type GalleryImage = {
+  id?: string | null;
+  title?: string | null;
+  url?: string | null;
+  publicId?: string | null;
+  cloudinaryId?: string | null;
+};
 
 const stateContainer = {
   display: 'grid',
@@ -47,7 +54,7 @@ export function ImagesGrid({
   images,
 }: {
   cloudName: string;
-  images: ImageRecord[];
+  images: GalleryImage[];
 }) {
   return (
     <Masonry
