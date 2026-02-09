@@ -15,6 +15,7 @@
     "db:studio": "node_modules/.bin/drizzle-kit studio --config drizzle.config.ts",
     "db:push": "node_modules/.bin/drizzle-kit push --config drizzle.config.ts",
     "cloud:batch": "node hono/scripts/batch-cloudinary-import.js",
+    "cloud:usage": "node hono/scripts/cloudinary-usage.js",
     "smoke:api": "node hono/scripts/smoke-api.js"
   },
   "author": "",
