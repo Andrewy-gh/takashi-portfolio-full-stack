@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { withCloudinaryAutoFormatQuality } from '../../utils/cloudinary-url';
 
 type ImageWithSkeletonProps = {
   src: string;
@@ -19,6 +20,11 @@ export default function ImageWithSkeleton({
 }: ImageWithSkeletonProps) {
   const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(false);
+
+  const resolvedSrc = useMemo(
+    () => withCloudinaryAutoFormatQuality(src),
+    [src]
+  );
 
   const aspectRatio = useMemo(() => {
     const w = typeof width === 'number' && width > 0 ? width : null;
@@ -41,7 +47,7 @@ export default function ImageWithSkeleton({
         </div>
       ) : (
         <img
-          src={src}
+          src={resolvedSrc}
           alt={alt}
           loading={loading}
           decoding={decoding}
@@ -53,4 +59,3 @@ export default function ImageWithSkeleton({
     </div>
   );
 }
-
