@@ -164,7 +164,22 @@ test.describe('Category ordering', () => {
     await dragHandle.dragTo(rowA);
 
     await page.getByRole('button', { name: 'Save' }).click();
-    await expect(page.getByText('Category order updated.')).toBeVisible();
+
+    await expect
+      .poll(async () => {
+        const table = (await fetchCategoryTable(request)) as Array<{
+          id: string;
+          sequence: number | null;
+        }>;
+        const rowAfterA = table.find((row) => row.id === categoryA.id);
+        const rowAfterB = table.find((row) => row.id === categoryB.id);
+        if (!rowAfterA || !rowAfterB) return false;
+        if (rowAfterA.sequence === null || rowAfterB.sequence === null) {
+          return false;
+        }
+        return rowAfterB.sequence < rowAfterA.sequence;
+      })
+      .toBe(true);
 
     const table = (await fetchCategoryTable(request)) as Array<{
       id: string;
@@ -227,15 +242,29 @@ test.describe('Image ordering', () => {
     } else {
       await rowA.getByTitle('Move up').click();
     }
+    const movedTitle = posA < posB ? titleB : titleA;
+    const movedFromPosition = posA < posB ? posB : posA;
 
     await page.getByRole('button', { name: 'Save Order' }).click();
-    await expect(page.getByText('Image order updated.')).toBeVisible();
 
-    const detail = await fetchCategoryDetail(request, homeCategoryId);
-    expect(detail.sortMode).toBe('custom');
+    await expect
+      .poll(async () => {
+        const detail = (await fetchCategoryDetail(request, homeCategoryId)) as {
+          sortMode?: string | null;
+        };
+        return detail.sortMode;
+      })
+      .toBe('custom');
 
-    const firstTitle = detail.images?.[0]?.title;
-    const expectedFirst = posA < posB ? titleB : titleA;
-    expect(firstTitle).toBe(expectedFirst);
+    await expect
+      .poll(async () => {
+        const detail = (await fetchCategoryDetail(request, homeCategoryId)) as {
+          images?: Array<{ title?: string | null; position?: number | null }>;
+        };
+        const moved = detail.images?.find((img) => img.title === movedTitle);
+        return moved?.position ?? null;
+      })
+      .toBe(movedFromPosition - 1);
   });
 });
+
