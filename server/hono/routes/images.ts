@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { and, asc, desc, eq, ilike, inArray, sql } from "drizzle-orm";
+import { and, asc, desc, eq, ilike, inArray, ne, sql } from "drizzle-orm";
 import { db } from "../db";
 import { categories, imageCategories, images } from "../schema";
 import { requireAdmin } from "../auth-utils";
@@ -212,9 +212,19 @@ const imagesRoutes = new Hono()
       return c.json({ error: "Not found" }, 404);
     }
     const image = rows[0];
+
+    const categoryRows = await db
+      .select({ id: categories.id })
+      .from(imageCategories)
+      .innerJoin(categories, eq(imageCategories.categoryId, categories.id))
+      .where(and(eq(imageCategories.imageId, id), ne(categories.slug, "home")))
+      .orderBy(asc(categories.sequence), asc(categories.name));
+    const categoryIds = categoryRows.map((row) => row.id);
+
     return c.json({
       ...image,
       publicId: image.cloudinaryId,
+      categoryIds,
     });
   })
   .put("/:id", async (c) => {
@@ -232,26 +242,134 @@ const imagesRoutes = new Hono()
           ? body.name.trim()
           : null;
 
-    const updates: { title?: string | null; updatedAt?: Date } = {};
-    if (title !== null) {
-      updates.title = title || null;
-    }
-    if (Object.keys(updates).length === 0) {
+    // Backwards compat:
+    // - `categoryIds?: string[]` (preferred)
+    // - `categoryId?: string | null | ''` (legacy single-select)
+    const categoryIdsInput: string[] | undefined = Array.isArray(body.categoryIds)
+      ? body.categoryIds.filter((id: unknown): id is string => typeof id === "string")
+      : body.categoryIds === null
+        ? []
+        : undefined;
+
+    const legacyCategoryIdInput =
+      typeof body.categoryId === "string"
+        ? body.categoryId.trim() || ""
+        : body.categoryId === null
+          ? ""
+          : undefined;
+
+    const normalizedCategoryIds: string[] | undefined =
+      categoryIdsInput !== undefined
+        ? categoryIdsInput
+        : legacyCategoryIdInput !== undefined
+          ? legacyCategoryIdInput
+            ? [legacyCategoryIdInput]
+            : []
+          : undefined;
+
+    const wantsTitleUpdate = title !== null;
+    const wantsCategoryUpdate = normalizedCategoryIds !== undefined;
+    if (!wantsTitleUpdate && !wantsCategoryUpdate) {
       return c.json({ error: "No updates provided" }, 400);
     }
-    updates.updatedAt = new Date();
 
-    const updated = await db
-      .update(images)
-      .set(updates)
-      .where(eq(images.id, id))
-      .returning();
+    let categoryIdsToSet: string[] = [];
+    if (wantsCategoryUpdate) {
+      const cleaned = Array.from(
+        new Set(normalizedCategoryIds.map((id) => id.trim()).filter(Boolean))
+      );
+      const parsed = z.array(z.string().uuid()).safeParse(cleaned);
+      if (!parsed.success) {
+        return c.json({ error: "Invalid categoryIds" }, 400);
+      }
+      categoryIdsToSet = parsed.data;
+    }
 
-    if (updated.length === 0) {
+    // Pre-fetch Home category id only when needed.
+    const homeCategoryId = wantsCategoryUpdate
+      ? await ensureHomeCategory()
+      : null;
+    if (wantsCategoryUpdate && !homeCategoryId) {
+      return c.json({ error: "Home category missing" }, 500);
+    }
+
+    const image = await db.transaction(async (tx) => {
+      const existing = await tx
+        .select()
+        .from(images)
+        .where(eq(images.id, id))
+        .limit(1);
+      if (existing.length === 0) return null;
+
+      if (wantsCategoryUpdate && homeCategoryId) {
+        // Always keep Home, and set non-home categories to exactly what the client submits.
+        await tx
+          .insert(imageCategories)
+          .values({ imageId: id, categoryId: homeCategoryId })
+          .onConflictDoNothing();
+
+        await tx
+          .delete(imageCategories)
+          .where(
+            and(
+              eq(imageCategories.imageId, id),
+              ne(imageCategories.categoryId, homeCategoryId)
+            )
+          );
+
+        if (categoryIdsToSet.length > 0) {
+          const found = await tx
+            .select({ id: categories.id, slug: categories.slug })
+            .from(categories)
+            .where(inArray(categories.id, categoryIdsToSet));
+          const foundSet = new Set(found.map((row) => row.id));
+          const missing = categoryIdsToSet.filter((id) => !foundSet.has(id));
+          if (missing.length > 0) {
+            throw new Error("CATEGORY_NOT_FOUND");
+          }
+
+          const idsToInsert = found
+            .filter((row) => row.slug !== "home")
+            .map((row) => row.id);
+
+          for (const categoryId of idsToInsert) {
+            await tx
+              .insert(imageCategories)
+              .values({ imageId: id, categoryId })
+              .onConflictDoNothing();
+          }
+        }
+      }
+
+      const updatedAt = new Date();
+      const updates: { title?: string | null; updatedAt?: Date } = {
+        updatedAt,
+      };
+      if (wantsTitleUpdate) {
+        updates.title = title || null;
+      }
+
+      const updated = await tx
+        .update(images)
+        .set(updates)
+        .where(eq(images.id, id))
+        .returning();
+
+      return updated[0] ?? existing[0];
+    }).catch((err) => {
+      if (err instanceof Error && err.message === "CATEGORY_NOT_FOUND") {
+        return "__CATEGORY_NOT_FOUND__" as const;
+      }
+      throw err;
+    });
+
+    if (image === "__CATEGORY_NOT_FOUND__") {
+      return c.json({ error: "Category not found" }, 400);
+    }
+    if (!image) {
       return c.json({ error: "Not found" }, 404);
     }
 
-    const image = updated[0];
     return c.json({
       ...image,
       publicId: image.cloudinaryId,

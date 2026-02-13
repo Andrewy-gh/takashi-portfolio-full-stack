@@ -141,7 +141,7 @@ const categoriesRoutes = new Hono()
   })
   .get("/select", async (c) => {
     const rows = await db
-      .select({ id: categories.id, name: categories.name })
+      .select({ id: categories.id, name: categories.name, slug: categories.slug })
       .from(categories)
       .orderBy(asc(categories.name));
     return c.json(rows);
