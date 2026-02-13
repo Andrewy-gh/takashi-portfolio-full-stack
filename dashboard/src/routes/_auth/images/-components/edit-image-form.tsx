@@ -3,22 +3,25 @@ import { useCanGoBack, useRouter } from '@tanstack/react-router';
 
 import { CancelButton } from '@/components/form/cancel-button';
 import { toast } from 'sonner';
+import { useSuspenseQuery } from '@tanstack/react-query';
 
 import { editImageSchema } from '@/lib/schema';
 import {
   type GetImageByIdResponse,
   useUpdateImageMutation,
 } from '@/lib/images.queries';
+import { categoriesSelectQueryOptions } from '@/lib/categories.queries';
 
 export function EditImageForm({ image }: { image: GetImageByIdResponse }) {
   const router = useRouter();
   const canGoBack = useCanGoBack();
   const updateImage = useUpdateImageMutation(image.id);
+  const { data: categories } = useSuspenseQuery(categoriesSelectQueryOptions());
 
   const form = useAppForm({
     defaultValues: {
       name: image?.title ?? '',
-      description: '',
+      categoryIds: image?.categoryIds ?? [],
     },
     validators: {
       onSubmit: editImageSchema,
@@ -27,7 +30,7 @@ export function EditImageForm({ image }: { image: GetImageByIdResponse }) {
       await updateImage.mutateAsync(
         {
           name: value.name,
-          description: value.description,
+          categoryIds: value.categoryIds,
         },
         {
           onSuccess: () => {
@@ -64,8 +67,10 @@ export function EditImageForm({ image }: { image: GetImageByIdResponse }) {
           children={(field) => <field.TextField label="Title:" />}
         />
         <form.AppField
-          name="description"
-          children={(field) => <field.TextArea label="Description:" />}
+          name="categoryIds"
+          children={(field) => (
+            <field.CategoriesCombobox categories={categories} />
+          )}
         />
         <div className="flex gap-4">
           <form.AppForm>

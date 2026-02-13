@@ -16,7 +16,7 @@ import { categoriesSelectQueryOptions } from '@/lib/categories.queries';
 const formOpts = formOptions({
   defaultValues: {
     files: [] as ImageFile[],
-    categoryId: '',
+    categoryIds: [] as string[],
   },
   validators: {
     onChangeAsync: uploadImageSchema,
@@ -77,6 +77,7 @@ export function UploadImageForm() {
   const { data: categories } = useSuspenseQuery(
     categoriesSelectQueryOptions()
   );
+  const selectableCategories = categories.filter((c) => c.slug !== 'home');
 
   const uploadImage = useUploadImageMutation();
 
@@ -86,7 +87,7 @@ export function UploadImageForm() {
       toast.loading('Uploading images...');
       const files = value.files.map((file) => file.file);
       await uploadImage.mutateAsync(
-        { files, categoryId: value.categoryId || undefined },
+        { files, categoryIds: value.categoryIds },
         {
           onSuccess() {
             toast.dismiss();
@@ -121,9 +122,9 @@ export function UploadImageForm() {
       className="space-y-8"
     >
       <form.AppField
-        name="categoryId"
+        name="categoryIds"
         children={(field) => (
-          <field.CategorySelect categories={categories} />
+          <field.CategoriesCombobox categories={selectableCategories} />
         )}
       />
       <FilesField form={form} />

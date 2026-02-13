@@ -29,7 +29,7 @@ export default function CategorySelect({
           value={field.state.value ? String(field.state.value) : ''}
           onValueChange={field.handleChange}
         >
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-[180px]" aria-label="Category">
             <SelectValue placeholder="Category:" />
           </SelectTrigger>
           <SelectContent>

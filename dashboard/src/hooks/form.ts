@@ -5,6 +5,9 @@ import { fieldContext, formContext } from './form-context';
 const CategorySelect = lazy(
   () => import('../components/form/category-select.tsx')
 );
+const CategoriesCombobox = lazy(
+  () => import('../components/form/categories-combobox.tsx')
+);
 const ImageInput = lazy(() => import('../components/form/image-input.tsx'));
 const ImageMegaPixels = lazy(
   () => import('../components/form/image-megapixel.tsx')
@@ -23,6 +26,7 @@ export const { useAppForm, withForm } = createFormHook({
   fieldContext,
   formContext,
   fieldComponents: {
+    CategoriesCombobox,
     CategorySelect,
     ImageInput,
     ImageMegaPixels,

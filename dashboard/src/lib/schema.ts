@@ -27,8 +27,11 @@ export const projectSchemaWithFiles = projectSchema.extend({
 });
 
 // Image Schemas
-export const editImageSchema = nameDescriptionSchema;
+export const editImageSchema = z.object({
+  name: nameSchema,
+  categoryIds: z.array(z.string()).optional(),
+});
 
 export const uploadImageSchema = requiredFilesSchema.extend({
-  categoryId: z.string().optional(),
+  categoryIds: z.array(z.string()).optional(),
 });

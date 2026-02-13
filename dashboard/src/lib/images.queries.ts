@@ -74,10 +74,10 @@ export const imagesQueryOptions = ({
 // MARK: POST
 async function uploadImage({
   files,
-  categoryId,
+  categoryIds,
 }: {
   files: File[];
-  categoryId?: string;
+  categoryIds?: string[];
 }) {
   const uploaded = [];
   for (const file of files) {
@@ -102,7 +102,6 @@ async function uploadImage({
     // so local dev doesn't depend on a public Cloudinary webhook URL.
     let storedImage: unknown = null;
     if (secureUrl) {
-      const categoryIds = categoryId ? [categoryId] : undefined;
       const upsertRes = await client.api.images['from-cloudinary'].$post({
         json: {
           cloudinaryId: publicId,
@@ -205,17 +204,17 @@ async function updateImageById(
   imageId: string,
   {
     name,
-    description,
+    categoryIds,
   }: {
     name?: string;
-    description?: string;
+    categoryIds?: string[];
   }
 ) {
   const res = await client.api.images[':id'].$put({
     param: {
       id: imageId,
     },
-    json: { name, description },
+    json: { name, categoryIds },
   });
   await assertOk(res);
   return await res.json();
@@ -225,7 +224,7 @@ export const useUpdateImageMutation = (imageId: string) => {
   return useMutation({
     mutationFn: (data: {
       name?: string;
-      description?: string;
+      categoryIds?: string[];
     }) => updateImageById(imageId, data),
     onSuccess: (updatedImage) => {
       queryClient.setQueryData(
