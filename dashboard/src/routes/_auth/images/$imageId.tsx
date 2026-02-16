@@ -18,6 +18,20 @@ import {
   useDeleteImageMutation,
 } from '@/lib/images.queries';
 
+const uploadDateFormatter = new Intl.DateTimeFormat(undefined, {
+  dateStyle: 'medium',
+  timeStyle: 'short',
+});
+
+const formatUploadedAt = (value: unknown) => {
+  if (!value) return 'Upload date unavailable';
+
+  const date = value instanceof Date ? value : new Date(String(value));
+  if (Number.isNaN(date.getTime())) return 'Upload date unavailable';
+
+  return `Uploaded ${uploadDateFormatter.format(date)}`;
+};
+
 export const Route = createFileRoute('/_auth/images/$imageId')({
   params: {
     parse: (params) => ({
@@ -55,7 +69,12 @@ function RouteComponent() {
   return (
     <section className="container space-y-12 p-6">
       <div className="flex flex-col gap-4 md:flex-row md:justify-between">
-        <h1 className="text-2xl">{image.title ?? 'Image'}</h1>
+        <div>
+          <h1 className="text-2xl">{image.title ?? 'Image'}</h1>
+          <p className="text-sm text-muted-foreground">
+            {formatUploadedAt(image.createdAt)}
+          </p>
+        </div>
         <ConfirmDialogRoot onConfirm={handleDeleteImage} confirmLabel="Delete">
           <nav className="flex gap-4">
             <Button
