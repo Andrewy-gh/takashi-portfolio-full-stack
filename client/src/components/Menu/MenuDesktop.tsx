@@ -19,6 +19,13 @@ const flexColumns: CSSProperties = {
   alignItems: 'center',
 };
 
+const menuListStyle: CSSProperties = {
+  ...flexColumns,
+  listStyle: 'none',
+  margin: 0,
+  padding: 0,
+};
+
 const sticky: CSSProperties = {
   position: 'sticky',
   top: theme.spacing(2),
@@ -33,6 +40,11 @@ const typographyStyle: CSSProperties = {
   cursor: 'pointer',
 };
 
+const categoryTypographyStyle: CSSProperties = {
+  ...typographyStyle,
+  fontSize: 'clamp(0.94rem, calc(0.80rem + 0.26vw), 1.12rem)',
+};
+
 export default function MenuDesktop() {
   const { handleFilterChange } = useMenuContext();
   return (
@@ -43,7 +55,7 @@ export default function MenuDesktop() {
             <img src={Default} alt="logo" />
           </Link>
         </div>
-        <ul style={flexColumns}>
+        <ul style={menuListStyle}>
           <MenuItems Item={MenuDesktopItem} />
         </ul>
       </div>
@@ -56,7 +68,7 @@ function MenuDesktopItem({ item, isActive, onSelect }: MenuItemRenderProps) {
     return (
       <li
         style={{
-          ...typographyStyle,
+          ...categoryTypographyStyle,
           ...(isActive ? activeStyle : inActiveStyle),
         }}
         onClick={onSelect}
