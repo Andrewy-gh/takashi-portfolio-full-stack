@@ -71,3 +71,22 @@ Next:
 - Prefer DB key: `asset_id` (stable across folder moves/renames); fallback `public_id`.
 - Scope Cloudinary scan via `prefix=home/samples/` (covers subfolders); set-diff vs DB.
 - Flattening folders into `home/` not needed for sync; higher migration risk if `public_id` changes.
+
+## Note (2026-02-16): Per-Image Category Assignment During Multi-Upload
+
+- Request: in one upload batch, each image can have its own `categoryIds` (multi-select), not one shared category selection for all files.
+- Current behavior: upload form stores one shared `categoryIds` array and applies it to every uploaded file.
+- Lift estimate: `medium-high` (`~2-4` focused dev days including tests + manual QA).
+- Main changes:
+  - Dashboard upload form data model: move from batch-level `categoryIds` to per-file `categoryIds` (likely on each `ImageFile` row).
+  - Upload UI: per-file category picker on each preview card; optional bulk apply action to keep fast workflow.
+  - Validation/schema: update upload schema and client types for per-file categories.
+  - Upload mutation: send each file with its own `categoryIds` in `/api/images/from-cloudinary` call.
+  - E2E: add regression covering mixed categories in one batch and verify each image lands in `Home` + assigned categories.
+- Risks:
+  - UX density on upload page (10 files x category comboboxes); likely need compact row/card layout.
+  - Form perf/state complexity with per-row comboboxes and thumbnail generation.
+- Safe rollout suggestion:
+  1. Add per-file categories with fallback to current shared selection.
+  2. Add bulk-apply categories action.
+  3. Remove shared-only path after validation.
