@@ -4,6 +4,10 @@ module.exports = {
     content: ['./index.html', './src/**/*.{ts,tsx,js,jsx}'],
   theme: {
   	extend: {
+  		fontFamily: {
+  			serif: ['Judson', 'Quando', 'Georgia', 'serif'],
+  			sans: ['Judson', 'Quando', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', '"Helvetica Neue"', 'Arial', 'sans-serif'],
+  		},
   		borderRadius: {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',

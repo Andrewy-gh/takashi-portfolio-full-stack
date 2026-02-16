@@ -33,8 +33,8 @@ export function ImagesMasonry({ images }: { images: ImageSummary[] }) {
               className={`group relative overflow-hidden rounded-lg cursor-pointer transition-all duration-200 ${
                 isSelectMode
                   ? selected
-                    ? 'ring-4 ring-blue-500 ring-offset-2'
-                    : 'hover:ring-2 hover:ring-gray-300'
+                    ? 'ring-4 ring-primary ring-offset-2 ring-offset-background'
+                    : 'hover:ring-2 hover:ring-secondary'
                   : ''
               }`}
               onClick={isSelectMode ? () => toggleSelection(image.id) : undefined}
@@ -70,8 +70,8 @@ function SelectionIndicator({ selected }: { selected: boolean }) {
       <div
         className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
           selected
-            ? 'bg-blue-500 border-blue-500'
-            : 'bg-white/80 border-gray-300 hover:border-blue-400'
+            ? 'bg-primary border-primary'
+            : 'bg-white/80 border-muted-foreground hover:border-primary'
         }`}
       >
         {selected ? (

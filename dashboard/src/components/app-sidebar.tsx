@@ -1,9 +1,6 @@
 import * as React from 'react';
 import {
-  AudioWaveform,
   BookOpen,
-  Command,
-  GalleryVerticalEnd,
   // Map,
   // PieChart,
   SquareTerminal,
@@ -22,30 +19,7 @@ import { Button } from '@/components/ui/button';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useAuth } from '@/auth';
 
-// This is sample data.
 const data = {
-  user: {
-    name: 'shadcn',
-    email: 'm@example.com',
-    avatar: '/avatars/shadcn.jpg',
-  },
-  teams: [
-    {
-      name: 'Acme Inc',
-      logo: GalleryVerticalEnd,
-      plan: 'Enterprise',
-    },
-    {
-      name: 'Acme Corp.',
-      logo: AudioWaveform,
-      plan: 'Startup',
-    },
-    {
-      name: 'Evil Corp.',
-      logo: Command,
-      plan: 'Free',
-    },
-  ],
   navMain: [
     {
       title: 'Images',
@@ -111,17 +85,32 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   };
   return (
     <Sidebar {...props}>
-      <SidebarHeader>
-        {/* <TeamSwitcher teams={data.teams} /> */}
-        {meta.isSignedIn ? (
-          <Button variant="outline" onClick={handleSignOut}>
-            Sign out
-          </Button>
-        ) : (
-          <Button asChild>
-            <Link to="/sign-in">Sign in</Link>
-          </Button>
-        )}
+      <SidebarHeader className="p-4">
+        <Link to="/" className="block">
+          <h2
+            className="text-xl font-bold tracking-wide"
+            style={{
+              background: 'linear-gradient(90deg, rgba(104,94,80,1) 0%, rgba(149,129,111,1) 35%, rgba(179,153,132,1) 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+            }}
+          >
+            Takashi
+          </h2>
+          <span className="text-xs text-muted-foreground tracking-widest uppercase">Dashboard</span>
+        </Link>
+        <div className="mt-3">
+          {meta.isSignedIn ? (
+            <Button variant="outline" size="sm" onClick={handleSignOut} className="w-full">
+              Sign out
+            </Button>
+          ) : (
+            <Button asChild size="sm" className="w-full">
+              <Link to="/sign-in">Sign in</Link>
+            </Button>
+          )}
+        </div>
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />

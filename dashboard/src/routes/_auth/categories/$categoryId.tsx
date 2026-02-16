@@ -176,7 +176,7 @@ function RouteComponent() {
               params={{ imageId: image.id }}
               className="group"
             >
-              <div className="relative h-64 w-full overflow-hidden rounded-md bg-slate-900">
+              <div className="relative h-64 w-full overflow-hidden rounded-md bg-muted">
                 <img
                   src={image.url}
                   alt={image.title ?? 'Image'}

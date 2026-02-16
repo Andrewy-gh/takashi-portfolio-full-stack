@@ -45,7 +45,7 @@ function RouteComponent() {
   return (
     <section>
       <div className="space-y-6 p-4 md:p-8">
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+        <h1 className="text-3xl font-bold">Dashboard</h1>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6 lg:grid-cols-3">
           <DashboardCard

@@ -96,10 +96,10 @@ function ImagesSelectionBar({
 }: Pick<ImagesToolbarProps, 'onBulkDelete' | 'onBulkSave' | 'onBulkAction'>) {
   const { selectionCount, hasSelection } = useImageSelection();
   return (
-    <div className="flex items-center justify-between rounded-lg bg-blue-50 dark:bg-blue-950/20 p-4 border border-blue-200 dark:border-blue-800">
+    <div className="flex items-center justify-between rounded-lg bg-secondary/10 p-4 border border-secondary/30">
       <div className="flex items-center gap-2">
-        <CheckSquare className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-        <span className="font-medium text-blue-900 dark:text-blue-100">
+        <CheckSquare className="h-5 w-5 text-primary" />
+        <span className="font-medium text-foreground">
           {selectionCount} image{selectionCount !== 1 ? 's' : ''} selected
         </span>
       </div>
