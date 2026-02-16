@@ -1,6 +1,10 @@
 import crypto from 'crypto';
 import { expect, test } from '@playwright/test';
 import type { APIRequestContext } from '@playwright/test';
+import {
+  cleanupE2eArtifacts,
+  createE2eArtifacts,
+} from './helpers/artifacts';
 
 const adminEmail =
   process.env.AUTH_EMAIL ??
@@ -109,52 +113,66 @@ test.describe('Category delete keeps images in Home', () => {
   test.skip(missingEnv, 'Missing admin credentials or API_SECRET');
 
   test('deleting a category does not orphan images from Home', async ({ request }) => {
+    const artifacts = createE2eArtifacts();
     const token = await getAdminToken(request);
-    const homeCategoryId = await ensureHomeCategoryId(request, token);
-
     const now = Date.now();
     const title = `E2E Delete ${now}`;
-    await sendWebhookImage(request, {
-      publicId: `e2e/delete/${now}-${Math.random().toString(16).slice(2)}`,
-      title,
-    });
+    const publicId = `e2e/delete/${now}-${Math.random().toString(16).slice(2)}`;
+    artifacts.imagePublicIds.add(publicId);
 
-    const imageId = await findImageIdByTitle(request, title);
+    try {
+      const homeCategoryId = await ensureHomeCategoryId(request, token);
+      await sendWebhookImage(request, {
+        publicId,
+        title,
+      });
 
-    const createCategoryRes = await request.post(`${apiBaseUrl}/api/categories`, {
-      data: { name: `E2E Delete Cat ${now}`, description: 'delete test' },
-      headers: {
-        'content-type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    expect(createCategoryRes.ok()).toBeTruthy();
-    const category = (await createCategoryRes.json()) as { id: string };
+      const imageId = await findImageIdByTitle(request, title);
+      artifacts.imageIds.add(imageId);
 
-    const attachRes = await request.post(
-      `${apiBaseUrl}/api/categories/${category.id}/images`,
-      {
-        data: { imageIds: [imageId] },
+      const createCategoryRes = await request.post(`${apiBaseUrl}/api/categories`, {
+        data: { name: `E2E Delete Cat ${now}`, description: 'delete test' },
         headers: {
           'content-type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-      }
-    );
-    expect(attachRes.ok()).toBeTruthy();
+      });
+      expect(createCategoryRes.ok()).toBeTruthy();
+      const category = (await createCategoryRes.json()) as { id: string };
+      artifacts.categoryIds.add(category.id);
 
-    const deleteRes = await request.delete(`${apiBaseUrl}/api/categories/${category.id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    expect(deleteRes.ok()).toBeTruthy();
+      const attachRes = await request.post(
+        `${apiBaseUrl}/api/categories/${category.id}/images`,
+        {
+          data: { imageIds: [imageId] },
+          headers: {
+            'content-type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      expect(attachRes.ok()).toBeTruthy();
 
-    const homeDetailRes = await request.get(
-      `${apiBaseUrl}/api/categories/${homeCategoryId}`
-    );
-    expect(homeDetailRes.ok()).toBeTruthy();
-    const homeDetail = (await homeDetailRes.json()) as { images?: Array<{ title?: string | null }> };
-    const found = homeDetail.images?.some((img) => img.title === title);
-    expect(found).toBeTruthy();
+      const deleteRes = await request.delete(`${apiBaseUrl}/api/categories/${category.id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      expect(deleteRes.ok()).toBeTruthy();
+      artifacts.categoryIds.delete(category.id);
+
+      const homeDetailRes = await request.get(
+        `${apiBaseUrl}/api/categories/${homeCategoryId}`
+      );
+      expect(homeDetailRes.ok()).toBeTruthy();
+      const homeDetail = (await homeDetailRes.json()) as { images?: Array<{ title?: string | null }> };
+      const found = homeDetail.images?.some((img) => img.title === title);
+      expect(found).toBeTruthy();
+    } finally {
+      await cleanupE2eArtifacts({
+        request,
+        token,
+        artifacts,
+        apiBaseUrl,
+      });
+    }
   });
 });
-

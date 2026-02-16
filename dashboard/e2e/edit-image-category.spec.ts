@@ -1,5 +1,9 @@
 import { expect, test } from '@playwright/test';
 import type { APIRequestContext, Page } from '@playwright/test';
+import {
+  cleanupE2eArtifacts,
+  createE2eArtifacts,
+} from './helpers/artifacts';
 
 const adminEmail =
   process.env.AUTH_EMAIL ??
@@ -67,79 +71,93 @@ test.describe('Edit Image category', () => {
     page,
     request,
   }) => {
+    const artifacts = createE2eArtifacts();
     const now = Date.now();
     const token = await getAdminToken(request);
+    try {
+      const createCategory = async (suffix: string) => {
+        const res = await request.post(`${apiBaseUrl}/api/categories`, {
+          data: {
+            name: `E2E Edit Cat ${now} ${suffix}`,
+            description: 'edit-image-category',
+          },
+          headers: {
+            'content-type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        expect(res.ok()).toBeTruthy();
+        return (await res.json()) as { id: string; name: string };
+      };
 
-    const createCategory = async (suffix: string) => {
-      const res = await request.post(`${apiBaseUrl}/api/categories`, {
-        data: {
-          name: `E2E Edit Cat ${now} ${suffix}`,
-          description: 'edit-image-category',
-        },
-        headers: {
-          'content-type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      expect(res.ok()).toBeTruthy();
-      return (await res.json()) as { id: string; name: string };
-    };
+      const categoryA = await createCategory('A');
+      artifacts.categoryIds.add(categoryA.id);
+      const categoryB = await createCategory('B');
+      artifacts.categoryIds.add(categoryB.id);
 
-    const categoryA = await createCategory('A');
-    const categoryB = await createCategory('B');
-
-    const title = `E2E Image Edit Cat ${now}`;
-    const fromCloudinaryRes = await request.post(
-      `${apiBaseUrl}/api/images/from-cloudinary`,
-      {
-        data: {
-          cloudinaryId: `e2e/edit-cat/${now}-${Math.random().toString(16).slice(2)}`,
-          url: `https://res.cloudinary.com/demo/image/upload/v${now}/sample.jpg`,
-          title,
-          width: 1200,
-          height: 800,
-        },
-        headers: {
-          'content-type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
+      const title = `E2E Image Edit Cat ${now}`;
+      const publicId = `e2e/edit-cat/${now}-${Math.random().toString(16).slice(2)}`;
+      artifacts.imagePublicIds.add(publicId);
+      const fromCloudinaryRes = await request.post(
+        `${apiBaseUrl}/api/images/from-cloudinary`,
+        {
+          data: {
+            cloudinaryId: publicId,
+            url: `https://res.cloudinary.com/demo/image/upload/v${now}/sample.jpg`,
+            title,
+            width: 1200,
+            height: 800,
+          },
+          headers: {
+            'content-type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      expect(fromCloudinaryRes.ok()).toBeTruthy();
+      const createdImage = (await fromCloudinaryRes.json()) as { id?: string };
+      if (!createdImage.id) {
+        throw new Error('Missing id in /api/images/from-cloudinary response');
       }
-    );
-    expect(fromCloudinaryRes.ok()).toBeTruthy();
-    const createdImage = (await fromCloudinaryRes.json()) as { id?: string };
-    if (!createdImage.id) {
-      throw new Error('Missing id in /api/images/from-cloudinary response');
+      artifacts.imageIds.add(createdImage.id);
+
+      await signIn(page);
+      await page.goto(`/images/${createdImage.id}`);
+
+      const categoriesField = page.locator('[aria-label="Categories"]').first();
+      await expect(categoriesField).toBeVisible();
+      await categoriesField.click();
+
+      const clickItem = async (name: string) => {
+        const item = page.locator('[cmdk-item]').filter({ hasText: name }).first();
+        await expect(item).toBeVisible();
+        await item.click();
+      };
+
+      await clickItem(categoryA.name);
+      await clickItem(categoryB.name);
+
+      await page.getByRole('button', { name: 'Submit' }).click();
+
+      await expect
+        .poll(() => categoryHasImageTitle(request, categoryA.id, title))
+        .toBe(true);
+
+      await expect
+        .poll(() => categoryHasImageTitle(request, categoryB.id, title))
+        .toBe(true);
+
+      const homeId = await fetchHomeCategoryId(request);
+      await expect
+        .poll(() => categoryHasImageTitle(request, homeId, title))
+        .toBe(true);
+    } finally {
+      await cleanupE2eArtifacts({
+        request,
+        token,
+        artifacts,
+        apiBaseUrl,
+      });
     }
-
-    await signIn(page);
-    await page.goto(`/images/${createdImage.id}`);
-
-    const categoriesField = page.locator('[aria-label="Categories"]').first();
-    await expect(categoriesField).toBeVisible();
-    await categoriesField.click();
-
-    const clickItem = async (name: string) => {
-      const item = page.locator('[cmdk-item]').filter({ hasText: name }).first();
-      await expect(item).toBeVisible();
-      await item.click();
-    };
-
-    await clickItem(categoryA.name);
-    await clickItem(categoryB.name);
-
-    await page.getByRole('button', { name: 'Submit' }).click();
-
-    await expect
-      .poll(() => categoryHasImageTitle(request, categoryA.id, title))
-      .toBe(true);
-
-    await expect
-      .poll(() => categoryHasImageTitle(request, categoryB.id, title))
-      .toBe(true);
-
-    const homeId = await fetchHomeCategoryId(request);
-    await expect
-      .poll(() => categoryHasImageTitle(request, homeId, title))
-      .toBe(true);
   });
 });

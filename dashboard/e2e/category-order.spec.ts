@@ -1,6 +1,10 @@
 import crypto from 'crypto';
 import { expect, test } from '@playwright/test';
 import type { APIRequestContext, Page } from '@playwright/test';
+import {
+  cleanupE2eArtifacts,
+  createE2eArtifacts,
+} from './helpers/artifacts';
 
 const adminEmail =
   process.env.AUTH_EMAIL ??
@@ -133,67 +137,79 @@ test.describe('Category ordering', () => {
   test.skip(missingLoginEnv, 'Missing admin credentials');
 
   test('can reorder categories and save', async ({ page, request }) => {
+    const artifacts = createE2eArtifacts();
     const now = Date.now();
     const token = await getAdminToken(request);
-    const categoryA = await createCategory(
-      request,
-      token,
-      `E2E Order ${now} A`
-    );
-    const categoryB = await createCategory(
-      request,
-      token,
-      `E2E Order ${now} B`
-    );
+    try {
+      const categoryA = await createCategory(
+        request,
+        token,
+        `E2E Order ${now} A`
+      );
+      artifacts.categoryIds.add(categoryA.id);
+      const categoryB = await createCategory(
+        request,
+        token,
+        `E2E Order ${now} B`
+      );
+      artifacts.categoryIds.add(categoryB.id);
 
-    await signIn(page);
-    await page.goto('/categories/order');
+      await signIn(page);
+      await page.goto('/categories/order');
 
-    const rowA = page.getByRole('row', { name: new RegExp(categoryA.name) });
-    const rowB = page.getByRole('row', { name: new RegExp(categoryB.name) });
-    await expect(rowA).toBeVisible();
-    await expect(rowB).toBeVisible();
+      const rowA = page.getByRole('row', { name: new RegExp(categoryA.name) });
+      const rowB = page.getByRole('row', { name: new RegExp(categoryB.name) });
+      await expect(rowA).toBeVisible();
+      await expect(rowB).toBeVisible();
 
-    await rowA.getByRole('button').click();
-    await rowB.getByRole('button').click();
+      await rowA.getByRole('button').click();
+      await rowB.getByRole('button').click();
 
-    await expect(rowA.locator('td').nth(4)).not.toHaveText('');
-    await expect(rowB.locator('td').nth(4)).not.toHaveText('');
+      await expect(rowA.locator('td').nth(4)).not.toHaveText('');
+      await expect(rowB.locator('td').nth(4)).not.toHaveText('');
 
-    const dragHandle = rowB.locator('button').first();
-    await dragHandle.dragTo(rowA);
+      const dragHandle = rowB.locator('button').first();
+      await dragHandle.dragTo(rowA);
 
-    await page.getByRole('button', { name: 'Save' }).click();
+      await page.getByRole('button', { name: 'Save' }).click();
 
-    await expect
-      .poll(async () => {
-        const table = (await fetchCategoryTable(request)) as Array<{
-          id: string;
-          sequence: number | null;
-        }>;
-        const rowAfterA = table.find((row) => row.id === categoryA.id);
-        const rowAfterB = table.find((row) => row.id === categoryB.id);
-        if (!rowAfterA || !rowAfterB) return false;
-        if (rowAfterA.sequence === null || rowAfterB.sequence === null) {
-          return false;
-        }
-        return rowAfterB.sequence < rowAfterA.sequence;
-      })
-      .toBe(true);
+      await expect
+        .poll(async () => {
+          const table = (await fetchCategoryTable(request)) as Array<{
+            id: string;
+            sequence: number | null;
+          }>;
+          const rowAfterA = table.find((row) => row.id === categoryA.id);
+          const rowAfterB = table.find((row) => row.id === categoryB.id);
+          if (!rowAfterA || !rowAfterB) return false;
+          if (rowAfterA.sequence === null || rowAfterB.sequence === null) {
+            return false;
+          }
+          return rowAfterB.sequence < rowAfterA.sequence;
+        })
+        .toBe(true);
 
-    const table = (await fetchCategoryTable(request)) as Array<{
-      id: string;
-      sequence: number | null;
-    }>;
-    const rowAfterA = table.find((row) => row.id === categoryA.id);
-    const rowAfterB = table.find((row) => row.id === categoryB.id);
-    if (!rowAfterA || !rowAfterB) {
-      throw new Error('Category rows not found in table response');
+      const table = (await fetchCategoryTable(request)) as Array<{
+        id: string;
+        sequence: number | null;
+      }>;
+      const rowAfterA = table.find((row) => row.id === categoryA.id);
+      const rowAfterB = table.find((row) => row.id === categoryB.id);
+      if (!rowAfterA || !rowAfterB) {
+        throw new Error('Category rows not found in table response');
+      }
+      if (rowAfterA.sequence === null || rowAfterB.sequence === null) {
+        throw new Error('Category sequences not persisted');
+      }
+      expect(rowAfterB.sequence).toBeLessThan(rowAfterA.sequence);
+    } finally {
+      await cleanupE2eArtifacts({
+        request,
+        token,
+        artifacts,
+        apiBaseUrl,
+      });
     }
-    if (rowAfterA.sequence === null || rowAfterB.sequence === null) {
-      throw new Error('Category sequences not persisted');
-    }
-    expect(rowAfterB.sequence).toBeLessThan(rowAfterA.sequence);
   });
 });
 
@@ -204,67 +220,83 @@ test.describe('Image ordering', () => {
     page,
     request,
   }) => {
+    const artifacts = createE2eArtifacts();
+    const token = await getAdminToken(request);
     const now = Date.now();
     const titleA = `E2E Image ${now} A`;
     const titleB = `E2E Image ${now} B`;
-    await sendWebhookImage(request, {
-      publicId: `e2e/${now}-a`,
-      title: titleA,
-    });
-    await sendWebhookImage(request, {
-      publicId: `e2e/${now}-b`,
-      title: titleB,
-    });
+    const publicIdA = `e2e/${now}-a`;
+    const publicIdB = `e2e/${now}-b`;
+    artifacts.imagePublicIds.add(publicIdA);
+    artifacts.imagePublicIds.add(publicIdB);
 
-    const homeCategoryId = await fetchHomeCategoryId(request);
+    try {
+      await sendWebhookImage(request, {
+        publicId: publicIdA,
+        title: titleA,
+      });
+      await sendWebhookImage(request, {
+        publicId: publicIdB,
+        title: titleB,
+      });
 
-    await signIn(page);
-    await page.goto(`/categories/${homeCategoryId}/project-order`);
+      const homeCategoryId = await fetchHomeCategoryId(request);
 
-    const rowA = page.getByRole('listitem', { name: new RegExp(titleA) });
-    const rowB = page.getByRole('listitem', { name: new RegExp(titleB) });
-    await expect(rowA).toBeVisible();
-    await expect(rowB).toBeVisible();
+      await signIn(page);
+      await page.goto(`/categories/${homeCategoryId}/project-order`);
 
-    const getPosition = async (row: typeof rowA) => {
-      const text = await row.getByText(/Position/).innerText();
-      const match = text.match(/Position (\d+)/);
-      if (!match) {
-        throw new Error(`Unable to parse position from "${text}"`);
+      const rowA = page.getByRole('listitem', { name: new RegExp(titleA) });
+      const rowB = page.getByRole('listitem', { name: new RegExp(titleB) });
+      await expect(rowA).toBeVisible();
+      await expect(rowB).toBeVisible();
+
+      const getPosition = async (row: typeof rowA) => {
+        const text = await row.getByText(/Position/).innerText();
+        const match = text.match(/Position (\d+)/);
+        if (!match) {
+          throw new Error(`Unable to parse position from "${text}"`);
+        }
+        return Number(match[1]);
+      };
+
+      const posA = await getPosition(rowA);
+      const posB = await getPosition(rowB);
+      if (posA < posB) {
+        await rowB.getByTitle('Move up').click();
+      } else {
+        await rowA.getByTitle('Move up').click();
       }
-      return Number(match[1]);
-    };
+      const movedTitle = posA < posB ? titleB : titleA;
+      const movedFromPosition = posA < posB ? posB : posA;
 
-    const posA = await getPosition(rowA);
-    const posB = await getPosition(rowB);
-    if (posA < posB) {
-      await rowB.getByTitle('Move up').click();
-    } else {
-      await rowA.getByTitle('Move up').click();
+      await page.getByRole('button', { name: 'Save Order' }).click();
+
+      await expect
+        .poll(async () => {
+          const detail = (await fetchCategoryDetail(request, homeCategoryId)) as {
+            sortMode?: string | null;
+          };
+          return detail.sortMode;
+        })
+        .toBe('custom');
+
+      await expect
+        .poll(async () => {
+          const detail = (await fetchCategoryDetail(request, homeCategoryId)) as {
+            images?: Array<{ title?: string | null; position?: number | null }>;
+          };
+          const moved = detail.images?.find((img) => img.title === movedTitle);
+          return moved?.position ?? null;
+        })
+        .toBe(movedFromPosition - 1);
+    } finally {
+      await cleanupE2eArtifacts({
+        request,
+        token,
+        artifacts,
+        apiBaseUrl,
+      });
     }
-    const movedTitle = posA < posB ? titleB : titleA;
-    const movedFromPosition = posA < posB ? posB : posA;
-
-    await page.getByRole('button', { name: 'Save Order' }).click();
-
-    await expect
-      .poll(async () => {
-        const detail = (await fetchCategoryDetail(request, homeCategoryId)) as {
-          sortMode?: string | null;
-        };
-        return detail.sortMode;
-      })
-      .toBe('custom');
-
-    await expect
-      .poll(async () => {
-        const detail = (await fetchCategoryDetail(request, homeCategoryId)) as {
-          images?: Array<{ title?: string | null; position?: number | null }>;
-        };
-        const moved = detail.images?.find((img) => img.title === movedTitle);
-        return moved?.position ?? null;
-      })
-      .toBe(movedFromPosition - 1);
   });
 });
 

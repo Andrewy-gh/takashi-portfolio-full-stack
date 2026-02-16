@@ -1,5 +1,10 @@
 import crypto from 'crypto';
 import { test, expect } from '@playwright/test';
+import type { APIRequestContext } from '@playwright/test';
+import {
+  cleanupE2eArtifacts,
+  createE2eArtifacts,
+} from './helpers/artifacts';
 
 const adminEmail =
   process.env.AUTH_EMAIL ??
@@ -14,6 +19,19 @@ const apiBaseUrl = process.env.E2E_API_BASE_URL ?? 'http://localhost:3000';
 
 const missingEnv = !adminEmail || !adminPassword || !apiSecret;
 
+const getAdminToken = async (request: APIRequestContext) => {
+  const res = await request.post(`${apiBaseUrl}/api/auth/login`, {
+    data: { email: adminEmail, password: adminPassword },
+    headers: { 'content-type': 'application/json' },
+  });
+  expect(res.ok()).toBeTruthy();
+  const payload = (await res.json()) as { token?: string };
+  if (!payload.token) {
+    throw new Error('Missing token in /api/auth/login response');
+  }
+  return payload.token;
+};
+
 test.describe('Cloudinary webhook round-trip', () => {
   test.skip(missingEnv, 'Missing admin credentials or API_SECRET');
 
@@ -21,52 +39,66 @@ test.describe('Cloudinary webhook round-trip', () => {
     page,
     request,
   }) => {
+    const artifacts = createE2eArtifacts();
+    const token = await getAdminToken(request);
+
     const now = Date.now();
     const title = `E2E ${now}`;
     const publicId = `e2e/${now}-${Math.random().toString(16).slice(2)}`;
-    const payload = {
-      public_id: publicId,
-      secure_url: `https://res.cloudinary.com/demo/image/upload/v${now}/sample.jpg`,
-      original_filename: title,
-      width: 1200,
-      height: 800,
-      context: {
-        custom: {
-          title,
+    artifacts.imagePublicIds.add(publicId);
+
+    try {
+      const payload = {
+        public_id: publicId,
+        secure_url: `https://res.cloudinary.com/demo/image/upload/v${now}/sample.jpg`,
+        original_filename: title,
+        width: 1200,
+        height: 800,
+        context: {
+          custom: {
+            title,
+          },
         },
-      },
-    };
+      };
 
-    const rawBody = JSON.stringify(payload);
-    const timestamp = Math.floor(Date.now() / 1000).toString();
-    const signature = crypto
-      .createHash('sha1')
-      .update(`${rawBody}${timestamp}${apiSecret}`)
-      .digest('hex');
+      const rawBody = JSON.stringify(payload);
+      const timestamp = Math.floor(Date.now() / 1000).toString();
+      const signature = crypto
+        .createHash('sha1')
+        .update(`${rawBody}${timestamp}${apiSecret}`)
+        .digest('hex');
 
-    const webhookRes = await request.post(
-      `${apiBaseUrl}/api/cloudinary/webhook`,
-      {
-        data: rawBody,
-        headers: {
-          'content-type': 'application/json',
-          'x-cld-signature': signature,
-          'x-cld-timestamp': timestamp,
-        },
-      }
-    );
+      const webhookRes = await request.post(
+        `${apiBaseUrl}/api/cloudinary/webhook`,
+        {
+          data: rawBody,
+          headers: {
+            'content-type': 'application/json',
+            'x-cld-signature': signature,
+            'x-cld-timestamp': timestamp,
+          },
+        }
+      );
 
-    expect(webhookRes.ok()).toBeTruthy();
+      expect(webhookRes.ok()).toBeTruthy();
 
-    await page.goto('/sign-in');
-    await page.getByLabel('Email').fill(adminEmail!);
-    await page.getByLabel('Password').fill(adminPassword!);
-    await page.getByRole('button', { name: 'Sign in' }).click();
+      await page.goto('/sign-in');
+      await page.getByLabel('Email').fill(adminEmail!);
+      await page.getByLabel('Password').fill(adminPassword!);
+      await page.getByRole('button', { name: 'Sign in' }).click();
 
-    await page.goto('/images');
-    await page.getByPlaceholder('Search').fill(title);
-    await page.waitForTimeout(1100);
+      await page.goto('/images');
+      await page.getByPlaceholder('Search').fill(title);
+      await page.waitForTimeout(1100);
 
-    await expect(page.getByRole('img', { name: title })).toBeVisible();
+      await expect(page.getByRole('img', { name: title })).toBeVisible();
+    } finally {
+      await cleanupE2eArtifacts({
+        request,
+        token,
+        artifacts,
+        apiBaseUrl,
+      });
+    }
   });
 });
