@@ -12,6 +12,7 @@ import type { ImageFile } from '@/lib/types';
 import { uploadImageSchema } from '@/lib/schema';
 import { useUploadImageMutation } from '@/lib/images.queries';
 import { categoriesSelectQueryOptions } from '@/lib/categories.queries';
+import { uploadLimitsHelpText } from '@/lib/upload-limits';
 
 const formOpts = formOptions({
   defaultValues: {
@@ -127,6 +128,7 @@ export function UploadImageForm() {
           <field.CategoriesCombobox categories={selectableCategories} />
         )}
       />
+      <p className="text-sm text-muted-foreground">{uploadLimitsHelpText}</p>
       <FilesField form={form} />
       {/* MARK: Submit */}
       <div className="flex gap-4">

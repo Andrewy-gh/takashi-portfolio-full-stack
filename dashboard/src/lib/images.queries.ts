@@ -5,6 +5,10 @@ import type { SearchType } from './types';
 import type { InferResponseType } from 'hono/client';
 import { uploadToCloudinary } from './cloudinary.queries';
 import { assertOk } from './http';
+import {
+  MAX_UPLOAD_FILES,
+  uploadFileCountLimitMessage,
+} from './upload-limits';
 
 const delay = (ms: number) =>
   new Promise((resolve) => {
@@ -79,6 +83,10 @@ async function uploadImage({
   files: File[];
   categoryIds?: string[];
 }) {
+  if (files.length > MAX_UPLOAD_FILES) {
+    throw new Error(uploadFileCountLimitMessage);
+  }
+
   const uploaded = [];
   for (const file of files) {
     const title = stripExtension(file.name);

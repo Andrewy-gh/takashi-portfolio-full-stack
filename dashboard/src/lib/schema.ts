@@ -1,5 +1,9 @@
 import { clientImageFileSchema } from '@server/lib/shared-types';
 import { z } from 'zod';
+import {
+  MAX_UPLOAD_FILES,
+  uploadFileCountLimitValidationMessage,
+} from './upload-limits';
 
 const textSchema = z.string().max(256, { message: 'Please enter a maximum of 256 characters' });
 const nameSchema = z
@@ -13,7 +17,10 @@ export const nameDescriptionSchema = z.object({
 });
 
 export const requiredFilesSchema = z.object({
-  files: z.array(clientImageFileSchema).min(1, 'At least one file is required'),
+  files: z
+    .array(clientImageFileSchema)
+    .min(1, 'At least one file is required')
+    .max(MAX_UPLOAD_FILES, uploadFileCountLimitValidationMessage),
 });
 
 // Project Schemas

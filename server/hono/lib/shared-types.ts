@@ -3,6 +3,7 @@ import { z } from 'zod';
 // MARK: File
 export const MAX_MEGAPIXELS = 25; // Maximum allowed megapixels
 export const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
+export const MAX_FILES_PER_UPLOAD = 10; // Maximum files per upload batch
 export const ACCEPTED_IMAGE_TYPES = [
   'image/jpeg',
   'image/jpg',

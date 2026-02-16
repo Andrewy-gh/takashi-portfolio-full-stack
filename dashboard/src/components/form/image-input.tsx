@@ -10,6 +10,57 @@ import { toast } from 'sonner';
 import { ACCEPTED_IMAGE_TYPES } from '@server/lib/shared-types';
 import { generateThumbnail, getImageDimensionsAndUrl } from '@/lib/utils';
 import type { ImageFile } from '@/lib/types';
+import {
+  MAX_UPLOAD_FILES,
+  uploadFileCountLimitMessage,
+  uploadFilesAddedLimitMessage,
+} from '@/lib/upload-limits';
+
+const PREVIEW_PROCESS_CONCURRENCY = 3;
+
+async function processPreviewFile(file: File): Promise<ImageFile> {
+  try {
+    const { dimensions, url } = await getImageDimensionsAndUrl(file);
+    const thumbnailUrl = await generateThumbnail(url);
+    URL.revokeObjectURL(url);
+    return {
+      file,
+      url: thumbnailUrl,
+      dimensions,
+    };
+  } catch {
+    throw file?.name || 'Unnamed file';
+  }
+}
+
+async function processFilesWithConcurrency(
+  files: File[],
+  concurrency: number
+): Promise<PromiseSettledResult<ImageFile>[]> {
+  if (files.length === 0) return [];
+
+  const results: PromiseSettledResult<ImageFile>[] = new Array(files.length);
+  const maxWorkers = Math.min(concurrency, files.length);
+  let nextIndex = 0;
+
+  const worker = async () => {
+    while (true) {
+      const index = nextIndex;
+      nextIndex += 1;
+      if (index >= files.length) return;
+
+      try {
+        const value = await processPreviewFile(files[index]);
+        results[index] = { status: 'fulfilled', value };
+      } catch (reason) {
+        results[index] = { status: 'rejected', reason };
+      }
+    }
+  };
+
+  await Promise.all(Array.from({ length: maxWorkers }, () => worker()));
+  return results;
+}
 
 export default function ImageInput({ children }: { children: ReactNode }) {
   const fieldContext = useFieldContext<ImageFile[]>();
@@ -25,41 +76,53 @@ export default function ImageInput({ children }: { children: ReactNode }) {
     e: React.ChangeEvent<HTMLInputElement>,
     field: typeof fieldContext
   ) => {
+    const incomingFiles = Array.from(e.target.files || []);
+    if (incomingFiles.length === 0) return;
+
     setIsGeneratingThumbnails(true);
-    const files = Array.from(e.target.files || []);
-    const filesWithDimensions = await Promise.allSettled(
-      files.map(async (f) => {
-        try {
-          const { dimensions, url } = await getImageDimensionsAndUrl(f);
-          const thumbnailUrl = await generateThumbnail(url);
-          URL.revokeObjectURL(url);
-          return {
-            file: f,
-            url: thumbnailUrl,
-            dimensions,
-          };
-        } catch {
-          throw f?.name || 'Unnamed file';
-        }
-      })
-    );
-    filesWithDimensions.forEach((result) => {
-      if (result.status === 'fulfilled') {
-        field.pushValue(result.value);
-      } else {
-        toast.error(`Failed to process file: ${result.reason}`, {
-          action: {
-            label: 'Close',
-            onClick: (e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              toast.dismiss();
-            },
-          },
-        });
+    try {
+      const selectedCount = field.state.value.length;
+      const remainingSlots = Math.max(0, MAX_UPLOAD_FILES - selectedCount);
+
+      if (remainingSlots === 0) {
+        toast.error(uploadFileCountLimitMessage);
+        return;
       }
-    });
-    setIsGeneratingThumbnails(false);
+
+      const files = incomingFiles.slice(0, remainingSlots);
+      if (incomingFiles.length > files.length) {
+        toast.error(uploadFilesAddedLimitMessage(files.length));
+      }
+
+      const filesWithDimensions = await processFilesWithConcurrency(
+        files,
+        PREVIEW_PROCESS_CONCURRENCY
+      );
+      filesWithDimensions.forEach((result) => {
+        if (result.status === 'fulfilled') {
+          field.pushValue(result.value);
+        } else {
+          const reason =
+            result.reason instanceof Error
+              ? result.reason.message
+              : String(result.reason ?? 'Unknown error');
+
+          toast.error(`Failed to process file: ${reason}`, {
+            action: {
+              label: 'Close',
+              onClick: (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                toast.dismiss();
+              },
+            },
+          });
+        }
+      });
+    } finally {
+      setIsGeneratingThumbnails(false);
+      e.target.value = '';
+    }
   };
 
   return (
