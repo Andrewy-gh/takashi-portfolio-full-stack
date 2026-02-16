@@ -3,9 +3,17 @@
 ## Fly API (server)
 
 - Config: `server/fly.toml`
-- Deploy from repo root so Docker can copy `client/`:
+- Deploy from repo root so Docker can copy `dashboard/`:
   - `fly deploy --config server/fly.toml --dockerfile server/Dockerfile`
 - Release step (Fly `release_command`): `pnpm -C server db:migrate`
+
+Fly now serves:
+- API routes (`/api/*`)
+- Dashboard static app (SPA fallback for non-API routes)
+
+Recommended split deployment:
+- `dashboard`: served by Fly server image
+- `client`: deployed separately (for example Vercel)
 
 ## API env (Fly secrets)
 
@@ -29,12 +37,13 @@ One-shot scripts only (local):
 - `VITE_CLOUDINARY_CLOUD_NAME` (optional fallback)
 
 `dashboard`:
-- `VITE_API_BASE_URL` (optional; defaults to same origin)
+- `VITE_API_BASE_URL` (optional; defaults to same origin when served by Fly server)
 
 Notes:
 - Only `VITE_*` values are exposed to frontend bundles.
 - Keep API secrets in Fly secrets (not in Vite env files).
 - If the dashboard waits on uploads, confirm `CLOUDINARY_NOTIFICATION_URL` is set in the API env and points to a publicly reachable webhook URL.
+- If `client` runs on Vercel and calls Fly API, include the Vercel origin in `CORS_ORIGINS` on Fly.
 
 ## Smoke Test (Local)
 

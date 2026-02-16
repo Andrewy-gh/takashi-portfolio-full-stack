@@ -1,6 +1,10 @@
 node_modules/
 .env
 .env.local
+.env.prod
+.env.prod.*
+.claude/
+.tmp/
 
 # Playwright
 dashboard/test-results/

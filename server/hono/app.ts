@@ -1,5 +1,8 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
+import { serveStatic } from "@hono/node-server/serve-static";
+import { existsSync, readFileSync } from "node:fs";
+import path from "node:path";
 import cloudinaryRoutes from "./routes/cloudinary";
 import authRoutes from "./routes/auth";
 import imagesRoutes from "./routes/images";
@@ -25,6 +28,18 @@ const parseCorsOrigins = () => {
 };
 
 const allowedOrigins = parseCorsOrigins();
+const dashboardDistRoot = path.resolve(process.cwd(), "dashboard-dist");
+const dashboardIndexPath = path.join(dashboardDistRoot, "index.html");
+const hasDashboardBuild = existsSync(dashboardIndexPath);
+const dashboardIndexHtml = hasDashboardBuild
+  ? readFileSync(dashboardIndexPath, "utf8")
+  : "";
+const serveDashboardStatic = serveStatic({ root: "./dashboard-dist" });
+const isApiOrHealthPath = (pathname: string) =>
+  pathname === "/api" ||
+  pathname === "/health" ||
+  pathname === "/health/" ||
+  pathname.startsWith("/api/");
 
 app.use(
   "*",
@@ -51,6 +66,25 @@ app.all("/api/featured-images", retired("Featured images"));
 app.all("/api/featured-images/*", retired("Featured images"));
 app.all("/api/file-sync", retired("File sync"));
 app.all("/api/file-sync/*", retired("File sync"));
+
+if (hasDashboardBuild) {
+  app.use("*", async (c, next) => {
+    const pathname = c.req.path;
+    if (isApiOrHealthPath(pathname)) {
+      await next();
+      return;
+    }
+
+    return serveDashboardStatic(c, async () => {
+      c.res = new Response(dashboardIndexHtml, {
+        status: 200,
+        headers: {
+          "Content-Type": "text/html; charset=utf-8",
+        },
+      });
+    });
+  });
+}
 
 export type AppType = typeof routes;
 

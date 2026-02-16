@@ -90,3 +90,16 @@ Next:
   1. Add per-file categories with fallback to current shared selection.
   2. Add bulk-apply categories action.
   3. Remove shared-only path after validation.
+
+## Note (2026-02-16): Supabase Migration + Admin Auth Cutover (Deferred)
+
+- Decision: defer implementation for now; revisit later.
+- Recommended execution order:
+  1. Migrate development database to Supabase (staging first) and validate parity.
+  2. Add dual-auth on backend (current env login + Supabase JWT admin auth).
+  3. Switch dashboard login to Supabase Auth.
+  4. Remove env-password login path after stabilization window.
+- Why this order:
+  - Data migration is independent and lowers risk early.
+  - Dual-auth prevents admin lockout during auth cutover.
+  - UI/login switch becomes lower risk once backend accepts both.

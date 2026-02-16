@@ -12,27 +12,42 @@ WORKDIR /app
 # Install pnpm
 ARG PNPM_VERSION=9.5.0
 RUN npm install -g pnpm@$PNPM_VERSION
+RUN apt-get update -qq && \
+  apt-get install --no-install-recommends -y ca-certificates
 
 
 # Install server dependencies
 FROM base as server-deps
-WORKDIR /app/server
+WORKDIR /app
 # Install packages needed to build node modules
 RUN apt-get update -qq && \
   apt-get install --no-install-recommends -y build-essential node-gyp pkg-config python-is-python3
-COPY --link server/package.json server/pnpm-lock.yaml ./
+COPY --link package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY --link server/package.json ./server/package.json
+RUN pnpm install --frozen-lockfile --filter takashi-photos...
+# Copy only runtime server source (avoid .env)
+COPY --link server/hono ./server/hono
+COPY --link server/drizzle.config.ts ./server/drizzle.config.ts
+
+# Build dashboard static assets
+FROM base as dashboard-build
+WORKDIR /app
+COPY --link package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY --link dashboard/package.json ./dashboard/package.json
+COPY --link server/package.json ./server/package.json
 RUN pnpm install --frozen-lockfile
-# Copy only runtime server source (avoid node_modules/.env)
-COPY --link server/hono ./hono
-COPY --link server/drizzle.config.ts ./drizzle.config.ts
+COPY --link dashboard ./dashboard
+COPY --link server/hono ./server/hono
+RUN pnpm -C dashboard build
 
 # Final stage for app image
 FROM base as runtime
 ENV NODE_ENV="production"
-WORKDIR /app/server
+WORKDIR /app
 # Copy server + node_modules
-COPY --from=server-deps /app/server /app/server
+COPY --from=server-deps /app /app
+COPY --from=dashboard-build /app/dashboard/dist /app/server/dashboard-dist
 
 # Start the server by default, this can be overwritten at runtime
 EXPOSE 3000
-CMD [ "pnpm", "run", "start" ]
+CMD [ "pnpm", "-C", "server", "run", "start" ]
