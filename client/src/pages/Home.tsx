@@ -45,11 +45,13 @@ export default function Home({
 
   let content;
   if (isLoading) {
-    content = <ImagesLoading message="Loading categories..." />;
+    content = <ImagesLoading message="Loading pictures..." />;
   } else if (error) {
-    content = <ImagesError message={error} />;
+    content = <ImagesError message={`Error loading pictures: ${error}`} />;
   } else if (!filteredImages.length) {
-    content = <ImagesEmpty />;
+    content = (
+      <ImagesEmpty message="There are no pictures. Please check back later." />
+    );
   } else {
     content = <ImagesGrid images={filteredImages} />;
   }
