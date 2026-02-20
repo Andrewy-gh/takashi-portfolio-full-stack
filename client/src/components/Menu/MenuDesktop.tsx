@@ -28,7 +28,7 @@ const menuListStyle: CSSProperties = {
 
 const sticky: CSSProperties = {
   position: 'sticky',
-  top: theme.spacing(2),
+  top: theme.spacing(1),
 };
 
 const typographyStyle: CSSProperties = {
@@ -45,11 +45,23 @@ const categoryTypographyStyle: CSSProperties = {
   fontSize: 'clamp(0.94rem, calc(0.80rem + 0.26vw), 1.12rem)',
 };
 
+const profileTypographyStyle: CSSProperties = {
+  ...typographyStyle,
+  marginTop: theme.spacing(1),
+};
+
 export default function MenuDesktop() {
   const { handleFilterChange } = useMenuContext();
   return (
     <div style={sticky}>
-      <div style={{ ...flexColumns, padding: theme.spacing(6) }}>
+      <div
+        style={{
+          ...flexColumns,
+          paddingTop: theme.spacing(4),
+          paddingBottom: theme.spacing(6),
+          paddingInline: theme.spacing(6),
+        }}
+      >
         <div style={{ minWidth: 200 }} onClick={() => handleFilterChange(null)}>
           <Link to="/">
             <img src={Default} alt="logo" />
@@ -80,7 +92,7 @@ function MenuDesktopItem({ item, isActive, onSelect }: MenuItemRenderProps) {
 
   if (item.path) {
     return (
-      <li style={typographyStyle}>
+      <li style={profileTypographyStyle}>
         <Link to={item.path}>{item.name}</Link>
       </li>
     );
