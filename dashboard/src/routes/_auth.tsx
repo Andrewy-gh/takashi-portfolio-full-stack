@@ -23,26 +23,40 @@ import {
 } from '@/components/ui/sidebar';
 
 import { capitalize } from '@/lib/utils';
-import { checkAuth } from '@/lib/api';
+import { AuthSessionError } from '@/lib/api';
 
 export const Route = createFileRoute('/_auth')({
   beforeLoad: async ({ context }) => {
-    const token = await context.auth.actions.getToken();
-    if (!token) {
+    try {
+      const queryClient = context.queryClient;
+      const user = await queryClient.fetchQuery({
+        queryKey: ['auth', 'session'],
+        queryFn: context.auth.actions.refresh,
+        staleTime: 0,
+      });
+
+      if (!user) {
+        throw redirect({
+          to: '/sign-in',
+        });
+      }
+
+      if (user.role !== 'admin') {
+        throw redirect({
+          to: '/unauthorized',
+        });
+      }
+    } catch (error) {
+      if (error instanceof AuthSessionError && error.status === 403) {
+        throw redirect({
+          to: '/unauthorized',
+        });
+      }
+      if (error && typeof error === 'object' && 'to' in error) {
+        throw error;
+      }
       throw redirect({
         to: '/sign-in',
-      });
-    }
-    const queryClient = context.queryClient;
-    try {
-      await queryClient.fetchQuery({
-        queryKey: ['isAuthenticated'],
-        queryFn: async () => await checkAuth(token),
-        staleTime: Infinity,
-      });
-    } catch {
-      throw redirect({
-        to: '/unauthorized',
       });
     }
   },
