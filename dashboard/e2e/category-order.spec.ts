@@ -1,56 +1,27 @@
 import crypto from 'crypto';
 import { expect, test } from '@playwright/test';
-import type { APIRequestContext, Page } from '@playwright/test';
+import type { APIRequestContext } from '@playwright/test';
 import {
   cleanupE2eArtifacts,
   createE2eArtifacts,
 } from './helpers/artifacts';
+import {
+  adminCredentialsMissing,
+  apiBaseUrl,
+  apiSecret,
+  signInAsAdmin,
+} from './helpers/auth';
 
-const adminEmail =
-  process.env.AUTH_EMAIL ??
-  process.env.DASHBOARD_EMAIL ??
-  process.env.E2E_ADMIN_EMAIL;
-const adminPassword =
-  process.env.AUTH_PASSWORD ??
-  process.env.DASHBOARD_PASSWORD ??
-  process.env.E2E_ADMIN_PASSWORD;
-const apiSecret = process.env.API_SECRET ?? process.env.CLOUDINARY_API_SECRET;
-const apiBaseUrl = process.env.E2E_API_BASE_URL ?? 'http://localhost:3000';
-
-const missingLoginEnv = !adminEmail || !adminPassword;
+const missingLoginEnv = adminCredentialsMissing;
 const missingWebhookEnv = missingLoginEnv || !apiSecret;
-
-const signIn = async (page: Page) => {
-  await page.goto('/sign-in');
-  await page.getByLabel('Email').fill(adminEmail!);
-  await page.getByLabel('Password').fill(adminPassword!);
-  await page.getByRole('button', { name: 'Sign in' }).click();
-};
-
-const getAdminToken = async (request: APIRequestContext) => {
-  const res = await request.post(`${apiBaseUrl}/api/auth/login`, {
-    data: { email: adminEmail, password: adminPassword },
-    headers: { 'content-type': 'application/json' },
-  });
-  expect(res.ok()).toBeTruthy();
-  const payload = (await res.json()) as { token?: string };
-  if (!payload.token) {
-    throw new Error('Missing token in /api/auth/login response');
-  }
-  return payload.token;
-};
 
 const createCategory = async (
   request: APIRequestContext,
-  token: string,
   name: string
 ) => {
   const res = await request.post(`${apiBaseUrl}/api/categories`, {
     data: { name, description: `E2E seed for ${name}` },
-    headers: {
-      'content-type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
+    headers: { 'content-type': 'application/json' },
   });
   expect(res.ok()).toBeTruthy();
   return await res.json();
@@ -136,25 +107,18 @@ const fetchCategoryDetail = async (
 test.describe('Category ordering', () => {
   test.skip(missingLoginEnv, 'Missing admin credentials');
 
-  test('can reorder categories and save', async ({ page, request }) => {
+  test('can reorder categories and save', async ({ page }) => {
+    await signInAsAdmin(page);
+    const authRequest = page.request;
+
     const artifacts = createE2eArtifacts();
     const now = Date.now();
-    const token = await getAdminToken(request);
     try {
-      const categoryA = await createCategory(
-        request,
-        token,
-        `E2E Order ${now} A`
-      );
+      const categoryA = await createCategory(authRequest, `E2E Order ${now} A`);
       artifacts.categoryIds.add(categoryA.id);
-      const categoryB = await createCategory(
-        request,
-        token,
-        `E2E Order ${now} B`
-      );
+      const categoryB = await createCategory(authRequest, `E2E Order ${now} B`);
       artifacts.categoryIds.add(categoryB.id);
 
-      await signIn(page);
       await page.goto('/categories/order');
 
       const rowA = page.getByRole('row', { name: new RegExp(categoryA.name) });
@@ -175,7 +139,7 @@ test.describe('Category ordering', () => {
 
       await expect
         .poll(async () => {
-          const table = (await fetchCategoryTable(request)) as Array<{
+          const table = (await fetchCategoryTable(authRequest)) as Array<{
             id: string;
             sequence: number | null;
           }>;
@@ -189,7 +153,7 @@ test.describe('Category ordering', () => {
         })
         .toBe(true);
 
-      const table = (await fetchCategoryTable(request)) as Array<{
+      const table = (await fetchCategoryTable(authRequest)) as Array<{
         id: string;
         sequence: number | null;
       }>;
@@ -204,8 +168,7 @@ test.describe('Category ordering', () => {
       expect(rowAfterB.sequence).toBeLessThan(rowAfterA.sequence);
     } finally {
       await cleanupE2eArtifacts({
-        request,
-        token,
+        request: authRequest,
         artifacts,
         apiBaseUrl,
       });
@@ -218,10 +181,11 @@ test.describe('Image ordering', () => {
 
   test('saves custom image order for home category', async ({
     page,
-    request,
   }) => {
+    await signInAsAdmin(page);
+    const authRequest = page.request;
+
     const artifacts = createE2eArtifacts();
-    const token = await getAdminToken(request);
     const now = Date.now();
     const titleA = `E2E Image ${now} A`;
     const titleB = `E2E Image ${now} B`;
@@ -231,18 +195,17 @@ test.describe('Image ordering', () => {
     artifacts.imagePublicIds.add(publicIdB);
 
     try {
-      await sendWebhookImage(request, {
+      await sendWebhookImage(authRequest, {
         publicId: publicIdA,
         title: titleA,
       });
-      await sendWebhookImage(request, {
+      await sendWebhookImage(authRequest, {
         publicId: publicIdB,
         title: titleB,
       });
 
-      const homeCategoryId = await fetchHomeCategoryId(request);
+      const homeCategoryId = await fetchHomeCategoryId(authRequest);
 
-      await signIn(page);
       await page.goto(`/categories/${homeCategoryId}/project-order`);
 
       const rowA = page.getByRole('listitem', { name: new RegExp(titleA) });
@@ -273,7 +236,7 @@ test.describe('Image ordering', () => {
 
       await expect
         .poll(async () => {
-          const detail = (await fetchCategoryDetail(request, homeCategoryId)) as {
+          const detail = (await fetchCategoryDetail(authRequest, homeCategoryId)) as {
             sortMode?: string | null;
           };
           return detail.sortMode;
@@ -282,7 +245,7 @@ test.describe('Image ordering', () => {
 
       await expect
         .poll(async () => {
-          const detail = (await fetchCategoryDetail(request, homeCategoryId)) as {
+          const detail = (await fetchCategoryDetail(authRequest, homeCategoryId)) as {
             images?: Array<{ title?: string | null; position?: number | null }>;
           };
           const moved = detail.images?.find((img) => img.title === movedTitle);
@@ -291,8 +254,7 @@ test.describe('Image ordering', () => {
         .toBe(movedFromPosition - 1);
     } finally {
       await cleanupE2eArtifacts({
-        request,
-        token,
+        request: authRequest,
         artifacts,
         apiBaseUrl,
       });

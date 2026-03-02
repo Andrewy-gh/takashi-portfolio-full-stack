@@ -6,6 +6,22 @@ This template provides a minimal setup to get React working in Vite with HMR and
 
 - `VITE_API_BASE_URL` (optional): API base URL for the dashboard (defaults to same origin).
 
+## E2E Env
+
+Playwright e2e auth uses Better Auth session login through `/sign-in` (no `/api/auth/login` dependency).
+
+- `E2E_ADMIN_EMAIL` (required): admin user email for e2e sign-in.
+- `E2E_ADMIN_PASSWORD` (required): admin user password for e2e sign-in.
+- `DASHBOARD_BASE_URL` (optional): dashboard URL for Playwright (defaults to `http://localhost:5173`).
+- `E2E_API_BASE_URL` (optional): API URL used by e2e request helpers (defaults to `http://localhost:3000`).
+- `API_SECRET` or `CLOUDINARY_API_SECRET` (required for webhook-related specs only).
+
+Run e2e:
+
+```bash
+pnpm -C dashboard test:e2e
+```
+
 Currently, two official plugins are available:
 
 - [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh

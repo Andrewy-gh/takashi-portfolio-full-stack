@@ -1,41 +1,16 @@
 import { expect, test } from '@playwright/test';
-import type { APIRequestContext, Page } from '@playwright/test';
+import type { APIRequestContext } from '@playwright/test';
 import {
   cleanupE2eArtifacts,
   createE2eArtifacts,
 } from './helpers/artifacts';
+import {
+  adminCredentialsMissing,
+  apiBaseUrl,
+  signInAsAdmin,
+} from './helpers/auth';
 
-const adminEmail =
-  process.env.AUTH_EMAIL ??
-  process.env.DASHBOARD_EMAIL ??
-  process.env.E2E_ADMIN_EMAIL;
-const adminPassword =
-  process.env.AUTH_PASSWORD ??
-  process.env.DASHBOARD_PASSWORD ??
-  process.env.E2E_ADMIN_PASSWORD;
-const apiBaseUrl = process.env.E2E_API_BASE_URL ?? 'http://localhost:3000';
-
-const missingEnv = !adminEmail || !adminPassword;
-
-const signIn = async (page: Page) => {
-  await page.goto('/sign-in');
-  await page.getByLabel('Email').fill(adminEmail!);
-  await page.getByLabel('Password').fill(adminPassword!);
-  await page.getByRole('button', { name: 'Sign in' }).click();
-};
-
-const getAdminToken = async (request: APIRequestContext) => {
-  const res = await request.post(`${apiBaseUrl}/api/auth/login`, {
-    data: { email: adminEmail, password: adminPassword },
-    headers: { 'content-type': 'application/json' },
-  });
-  expect(res.ok()).toBeTruthy();
-  const payload = (await res.json()) as { token?: string };
-  if (!payload.token) {
-    throw new Error('Missing token in /api/auth/login response');
-  }
-  return payload.token;
-};
+const missingEnv = adminCredentialsMissing;
 
 const fetchHomeCategoryId = async (request: APIRequestContext) => {
   const res = await request.get(`${apiBaseUrl}/api/categories`);
@@ -69,22 +44,20 @@ test.describe('Edit Image category', () => {
 
   test('can assign an image to a category and keep it in Home', async ({
     page,
-    request,
   }) => {
+    await signInAsAdmin(page);
+    const authRequest = page.request;
+
     const artifacts = createE2eArtifacts();
     const now = Date.now();
-    const token = await getAdminToken(request);
     try {
       const createCategory = async (suffix: string) => {
-        const res = await request.post(`${apiBaseUrl}/api/categories`, {
+        const res = await authRequest.post(`${apiBaseUrl}/api/categories`, {
           data: {
             name: `E2E Edit Cat ${now} ${suffix}`,
             description: 'edit-image-category',
           },
-          headers: {
-            'content-type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { 'content-type': 'application/json' },
         });
         expect(res.ok()).toBeTruthy();
         return (await res.json()) as { id: string; name: string };
@@ -98,7 +71,7 @@ test.describe('Edit Image category', () => {
       const title = `E2E Image Edit Cat ${now}`;
       const publicId = `e2e/edit-cat/${now}-${Math.random().toString(16).slice(2)}`;
       artifacts.imagePublicIds.add(publicId);
-      const fromCloudinaryRes = await request.post(
+      const fromCloudinaryRes = await authRequest.post(
         `${apiBaseUrl}/api/images/from-cloudinary`,
         {
           data: {
@@ -108,10 +81,7 @@ test.describe('Edit Image category', () => {
             width: 1200,
             height: 800,
           },
-          headers: {
-            'content-type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { 'content-type': 'application/json' },
         }
       );
       expect(fromCloudinaryRes.ok()).toBeTruthy();
@@ -121,7 +91,6 @@ test.describe('Edit Image category', () => {
       }
       artifacts.imageIds.add(createdImage.id);
 
-      await signIn(page);
       await page.goto(`/images/${createdImage.id}`);
 
       const categoriesField = page.locator('[aria-label="Categories"]').first();
@@ -140,21 +109,20 @@ test.describe('Edit Image category', () => {
       await page.getByRole('button', { name: 'Submit' }).click();
 
       await expect
-        .poll(() => categoryHasImageTitle(request, categoryA.id, title))
+        .poll(() => categoryHasImageTitle(authRequest, categoryA.id, title))
         .toBe(true);
 
       await expect
-        .poll(() => categoryHasImageTitle(request, categoryB.id, title))
+        .poll(() => categoryHasImageTitle(authRequest, categoryB.id, title))
         .toBe(true);
 
-      const homeId = await fetchHomeCategoryId(request);
+      const homeId = await fetchHomeCategoryId(authRequest);
       await expect
-        .poll(() => categoryHasImageTitle(request, homeId, title))
+        .poll(() => categoryHasImageTitle(authRequest, homeId, title))
         .toBe(true);
     } finally {
       await cleanupE2eArtifacts({
-        request,
-        token,
+        request: authRequest,
         artifacts,
         apiBaseUrl,
       });

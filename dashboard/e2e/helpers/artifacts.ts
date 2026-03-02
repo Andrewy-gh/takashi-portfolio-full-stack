@@ -29,12 +29,10 @@ const resolveImageIdsByPublicId = async (
 
 export const cleanupE2eArtifacts = async ({
   request,
-  token,
   artifacts,
   apiBaseUrl,
 }: {
   request: APIRequestContext;
-  token: string;
   artifacts: E2eArtifacts;
   apiBaseUrl: string;
 }) => {
@@ -45,24 +43,16 @@ export const cleanupE2eArtifacts = async ({
   }
 
   for (const imageId of imageIds) {
-    const res = await request.delete(`${apiBaseUrl}/api/images/${imageId}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const res = await request.delete(`${apiBaseUrl}/api/images/${imageId}`);
     if (res.status() !== 404) {
       expect(res.ok()).toBeTruthy();
     }
   }
 
   for (const categoryId of artifacts.categoryIds) {
-    const res = await request.delete(
-      `${apiBaseUrl}/api/categories/${categoryId}`,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
+    const res = await request.delete(`${apiBaseUrl}/api/categories/${categoryId}`);
     if (res.status() !== 404) {
       expect(res.ok()).toBeTruthy();
     }
   }
 };
-

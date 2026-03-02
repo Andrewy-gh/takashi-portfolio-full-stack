@@ -1,29 +1,13 @@
 import { expect, test } from '@playwright/test';
-import type { Page } from '@playwright/test';
+import { adminCredentialsMissing, signInAsAdmin } from './helpers/auth';
 
-const adminEmail =
-  process.env.AUTH_EMAIL ??
-  process.env.DASHBOARD_EMAIL ??
-  process.env.E2E_ADMIN_EMAIL;
-const adminPassword =
-  process.env.AUTH_PASSWORD ??
-  process.env.DASHBOARD_PASSWORD ??
-  process.env.E2E_ADMIN_PASSWORD;
-
-const missingEnv = !adminEmail || !adminPassword;
-
-const signIn = async (page: Page) => {
-  await page.goto('/sign-in');
-  await page.getByLabel('Email').fill(adminEmail!);
-  await page.getByLabel('Password').fill(adminPassword!);
-  await page.getByRole('button', { name: 'Sign in' }).click();
-};
+const missingEnv = adminCredentialsMissing;
 
 test.describe('Upload limit', () => {
   test.skip(missingEnv, 'Missing admin credentials');
 
   test('caps selected files at 10', async ({ page }) => {
-    await signIn(page);
+    await signInAsAdmin(page);
     await page.goto('/images/upload');
 
     const png = Buffer.from(
