@@ -18,6 +18,7 @@
     "cloud:batch": "node hono/scripts/batch-cloudinary-import.js",
     "cloud:usage": "node hono/scripts/cloudinary-usage.js",
     "cloud:db:seed:report": "node hono/scripts/seed-db-from-cloudinary-report.js",
+    "smoke:auth": "node hono/scripts/smoke-auth.js",
     "smoke:api": "node hono/scripts/smoke-api.js"
   },
   "author": "",

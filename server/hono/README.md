@@ -62,6 +62,16 @@ Admin bootstrap:
 - Promote an existing user to admin:
 - `pnpm -C server auth:promote-admin -- --email you@example.com`
 
+Auth smoke test env:
+- `API_BASE_URL` (optional, defaults to `http://localhost:3000`)
+- `AUTH_SMOKE_EMAIL` + `AUTH_SMOKE_PASSWORD` (recommended)
+- fallback credentials: `E2E_ADMIN_EMAIL` + `E2E_ADMIN_PASSWORD`
+- final fallback credentials: `AUTH_EMAIL` + `AUTH_PASSWORD`
+
+Smoke test:
+- `pnpm -C server smoke:auth`
+- verifies invalid sign-in, session sign-in, session check, sign-out, and legacy login behavior for the active `AUTH_MODE`
+
 ## Batch Cloudinary upload/import (one-shot)
 
 Uploads a local folder to Cloudinary and inserts rows into Postgres.
