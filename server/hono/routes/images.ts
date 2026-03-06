@@ -85,7 +85,7 @@ const imagesRoutes = new Hono()
     });
   })
   .post("/from-cloudinary", async (c) => {
-    const auth = requireAdmin(c.req.header("Authorization"));
+    const auth = await requireAdmin(c.req.raw);
     if (!auth.ok) {
       return c.json({ error: auth.error }, auth.status);
     }
@@ -228,7 +228,7 @@ const imagesRoutes = new Hono()
     });
   })
   .put("/:id", async (c) => {
-    const auth = requireAdmin(c.req.header("Authorization"));
+    const auth = await requireAdmin(c.req.raw);
     if (!auth.ok) {
       return c.json({ error: auth.error }, auth.status);
     }
@@ -376,7 +376,7 @@ const imagesRoutes = new Hono()
     });
   })
   .delete("/:id", async (c) => {
-    const auth = requireAdmin(c.req.header("Authorization"));
+    const auth = await requireAdmin(c.req.raw);
     if (!auth.ok) {
       return c.json({ error: auth.error }, auth.status);
     }

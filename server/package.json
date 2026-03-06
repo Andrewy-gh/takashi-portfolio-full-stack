@@ -14,6 +14,7 @@
     "db:migrate": "node_modules/.bin/drizzle-kit migrate --config drizzle.config.ts",
     "db:studio": "node_modules/.bin/drizzle-kit studio --config drizzle.config.ts",
     "db:push": "node_modules/.bin/drizzle-kit push --config drizzle.config.ts",
+    "auth:promote-admin": "tsx hono/scripts/promote-admin.ts",
     "cloud:batch": "node hono/scripts/batch-cloudinary-import.js",
     "cloud:usage": "node hono/scripts/cloudinary-usage.js",
     "cloud:db:seed:report": "node hono/scripts/seed-db-from-cloudinary-report.js",

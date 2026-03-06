@@ -98,3 +98,26 @@ export const users = pgTable(
     emailIdx: uniqueIndex("users_email_idx").on(table.email),
   })
 );
+
+export const authSessions = pgTable(
+  "auth_sessions",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    tokenHash: text("token_hash").notNull(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => ({
+    tokenHashIdx: uniqueIndex("auth_sessions_token_hash_idx").on(table.tokenHash),
+    userIdIdx: index("auth_sessions_user_id_idx").on(table.userId),
+    expiresAtIdx: index("auth_sessions_expires_at_idx").on(table.expiresAt),
+  })
+);

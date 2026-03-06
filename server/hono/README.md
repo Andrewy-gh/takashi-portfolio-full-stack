@@ -38,16 +38,29 @@ Local dev tips:
 - Or run `pnpm tunnel` from the repo root and copy the `CLOUDINARY_NOTIFICATION_URL=...` line it prints.
 - Or set a Cloudinary upload preset with a `notification_url` pointing to your webhook.
 
-## Auth (simple admin login)
+## Auth (session + dual compatibility)
 
-Env (pick one password option):
+Mode:
+- `AUTH_MODE=dual|better_only` (default: `dual`)
+
+Session route env:
+- `DATABASE_URL` (required)
+- `AUTH_SESSION_TTL_DAYS` (optional, default `7`, max `30`)
+
+Legacy fallback env (used only in `dual` mode):
 - `AUTH_EMAIL` (or `DASHBOARD_EMAIL`)
-- `AUTH_PASSWORD_HASH` (bcrypt hash) or `AUTH_PASSWORD` (dev only)
+- `AUTH_PASSWORD_HASH` (preferred) or `AUTH_PASSWORD` (dev only)
 - `AUTH_JWT_SECRET` (or `DASHBOARD_JWT_SECRET`)
 
 Routes (when Hono is wired):
-- `POST /api/auth/login` -> `{ token }`
-- `GET /api/auth` -> `{ ok: true, sub, role }`
+- `POST /api/auth/sign-in/email` -> validates email/password, sets `ba_session` cookie, returns `{ ok, sub, role, user }`
+- `POST /api/auth/sign-out` -> clears `ba_session` cookie
+- `GET /api/auth` -> session check payload `{ ok, sub, role, user }` or `401/403`
+- `POST /api/auth/login` -> legacy bearer token route (`dual` only), returns `410` in `better_only`
+
+Admin bootstrap:
+- Promote an existing user to admin:
+- `pnpm -C server auth:promote-admin -- --email you@example.com`
 
 ## Batch Cloudinary upload/import (one-shot)
 
