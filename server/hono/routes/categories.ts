@@ -94,7 +94,7 @@ const categoriesRoutes = new Hono()
     return c.json(payload);
   })
   .post("/", async (c) => {
-    const auth = requireAdmin(c.req.header("Authorization"));
+    const auth = await requireAdmin(c.req.raw);
     if (!auth.ok) {
       return c.json({ error: auth.error }, auth.status);
     }
@@ -182,7 +182,7 @@ const categoriesRoutes = new Hono()
     return c.json(payload);
   })
   .put("/table", async (c) => {
-    const auth = requireAdmin(c.req.header("Authorization"));
+    const auth = await requireAdmin(c.req.raw);
     if (!auth.ok) {
       return c.json({ error: auth.error }, auth.status);
     }
@@ -239,7 +239,7 @@ const categoriesRoutes = new Hono()
     return c.json(payload);
   })
   .put("/:id/images/positions", async (c) => {
-    const auth = requireAdmin(c.req.header("Authorization"));
+    const auth = await requireAdmin(c.req.raw);
     if (!auth.ok) {
       return c.json({ error: auth.error }, auth.status);
     }
@@ -338,7 +338,7 @@ const categoriesRoutes = new Hono()
     return c.json({ ok: true, images });
   })
   .post("/:id/images", async (c) => {
-    const auth = requireAdmin(c.req.header("Authorization"));
+    const auth = await requireAdmin(c.req.raw);
     if (!auth.ok) {
       return c.json({ error: auth.error }, auth.status);
     }
@@ -418,7 +418,7 @@ const categoriesRoutes = new Hono()
     });
   })
   .put("/:id", async (c) => {
-    const auth = requireAdmin(c.req.header("Authorization"));
+    const auth = await requireAdmin(c.req.raw);
     if (!auth.ok) {
       return c.json({ error: auth.error }, auth.status);
     }
@@ -481,7 +481,7 @@ const categoriesRoutes = new Hono()
     return c.json(updated[0]);
   })
   .delete("/:id", async (c) => {
-    const auth = requireAdmin(c.req.header("Authorization"));
+    const auth = await requireAdmin(c.req.raw);
     if (!auth.ok) {
       return c.json({ error: auth.error }, auth.status);
     }

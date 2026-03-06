@@ -102,7 +102,7 @@ const cloudinaryRoutes = new Hono()
     })
   )
   .post("/signature", async (c) => {
-  const auth = requireAdmin(c.req.header("Authorization"));
+  const auth = await requireAdmin(c.req.raw);
   if (!auth.ok) {
     return c.json({ error: auth.error }, auth.status);
   }
