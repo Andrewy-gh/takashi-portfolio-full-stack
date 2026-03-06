@@ -1,17 +1,23 @@
 /* eslint-disable react-refresh/only-export-components */
 import type { ReactNode } from 'react';
-import { createContext, useCallback, useContext, useMemo, useState } from 'react';
-
-export const TOKEN_STORAGE_KEY = 'takashi.dashboard.token';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import {
+  AuthSessionError,
+  getSessionUser,
+  signInWithEmail,
+  signOutSession,
+  type AuthUser,
+} from '@/lib/api';
 
 export type AuthContextValue = {
   state: {
-    token: string | null;
+    user: AuthUser | null;
+    status: 'loading' | 'authenticated' | 'unauthenticated';
   };
   actions: {
-    getToken: () => Promise<string | null>;
-    setToken: (token: string) => void;
-    signOut: () => void;
+    signIn: (credentials: { email: string; password: string }) => Promise<AuthUser>;
+    signOut: () => Promise<void>;
+    refresh: () => Promise<AuthUser | null>;
   };
   meta: {
     isSignedIn: boolean;
@@ -20,33 +26,56 @@ export type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-const readStoredToken = () => {
-  if (typeof window === 'undefined') return null;
-  return window.localStorage.getItem(TOKEN_STORAGE_KEY);
-};
-
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [token, setTokenState] = useState<string | null>(readStoredToken);
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [status, setStatus] = useState<'loading' | 'authenticated' | 'unauthenticated'>('loading');
 
-  const setToken = useCallback((nextToken: string) => {
-    setTokenState(nextToken);
-    window.localStorage.setItem(TOKEN_STORAGE_KEY, nextToken);
+  const refresh = useCallback(async () => {
+    try {
+      const nextUser = await getSessionUser();
+      setUser(nextUser);
+      setStatus('authenticated');
+      return nextUser;
+    } catch (error) {
+      setUser(null);
+      setStatus('unauthenticated');
+      if (error instanceof AuthSessionError && error.status === 403) {
+        throw error;
+      }
+      return null;
+    }
   }, []);
 
-  const signOut = useCallback(() => {
-    setTokenState(null);
-    window.localStorage.removeItem(TOKEN_STORAGE_KEY);
+  const signIn = useCallback(
+    async ({ email, password }: { email: string; password: string }) => {
+      const nextUser = await signInWithEmail({ email, password });
+      setUser(nextUser);
+      setStatus('authenticated');
+      return nextUser;
+    },
+    []
+  );
+
+  const signOut = useCallback(async () => {
+    try {
+      await signOutSession();
+    } finally {
+      setUser(null);
+      setStatus('unauthenticated');
+    }
   }, []);
 
-  const getToken = useCallback(async () => token, [token]);
+  useEffect(() => {
+    void refresh().catch(() => undefined);
+  }, [refresh]);
 
   const value = useMemo(
     () => ({
-      state: { token },
-      actions: { getToken, setToken, signOut },
-      meta: { isSignedIn: Boolean(token) },
+      state: { user, status },
+      actions: { signIn, signOut, refresh },
+      meta: { isSignedIn: status === 'authenticated' && user !== null },
     }),
-    [getToken, signOut, setToken, token]
+    [refresh, signIn, signOut, status, user]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

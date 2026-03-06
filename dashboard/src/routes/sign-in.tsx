@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/auth';
-import { readErrorMessage } from '@/lib/http';
 import { toast } from 'sonner';
 
 export const Route = createFileRoute('/sign-in')({
@@ -31,25 +30,16 @@ function RouteComponent() {
     setError('');
     setIsSubmitting(true);
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-      if (!res.ok) {
-        throw new Error(await readErrorMessage(res));
-      }
-      const payload = (await res.json()) as { token?: string };
-      if (!payload.token) {
-        throw new Error('Missing token in response');
-      }
-      actions.setToken(payload.token);
+      await actions.signIn({ email, password });
       navigate({ to: '/' });
     } catch (err) {
       const rawMessage =
         err instanceof Error ? err.message : 'Unable to sign in';
+      const normalizedMessage = rawMessage.toLowerCase();
       const message =
-        rawMessage === 'Invalid credentials'
+        normalizedMessage.includes('invalid credentials') ||
+        normalizedMessage.includes('invalid email or password') ||
+        normalizedMessage.includes('incorrect email or password')
           ? 'Incorrect email or password.'
           : rawMessage;
       setError(message);

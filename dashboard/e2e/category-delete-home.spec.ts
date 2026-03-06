@@ -5,36 +5,17 @@ import {
   cleanupE2eArtifacts,
   createE2eArtifacts,
 } from './helpers/artifacts';
+import {
+  adminCredentialsMissing,
+  apiBaseUrl,
+  apiSecret,
+  signInAsAdmin,
+} from './helpers/auth';
 
-const adminEmail =
-  process.env.AUTH_EMAIL ??
-  process.env.DASHBOARD_EMAIL ??
-  process.env.E2E_ADMIN_EMAIL;
-const adminPassword =
-  process.env.AUTH_PASSWORD ??
-  process.env.DASHBOARD_PASSWORD ??
-  process.env.E2E_ADMIN_PASSWORD;
-const apiSecret = process.env.API_SECRET ?? process.env.CLOUDINARY_API_SECRET;
-const apiBaseUrl = process.env.E2E_API_BASE_URL ?? 'http://localhost:3000';
-
-const missingEnv = !adminEmail || !adminPassword || !apiSecret;
-
-const getAdminToken = async (request: APIRequestContext) => {
-  const res = await request.post(`${apiBaseUrl}/api/auth/login`, {
-    data: { email: adminEmail, password: adminPassword },
-    headers: { 'content-type': 'application/json' },
-  });
-  expect(res.ok()).toBeTruthy();
-  const payload = (await res.json()) as { token?: string };
-  if (!payload.token) {
-    throw new Error('Missing token in /api/auth/login response');
-  }
-  return payload.token;
-};
+const missingEnv = adminCredentialsMissing || !apiSecret;
 
 const ensureHomeCategoryId = async (
-  request: APIRequestContext,
-  token: string
+  request: APIRequestContext
 ) => {
   const res = await request.get(`${apiBaseUrl}/api/categories`);
   expect(res.ok()).toBeTruthy();
@@ -44,10 +25,7 @@ const ensureHomeCategoryId = async (
 
   const createRes = await request.post(`${apiBaseUrl}/api/categories`, {
     data: { name: 'Home', description: 'Home' },
-    headers: {
-      'content-type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
+    headers: { 'content-type': 'application/json' },
   });
   expect(createRes.ok()).toBeTruthy();
   const created = (await createRes.json()) as { id: string };
@@ -112,54 +90,48 @@ const findImageIdByTitle = async (request: APIRequestContext, title: string) => 
 test.describe('Category delete keeps images in Home', () => {
   test.skip(missingEnv, 'Missing admin credentials or API_SECRET');
 
-  test('deleting a category does not orphan images from Home', async ({ request }) => {
+  test('deleting a category does not orphan images from Home', async ({ page }) => {
+    await signInAsAdmin(page);
+    const authRequest = page.request;
+
     const artifacts = createE2eArtifacts();
-    const token = await getAdminToken(request);
     const now = Date.now();
     const title = `E2E Delete ${now}`;
     const publicId = `e2e/delete/${now}-${Math.random().toString(16).slice(2)}`;
     artifacts.imagePublicIds.add(publicId);
 
     try {
-      const homeCategoryId = await ensureHomeCategoryId(request, token);
-      await sendWebhookImage(request, {
+      const homeCategoryId = await ensureHomeCategoryId(authRequest);
+      await sendWebhookImage(authRequest, {
         publicId,
         title,
       });
 
-      const imageId = await findImageIdByTitle(request, title);
+      const imageId = await findImageIdByTitle(authRequest, title);
       artifacts.imageIds.add(imageId);
 
-      const createCategoryRes = await request.post(`${apiBaseUrl}/api/categories`, {
+      const createCategoryRes = await authRequest.post(`${apiBaseUrl}/api/categories`, {
         data: { name: `E2E Delete Cat ${now}`, description: 'delete test' },
-        headers: {
-          'content-type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { 'content-type': 'application/json' },
       });
       expect(createCategoryRes.ok()).toBeTruthy();
       const category = (await createCategoryRes.json()) as { id: string };
       artifacts.categoryIds.add(category.id);
 
-      const attachRes = await request.post(
+      const attachRes = await authRequest.post(
         `${apiBaseUrl}/api/categories/${category.id}/images`,
         {
           data: { imageIds: [imageId] },
-          headers: {
-            'content-type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { 'content-type': 'application/json' },
         }
       );
       expect(attachRes.ok()).toBeTruthy();
 
-      const deleteRes = await request.delete(`${apiBaseUrl}/api/categories/${category.id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const deleteRes = await authRequest.delete(`${apiBaseUrl}/api/categories/${category.id}`);
       expect(deleteRes.ok()).toBeTruthy();
       artifacts.categoryIds.delete(category.id);
 
-      const homeDetailRes = await request.get(
+      const homeDetailRes = await authRequest.get(
         `${apiBaseUrl}/api/categories/${homeCategoryId}`
       );
       expect(homeDetailRes.ok()).toBeTruthy();
@@ -168,8 +140,7 @@ test.describe('Category delete keeps images in Home', () => {
       expect(found).toBeTruthy();
     } finally {
       await cleanupE2eArtifacts({
-        request,
-        token,
+        request: authRequest,
         artifacts,
         apiBaseUrl,
       });

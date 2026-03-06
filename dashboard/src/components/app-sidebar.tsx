@@ -79,8 +79,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { meta, actions } = useAuth();
   const navigate = useNavigate();
 
-  const handleSignOut = () => {
-    actions.signOut();
+  const handleSignOut = async () => {
+    await actions.signOut();
     navigate({ to: '/sign-in' });
   };
   return (

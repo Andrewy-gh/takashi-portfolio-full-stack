@@ -1,46 +1,26 @@
 import crypto from 'crypto';
 import { test, expect } from '@playwright/test';
-import type { APIRequestContext } from '@playwright/test';
 import {
   cleanupE2eArtifacts,
   createE2eArtifacts,
 } from './helpers/artifacts';
+import {
+  adminCredentialsMissing,
+  apiBaseUrl,
+  apiSecret,
+  signInAsAdmin,
+} from './helpers/auth';
 
-const adminEmail =
-  process.env.AUTH_EMAIL ??
-  process.env.DASHBOARD_EMAIL ??
-  process.env.E2E_ADMIN_EMAIL;
-const adminPassword =
-  process.env.AUTH_PASSWORD ??
-  process.env.DASHBOARD_PASSWORD ??
-  process.env.E2E_ADMIN_PASSWORD;
-const apiSecret = process.env.API_SECRET ?? process.env.CLOUDINARY_API_SECRET;
-const apiBaseUrl = process.env.E2E_API_BASE_URL ?? 'http://localhost:3000';
-
-const missingEnv = !adminEmail || !adminPassword || !apiSecret;
-
-const getAdminToken = async (request: APIRequestContext) => {
-  const res = await request.post(`${apiBaseUrl}/api/auth/login`, {
-    data: { email: adminEmail, password: adminPassword },
-    headers: { 'content-type': 'application/json' },
-  });
-  expect(res.ok()).toBeTruthy();
-  const payload = (await res.json()) as { token?: string };
-  if (!payload.token) {
-    throw new Error('Missing token in /api/auth/login response');
-  }
-  return payload.token;
-};
+const missingEnv = adminCredentialsMissing || !apiSecret;
 
 test.describe('Cloudinary webhook round-trip', () => {
   test.skip(missingEnv, 'Missing admin credentials or API_SECRET');
 
-  test('webhook inserts image and shows in dashboard', async ({
-    page,
-    request,
-  }) => {
+  test('webhook inserts image and shows in dashboard', async ({ page }) => {
+    await signInAsAdmin(page);
+    const authRequest = page.request;
+
     const artifacts = createE2eArtifacts();
-    const token = await getAdminToken(request);
 
     const now = Date.now();
     const title = `E2E ${now}`;
@@ -68,7 +48,7 @@ test.describe('Cloudinary webhook round-trip', () => {
         .update(`${rawBody}${timestamp}${apiSecret}`)
         .digest('hex');
 
-      const webhookRes = await request.post(
+      const webhookRes = await authRequest.post(
         `${apiBaseUrl}/api/cloudinary/webhook`,
         {
           data: rawBody,
@@ -82,11 +62,6 @@ test.describe('Cloudinary webhook round-trip', () => {
 
       expect(webhookRes.ok()).toBeTruthy();
 
-      await page.goto('/sign-in');
-      await page.getByLabel('Email').fill(adminEmail!);
-      await page.getByLabel('Password').fill(adminPassword!);
-      await page.getByRole('button', { name: 'Sign in' }).click();
-
       await page.goto('/images');
       await page.getByPlaceholder('Search').fill(title);
       await page.waitForTimeout(1100);
@@ -94,8 +69,7 @@ test.describe('Cloudinary webhook round-trip', () => {
       await expect(page.getByRole('img', { name: title })).toBeVisible();
     } finally {
       await cleanupE2eArtifacts({
-        request,
-        token,
+        request: authRequest,
         artifacts,
         apiBaseUrl,
       });
