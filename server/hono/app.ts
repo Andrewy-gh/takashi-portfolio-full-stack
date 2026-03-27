@@ -4,10 +4,10 @@ import { serveStatic } from "@hono/node-server/serve-static";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import cloudinaryRoutes from "./routes/cloudinary";
-import authRoutes from "./routes/auth";
 import imagesRoutes from "./routes/images";
 import categoriesRoutes from "./routes/categories";
 import dashboardRoutes from "./routes/dashboard";
+import { auth } from "./auth";
 
 const app = new Hono();
 
@@ -51,7 +51,7 @@ app.use(
 
 const routes = app
   .get("/health", (c) => c.json({ ok: true }))
-  .route("/api/auth", authRoutes)
+  .on(["GET", "POST"], "/api/auth/*", (c) => auth.handler(c.req.raw))
   .route("/api/cloudinary", cloudinaryRoutes)
   .route("/api/images", imagesRoutes)
   .route("/api/categories", categoriesRoutes)
