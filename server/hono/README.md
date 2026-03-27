@@ -38,27 +38,26 @@ Local dev tips:
 - Or run `pnpm tunnel` from the repo root and copy the `CLOUDINARY_NOTIFICATION_URL=...` line it prints.
 - Or set a Cloudinary upload preset with a `notification_url` pointing to your webhook.
 
-## Auth (session + dual compatibility)
+## Auth (Better Auth)
 
-Mode:
-- `AUTH_MODE=dual|better_only` (default: `dual`)
-
-Session route env:
+Runtime env:
 - `DATABASE_URL` (required)
+- `BETTER_AUTH_SECRET` (preferred)
+- `AUTH_JWT_SECRET` or `DASHBOARD_JWT_SECRET` can be reused as the Better Auth secret fallback to avoid a second production secret flip
+- `BETTER_AUTH_URL` (optional but recommended outside localhost)
 - `AUTH_SESSION_TTL_DAYS` (optional, default `7`, max `30`)
 
-Legacy fallback env (used only in `dual` mode):
+Admin bootstrap env:
 - `AUTH_EMAIL` (or `DASHBOARD_EMAIL`)
 - `AUTH_PASSWORD_HASH` (preferred) or `AUTH_PASSWORD` (dev only)
-- `AUTH_JWT_SECRET` (or `DASHBOARD_JWT_SECRET`)
+- These values are used to seed or repair the initial admin credential account when needed. They are not a separate runtime login path anymore.
 
-Routes (when Hono is wired):
-- `POST /api/auth/sign-in/email` -> validates email/password, sets `ba_session` cookie, returns `{ ok, sub, role, user }`
-- `POST /api/auth/sign-out` -> clears `ba_session` cookie
-- `GET /api/auth` -> session check payload `{ ok, sub, role, user }` or `401/403`
-- `POST /api/auth/login` -> legacy bearer token route (`dual` only), returns `410` in `better_only`
+Routes (mounted from Better Auth):
+- `POST /api/auth/sign-in/email` -> validates email/password, sets session cookie, returns Better Auth sign-in payload
+- `POST /api/auth/sign-out` -> clears the Better Auth session cookie
+- `GET /api/auth/get-session` -> returns `{ session, user }` for an authenticated request or `401`
 
-Admin bootstrap:
+Admin utilities:
 - Promote an existing user to admin:
 - `pnpm -C server auth:promote-admin -- --email you@example.com`
 
@@ -70,7 +69,7 @@ Auth smoke test env:
 
 Smoke test:
 - `pnpm -C server smoke:auth`
-- verifies invalid sign-in, session sign-in, session check, sign-out, and legacy login behavior for the active `AUTH_MODE`
+- verifies invalid sign-in, session sign-in, `get-session`, and sign-out
 
 ## Batch Cloudinary upload/import (one-shot)
 

@@ -1,8 +1,9 @@
 import type { AppType } from '@server/index';
 import { hc } from 'hono/client';
+import { createAuthClient } from 'better-auth/react';
 import { QueryClient } from '@tanstack/react-query';
 import { queryOptions } from '@tanstack/react-query';
-import { assertOk, readErrorMessage } from './http';
+import { assertOk } from './http';
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? '';
 
@@ -14,6 +15,9 @@ const authedFetch: typeof fetch = async (input, init) => {
 };
 
 export const client = hc<AppType>(apiBaseUrl, { fetch: authedFetch });
+export const authClient = createAuthClient(
+  apiBaseUrl ? { baseURL: apiBaseUrl } : undefined
+);
 
 export const queryClient = new QueryClient();
 
@@ -33,50 +37,42 @@ export class AuthSessionError extends Error {
 }
 
 type SessionPayload = {
-  sub?: unknown;
-  role?: unknown;
   user?: {
     id?: unknown;
     email?: unknown;
     role?: unknown;
-  };
+  } | null;
 };
 
 const isNonEmptyString = (value: unknown): value is string =>
   typeof value === 'string' && value.length > 0;
-
-const toApiUrl = (path: string) => (apiBaseUrl ? `${apiBaseUrl}${path}` : path);
 
 const normalizeSessionUser = (payload: SessionPayload): AuthUser => {
   const sessionUser = payload.user;
   if (sessionUser) {
     const id = sessionUser.id;
     const email = sessionUser.email;
-    const role = sessionUser.role ?? payload.role;
-    if (
-      isNonEmptyString(id) &&
-      isNonEmptyString(email) &&
-      isNonEmptyString(role)
-    ) {
+    const role = sessionUser.role;
+    if (isNonEmptyString(id) && isNonEmptyString(email) && isNonEmptyString(role)) {
       return { id, email, role };
     }
-  }
-
-  const sub = payload.sub;
-  const role = payload.role;
-  if (isNonEmptyString(sub) && isNonEmptyString(role)) {
-    return { id: sub, email: sub, role };
   }
 
   throw new Error('Invalid session response');
 };
 
 export async function getSessionUser() {
-  const res = await client.api.auth.$get();
-  if (!res.ok) {
-    throw new AuthSessionError(await readErrorMessage(res), res.status);
+  const result = await authClient.getSession();
+  if (result.error) {
+    if (result.error.status === 401) {
+      return null;
+    }
+    throw new AuthSessionError(result.error.message, result.error.status);
   }
-  const payload = (await res.json()) as SessionPayload;
+  if (!result.data) {
+    return null;
+  }
+  const payload = result.data as SessionPayload;
   return normalizeSessionUser(payload);
 }
 
@@ -87,25 +83,25 @@ export async function signInWithEmail({
   email: string;
   password: string;
 }) {
-  const res = await fetch(toApiUrl('/api/auth/sign-in/email'), {
-    method: 'POST',
-    credentials: 'include',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password }),
+  const normalizedEmail = email.trim().toLowerCase();
+  const result = await authClient.signIn.email({
+    email: normalizedEmail,
+    password,
   });
-  if (!res.ok) {
-    throw new Error(await readErrorMessage(res));
+  if (result.error) {
+    throw new Error(result.error.message);
   }
-  return await getSessionUser();
+  const user = await getSessionUser();
+  if (!user) {
+    throw new Error('Unable to load session');
+  }
+  return user;
 }
 
 export async function signOutSession() {
-  const res = await fetch(toApiUrl('/api/auth/sign-out'), {
-    method: 'POST',
-    credentials: 'include',
-  });
-  if (!res.ok && res.status !== 401) {
-    throw new Error(await readErrorMessage(res));
+  const result = await authClient.signOut();
+  if (result.error && result.error.status !== 401) {
+    throw new Error(result.error.message);
   }
 }
 

@@ -11,7 +11,6 @@ const smokePassword =
   process.env.E2E_ADMIN_PASSWORD ??
   process.env.AUTH_PASSWORD ??
   process.env.DASHBOARD_PASSWORD;
-const authMode = (process.env.AUTH_MODE ?? "dual").toLowerCase();
 
 const assertFetch = () => {
   if (typeof fetch !== "function") {
@@ -65,8 +64,8 @@ const run = async () => {
     );
   }
 
-  const unauthenticated = await request("/api/auth");
-  expectStatus(unauthenticated.res, 401, "GET /api/auth without session");
+  const unauthenticated = await request("/api/auth/get-session");
+  expectStatus(unauthenticated.res, 401, "GET /api/auth/get-session without session");
 
   const invalidSignIn = await request("/api/auth/sign-in/email", {
     method: "POST",
@@ -103,10 +102,10 @@ const run = async () => {
   const sessionCookie = getSessionCookie(signIn.res);
   ensure(sessionCookie, "sign-in response did not set a session cookie");
 
-  const authenticated = await request("/api/auth", {
+  const authenticated = await request("/api/auth/get-session", {
     headers: { cookie: sessionCookie },
   });
-  expectStatus(authenticated.res, 200, "GET /api/auth with session");
+  expectStatus(authenticated.res, 200, "GET /api/auth/get-session with session");
   ensure(
     authenticated.body?.user?.role === "admin",
     "session auth payload did not include admin role"
@@ -118,36 +117,12 @@ const run = async () => {
   });
   expectStatus(signOut.res, 200, "POST /api/auth/sign-out");
 
-  const afterSignOut = await request("/api/auth", {
+  const afterSignOut = await request("/api/auth/get-session", {
     headers: { cookie: sessionCookie },
   });
-  expectStatus(afterSignOut.res, 401, "GET /api/auth after sign-out");
+  expectStatus(afterSignOut.res, 401, "GET /api/auth/get-session after sign-out");
 
-  const legacyLogin = await request("/api/auth/login", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({
-      email: smokeEmail,
-      password: smokePassword,
-    }),
-  });
-
-  if (authMode === "dual") {
-    expectStatus(legacyLogin.res, 200, "POST /api/auth/login in dual mode");
-    ensure(
-      typeof legacyLogin.body?.token === "string" &&
-        legacyLogin.body.token.length > 0,
-      "legacy login response did not include a token"
-    );
-  } else {
-    expectStatus(
-      legacyLogin.res,
-      410,
-      "POST /api/auth/login outside dual mode"
-    );
-  }
-
-  console.log("Smoke ok: auth session + dual-mode legacy login verified.");
+  console.log("Smoke ok: Better Auth session sign-in, session check, and sign-out verified.");
 };
 
 run().catch((error) => {
